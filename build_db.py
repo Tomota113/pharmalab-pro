@@ -1,0 +1,847 @@
+import json
+
+molecules = [
+    # ==========================================
+    # PALIER I - NON OPIOÏDES
+    # ==========================================
+    {
+        "id": "paracetamol",
+        "name": "Paracétamol",
+        "dci": "Paracétamol (Acétaminophène)",
+        "brand_names": ["Doliprane®", "Dafalgan®", "Efferalgan®", "Perfalgan® (IV)"],
+        "class_name": "Antalgique antipyrétique non opioïde, non salicylé",
+        "palier": 1,
+        "palier_label": "Palier I OMS",
+        "legal_status": "Non soumis à prescription (Médicament de médication officinale) - Sous conditions de conditionnement",
+        "formula": "C8H9NO2",
+        "mol_weight": 151.16,
+        "pk": {
+            "bioavailability": "80 - 90 % (absorption intestinale rapide et passive)",
+            "tmax": "30 à 60 min (formes orales sèches), 15 min (formes effervescentes)",
+            "vd": "0.9 - 1.0 L/kg (diffusion tissulaire homogène)",
+            "protein_binding": "< 20 % (liaison très faible, pas d'interactions par déplacement)",
+            "halflife": "2 à 3 heures chez l'adulte sain (allongée à 4-8h chez le cirrhotique)",
+            "clearance": "5 mL/min/kg",
+            "ka": 1.8,
+            "ke": 0.28,
+            "therapeutic_window": "10 à 20 mg/L (seuil toxique > 120 mg/L à H4)"
+        },
+        "metabolism": {
+            "pathways": "Biotransformation hépatique majeure (95%) : 1) Glucuroconjugaison (55-60%) via UGT1A6 et UGT1A9. 2) Sulfoconjugaison (30-35%) via SULT1A1 (voie saturable à forte dose). 3) Oxydation mineure (5-10%) via CYP2E1 (et CYP1A2/2D6) produisant le N-acétyl-p-benzoquinone imine (NAPQI).",
+            "toxic_intermediate": "NAPQI : métabolite électrophile hautement réactif et hépatotoxique. À dose thérapeutique, il est immédiatement détoxifié par conjugaison avec le glutathion réduit (GSH) en dérivés mercapturiques éliminés dans les urines. Si la dose dépasse 8-10 g (ou dès 4g chez l'alcoolique chronique ou dénutri), les stocks de glutathion s'épuisent (baisse > 70%) : le NAPQI libre se lie de façon covalente aux groupements sulfhydryles (-SH) des protéines des hépatocytes, entraînant une nécrose centrolobulaire hépatique massive.",
+            "excretion": "Élimination rénale à 90% sous forme de métabolites glucuro et sulfoconjugués en 24h. Moins de 5% excrété sous forme inchangée."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Effet antalgique et antipyrétique central puissant. Au niveau cérébral, le paracétamol est désacétylé par la fatty acid amide hydrolase (FAAH) en p-aminophénol, qui se condense avec l'acide arachidonique pour former l'AM404. L'AM404 est un agoniste des récepteurs cannabinoïdes CB1 et un activateur des canaux TRPV1, inhibant la recapture de l'anandamide et stimulant les voies descendantes sérotoninergiques bulbo-spinales inhibitrices de la douleur. Inhibition peroxydase de la COX centrale en milieu intracellulaire pauvre en peroxydes.",
+            "peripheral_effect": "Faible activité anti-inflammatoire périphérique car le site peroxydase de la COX périphérique est saturé par les peroxydes lipidiques abondants générés lors de l'inflammation tissulaire."
+        },
+        "posology": {
+            "adult": "500 mg à 1 000 mg par prise, à renouveler si besoin au bout de 4 à 6 heures minimum. Ne pas dépasser 3 000 mg par jour en automédication (jusqu'à 4 000 mg/j sur avis médical formel).",
+            "pediatric": "Strictement 60 mg/kg/jour, répartis en 4 ou 6 prises, soit environ 15 mg/kg toutes les 6 heures ou 10 mg/kg toutes les 4 heures.",
+            "renal_adjustment": "Si clairance de la créatinine (DFG) < 50 mL/min : espacer obligatoirement les prises de 6 heures. Si DFG < 10 mL/min : espacer de 8 heures minimum.",
+            "elderly": "Posologie maximale limitée à 3 000 mg / 24 heures en raison de la réduction de la masse hépatique et du débit sanguin hépatique."
+        },
+        "contraindications": [
+            "Insuffisance hépatocellulaire sévère (Child-Pugh C).",
+            "Hypersensibilité au paracétamol ou aux excipients.",
+            "Phénylcétonurie (pour les formes contenant de l'aspartam)."
+        ],
+        "precautions": [
+            "Alcoolisme chronique (induction du CYP2E1 par l'éthanol + déplétion des réserves hépatiques en glutathion).",
+            "Malnutrition chronique, dénutrition, anorexie, jeûne prolongé (baisse majeure du glutathion hépatique).",
+            "Poids corporel < 50 kg : dose maximale adaptée à 60 mg/kg/j sans dépasser 3 g/j.",
+            "Déshydratation sévère."
+        ],
+        "interactions": [
+            { "drug": "Anticoagulants oraux (AVK : Warfarine, Acénocoumarol)", "level": "Précaution d'emploi", "mechanism": "La prise de paracétamol à dose maximale (4 g/j) pendant au moins 4 jours peut potentialiser l'effet de l'antivitamine K et majorer le risque hémorragique par inhibition probable de la synthèse des facteurs de coagulation ou interférence avec la vitamine K époxyde réductase. Surveillance étroite de l'INR." },
+            { "drug": "Inducteurs enzymatiques (Rifampicine, Phénytoïne, Carbamazépine, Millepertuis)", "level": "Précaution d'emploi", "mechanism": "Augmentation de la clairance du paracétamol et surproduction de NAPQI via l'induction enzymatique, majorant le risque d'hépatotoxicité à dose sub-toxique." }
+        ],
+        "antidote": {
+            "name": "N-Acétylcystéine (NAC)",
+            "protocol": "Protocole de Prescott en perfusion IV continue (ou per os si IV impossible) : 1) Dose de charge : 150 mg/kg dans 200 mL de G5% en 60 minutes. 2) Deuxième perfusion : 50 mg/kg dans 500 mL de G5% en 4 heures. 3) Troisième perfusion : 100 mg/kg dans 1 000 mL de G5% en 16 heures. Durée totale 21 heures. Efficacité quasi-parfaite si débuté dans les 8 à 10 heures suivant l'ingestion (nomogramme de Rumack-Matthew)."
+        },
+        "concours_pearl": "Piège classique d'examen : Le paracétamol N'EST PAS un AINS (pas d'effet antiagrégant plaquettaire, pas d'effet ulcérogène, pas de néphrotoxicité par vasoconstriction glomérulaire). L'intoxication aiguë débute par une phase asymptomatique ou des nausées banales à H0-H24, suivie d'une cytolyse hépatique foudroyante à H48-H72 avec élévation des ALAT > 10 000 UI/L et chute du TP."
+    },
+
+    {
+        "id": "aspirine",
+        "name": "Acide Acétylsalicylique",
+        "dci": "Acide Acétylsalicylique (Aspirine)",
+        "brand_names": ["Aspirine du Rhône®", "Aspégic®", "Kardegic® (forme antiagrégante)"],
+        "class_name": "AINS salicylé, inhibiteur irréversible des cyclo-oxygénases",
+        "palier": 1,
+        "palier_label": "Palier I OMS",
+        "legal_status": "Non soumis à prescription médicale à dose unitaire ≤ 500 mg ; Liste II au-delà",
+        "formula": "C9H8O4",
+        "mol_weight": 180.16,
+        "pk": {
+            "bioavailability": "Absorption gastrique et duodénale rapide (F = 70 % sous forme intacte)",
+            "tmax": "15 à 30 min pour l'aspirine ; 1 à 2 h pour le salicylate libéré",
+            "vd": "0.15 L/kg pour l'aspirine, 0.2 L/kg pour le salicylate (faible distribution)",
+            "protein_binding": "80 à 90 % à l'albumine (saturable aux fortes concentrations)",
+            "halflife": "15 à 20 min pour l'acide acétylsalicylique (désacétylation plasmatique rapide par les estérases) ; 2 à 3 h pour le salicylate à faible dose, jusqu'à 20-30 h à dose toxique (cinétique non linéaire de Michaelis-Menten par saturation des voies de conjugaison)",
+            "clearance": "Dépendante du pH urinaire (excrétion fortement augmentée en milieu alcalin)",
+            "ka": 2.2,
+            "ke": 0.35,
+            "therapeutic_window": "Antiagrégant : 75-160 mg/j ; Antalgique : 500-1000 mg/prise ; Anti-inflammatoire : 3-4 g/j"
+        },
+        "metabolism": {
+            "pathways": "Hydrolyse plasmatique et hépatique ultra-rapide en acide salicylique par les butyrylcholinestérases et estérases hépatiques. L'acide salicylique est ensuite conjugué dans le foie avec la glycine pour former l'acide salicylurique (voie principale saturable), et avec l'acide glucuronique pour former les glucuronides phénolique et acylique (UGT1A6).",
+            "toxic_intermediate": "À forte dose, saturation complète de la glycine N-acyltransférase : bascule d'une cinétique d'élimination d'ordre 1 vers un ordre 0 (accumulation exponentielle du salicylate libre toxique dans le plasma).",
+            "excretion": "Filtration glomérulaire et sécrétion tubulaire active. La réabsorption tubulaire passive du salicylate non ionisé dépend crucialement du pH : en urine acide (pH 5), 80% est réabsorbé ; en urine alcaline (pH 8), 80% est ionisé sous forme salicylate polaire et éliminé (base du traitement par alcalinisation au bicarbonate)."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Inhibition covalente et irréversible de COX-1 (par acétylation de la Sérine 529) et de COX-2 (Sérine 516). L'encombrement stérique de l'acétyle bloque l'accès de l'acide arachidonique au site catalytique. Comme les plaquettes sanguines sont des fragments cellulaires anucléés dépourvus de machinerie de synthèse protéique, l'inhibition de la synthèse de Thromboxane A2 (TXA2) persiste pendant toute la durée de vie de la plaquette (7 à 10 jours).",
+            "peripheral_effect": "À forte dose (> 1 g/j), inhibition de la COX-2 endothéliale et tissulaire : baisse de PGE2 et PGI2, procurant l'effet antalgique, antipyrétique et anti-inflammatoire."
+        },
+        "posology": {
+            "adult": "Antalgique/antipyrétique : 500 mg à 1 000 mg par prise, espacée de 4 à 6 h (max 3 g/jour). Antiagrégant plaquettaire : 75 mg à 160 mg une fois par jour.",
+            "pediatric": "CONTRE-INDIQUÉ en première intention lors d'affections virales fébriles (grippe, varicelle) en raison du risque mortel de Syndrome de Reye.",
+            "renal_adjustment": "Contre-indiqué si DFG < 30 mL/min en raison du risque d'insuffisance rénale aiguë par blocage des prostaglandines vasodilatatrices rénales.",
+            "elderly": "Surveillance accrue du risque d'ulcère gastro-duodénal et d'hémorragie occulte."
+        },
+        "contraindications": [
+            "Grossesse à partir du début du 6e mois (24 SA) : CONTRE-INDICATION FORMELLE ET ABSOLUE.",
+            "Ulcère gastroduodénal en évolution.",
+            "Antécédent d'asthme induit par les salicylés ou AINS (Syndrome de Widal / Triade de Fernand-Widal).",
+            "Toute maladie hémorragique constitutionnelle ou acquise.",
+            "Association avec le méthotrexate à doses > 20 mg/semaine."
+        ],
+        "precautions": [
+            "Enfant et adolescent de moins de 16 ans en cas d'épisode viral aigu (Syndrome de Reye).",
+            "Goutte : à faible dose (1-2 g/j), l'aspirine inhibe la sécrétion tubulaire d'acide urique et majore l'uricémie (effet urico-inhibiteur)."
+        ],
+        "interactions": [
+            { "drug": "Anticoagulants oraux (AVK, AOD) et Héparines", "level": "Contre-indication / Déconseillé", "mechanism": "Majoration extrême du risque hémorragique par double action : inhibition de l'hémostase primaire plaquettaire + lésion de la muqueuse gastrique + hypocoagulabilité." },
+            { "drug": "Méthotrexate", "level": "Contre-indication (> 20 mg/semaine)", "mechanism": "Déplacement du méthotrexate de ses sites de fixation aux protéines plasmatiques et inhibition de sa sécrétion tubulaire rénale, entraînant une toxicité hématologique foudroyante (aplasie médullaire)." },
+            { "drug": "Autres AINS (y compris Kétoprofène, Ibuprofène)", "level": "Association déconseillée", "mechanism": "Sommation des toxicités ulcérogènes et rénales sans surcroît d'efficacité antalgique (effet plafond)." }
+        ],
+        "antidote": {
+            "name": "Alcalinisation des urines par Bicarbonate de Sodium à 4.2% ou 8.4% IV",
+            "protocol": "Objectif : maintenir un pH urinaire entre 7.5 et 8.5 pour ioniser le salicylate (piégeage ionique tubulaire) et forcer son élimination. Hémodialyse d'urgence si salicylémie > 800-1000 mg/L, acidose métabolique réfractaire ou défaillance neurologique."
+        },
+        "concours_pearl": "Syndrome de Widal (Polypose naso-sinusienne + Asthme + Intolérance à l'aspirine/AINS) : mécanisme non allergique immuno-indépendant lié au détournement de la cascade arachidonique vers la voie de la 5-lipoxygénase (5-LOX) surproduisant des leucotriènes bronchoconstricteurs puissants (LTC4, LTD4)."
+    },
+
+    {
+        "id": "ibuprofene",
+        "name": "Ibuprofène",
+        "dci": "Ibuprofène",
+        "brand_names": ["Advil®", "Nurofen®", "Antarène®", "Spedifen® (sel d'arginine)"],
+        "class_name": "AINS dérivé de l'acide arylpropionique (propionate)",
+        "palier": 1,
+        "palier_label": "Palier I OMS",
+        "legal_status": "Accès direct officinal sous forme 200 mg et 400 mg (boîtes de courte durée) ; Liste II selon dosage",
+        "formula": "C13H18O2",
+        "mol_weight": 206.28,
+        "pk": {
+            "bioavailability": "80 à 100 % par voie orale",
+            "tmax": "1 à 2 h (comprimé classique), 30 min (sels d'arginine ou lysinate)",
+            "vd": "0.12 - 0.15 L/kg (distribution confinée à l'espace extracellulaire)",
+            "protein_binding": "> 99 % à l'albumine sérique (site de fixation de type II de Sudlow)",
+            "halflife": "1.8 à 2.5 heures (élimination rapide sans accumulation)",
+            "clearance": "50 mL/min",
+            "ka": 1.5,
+            "ke": 0.31,
+            "therapeutic_window": "Concentration active : 10 à 50 mg/L"
+        },
+        "metabolism": {
+            "pathways": "Oxydation hépatique par le CYP2C9 (et CYP2C8) en deux métabolites principaux inactifs : le 2-hydroxy-ibuprofène et le 2-carboxy-ibuprofène. Glucuroconjugaison secondaire par l'UGT2B7.",
+            "toxic_intermediate": "Pas de métabolite réactif toxique direct. La toxicité résulte de l'inhibition pharmacologique systémique des prostanoïdes protecteurs.",
+            "excretion": "Élimination urinaire rapide : 70-80% sous forme de métabolites oxydés ou glucuroconjugués en 24h. Moins de 1% excrété inchangé."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Inhibition compétitive réversible et non sélective des enzymes cyclo-oxygénases COX-1 et COX-2. La poche hydrophobe accueille la chaîne isobutyle, et le groupement carboxylique interagit avec la Tyrosine 355 et l'Arginine 120 de l'enzyme.",
+            "peripheral_effect": "Baisse locale de la synthèse de PGE2 (qui sensibilisait les nocicepteurs périphériques à la bradykinine et à l'histamine), d'où une analgésie puissante dans les douleurs inflammatoires, dentaires, articulaires et dysménorrhées."
+        },
+        "posology": {
+            "adult": "Antalgique : 200 à 400 mg par prise, 3 fois par jour au milieu des repas (max 1 200 mg/j en automédication ; jusqu'à 2 400 mg/j en rhumatologie sur ordonnance).",
+            "pediatric": "20 à 30 mg/kg/jour répartis en 3 à 4 prises (ex. Advil® suspension buvable pédiatrique avec pipette graduée en kg).",
+            "renal_adjustment": "DFG 30-59 mL/min : posologie réduite et surveillance créatinine. DFG < 30 mL/min : CONTRE-INDICATION.",
+            "elderly": "Dose minimale efficace, durée la plus brève possible, surveillance tensionnelle et rénale."
+        },
+        "contraindications": [
+            "Grossesse dès la 24e semaine d'aménorrhée (début du 6e mois) : CONTRE-INDICATION ABSOLUE.",
+            "Ulcère gastroduodénal actif ou antécédents d'hémorragie digestive sous AINS.",
+            "Insuffisance cardiaque sévère (NYHA III-IV).",
+            "Insuffisance rénale sévère (DFG < 30 mL/min).",
+            "Insuffisance hépatique sévère.",
+            "Antécédents de crise d'asthme déclenchée par AINS ou aspirine."
+        ],
+        "precautions": [
+            "Infections bactériennes courantes (angine, otite, varicelle, abcès dentaire, pneumopathie) : l'ANSM alerte sur le masquage des signes infectieux et le risque de complications septiques suppuratives graves (fasciite nécrosante, phlegmon). Privilégier le paracétamol.",
+            "Hypertension artérielle : rétention hydrosodée et réduction de l'efficacité des antihypertenseurs."
+        ],
+        "interactions": [
+            { "drug": "IEC / ARA-II + Diurétiques ('Triple Whammy')", "level": "Association déconseillée / Précaution", "mechanism": "Le diurétique réduit le volume plasmatique, l'AINS bloque la synthèse des prostaglandines vasodilatatrices de l'artériole afférente (vasoconstriction afférente), l'IEC bloque l'angiotensine II dilatant l'artériole efférente : effondrement de la pression hydrostatique glomérulaire -> Insuffisance rénale aiguë anurique." },
+            { "drug": "Lithium", "level": "Association déconseillée", "mechanism": "Baisse de l'excrétion rénale du lithium par diminution de la filtration glomérulaire : surdosage toxique en lithium (tremblements, confusion, convulsions). Surveillance lithémie obligatoire si association." },
+            { "drug": "Anticoagulants oraux (AVK, AOD)", "level": "Association déconseillée", "mechanism": "Majoration majeure du risque hémorragique digestif par fragilisation de la barrière muqueuse et action antiplaquettaire." }
+        ],
+        "antidote": {
+            "name": "Pas d'antidote spécifique (Traitement symptomatique)",
+            "protocol": "Lavage gastrique si ingestion massive précoce (< 2h). Perfusion de solutés cristalloïdes, administration d'un inhibiteur de la pompe à protons (Oméprazole IV), surveillance hydroélectrolytique et dialyse si insuffisance rénale aiguë anurique."
+        },
+        "concours_pearl": "Physiopathologie de la contre-indication chez la femme enceinte au T3 : Chez le fœtus, la perméabilité du canal artériel et la perfusion rénale sont sous la dépendance vitale des prostaglandines PGE2 et PGI2 synthétisées par la COX. L'AINS franchit librement la barrière placentaire : 1) Fermeture prématurée in utero du canal artériel -> Hypertension artérielle pulmonaire néonatale sévère et défaillance cardiaque droite. 2) Baisse de la filtration rénale fœtale -> Anurie fœtale et oligoamnios voire anamnios."
+    },
+
+    {
+        "id": "ketoprofene",
+        "name": "Kétoprofène",
+        "dci": "Kétoprofène",
+        "brand_names": ["Profénid®", "Bi-Profénid® (forme LP bicouche)", "Toprec®", "Kétum® (gel topique)"],
+        "class_name": "AINS dérivé de l'acide arylpropionique à très haute puissance anti-inflammatoire",
+        "palier": 1,
+        "palier_label": "Palier I OMS",
+        "legal_status": "Liste II pour les formes faibles (Toprec®) ; Liste I pour les formes fortes (Profénid® 100/200mg, Bi-Profénid®)",
+        "formula": "C16H14O3",
+        "mol_weight": 254.28,
+        "pk": {
+            "bioavailability": "90 % par voie orale",
+            "tmax": "1 à 1.5 h (formes conventionnelles), 2 à 3 h (Bi-Profénid LP couche retard)",
+            "vd": "0.1 - 0.2 L/kg (passage privilégié dans le liquide synovial des articulations enflammées)",
+            "protein_binding": "99 % à l'albumine sérique",
+            "halflife": "1.5 à 2 heures (demi-vie plasmatique courte mais rétention synoviale prolongée > 6h)",
+            "clearance": "75 mL/min",
+            "ka": 1.7,
+            "ke": 0.38,
+            "therapeutic_window": "Activité antalgique dès 1 à 3 mg/L"
+        },
+        "metabolism": {
+            "pathways": "Biotransformation hépatique quasi-exclusive par glucuroconjugaison directe via l'UGT2B7 en ester-glucuronide de kétoprofène.",
+            "toxic_intermediate": "L'ester-glucuronide peut subir une hydrolyse réversible in vivo régénérant du kétoprofène libre (cycle d'entéro-hépatique partiel).",
+            "excretion": "80% de la dose éliminée dans les urines sous forme glucuroconjuguée en 24 heures."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Inhibiteur puissant non sélectif des COX-1 et COX-2. Présente également une action inhibitrice accessoire sur la voie de la 5-lipoxygénase (5-LOX) réduisant la synthèse de leucotriènes chimiotactiques, et stabilise les membranes lysosomiales des neutrophiles.",
+            "peripheral_effect": "Très grande efficacité dans les poussées congestives d'arthrose, rhumatismes inflammatoires, coliques néphrétiques et douleurs post-opératoires."
+        },
+        "posology": {
+            "adult": "Comprimé à libération immédiate : 50 à 100 mg par prise. Bi-Profénid® 150 mg : 1 comprimé par jour (ou 1 comprimé matin et soir en crise aiguë, max 200 mg/j) au milieu du repas.",
+            "pediatric": "Réservé à l'enfant de plus de 15 ans pour les formes orales classiques.",
+            "renal_adjustment": "DFG < 30 mL/min : CONTRE-INDICATION FORMELLE.",
+            "elderly": "Débuter à 100 mg/j maximum. Surveillance stricte de la fonction rénale et de la tension."
+        },
+        "contraindications": [
+            "Grossesse dès 24 SA (début du 6e mois) : CONTRE-INDICATION ABSOLUE.",
+            "Ulcère gastroduodénal évolutif.",
+            "Insuffisance cardiaque, rénale ou hépatique sévère.",
+            "Asthme aux AINS (Syndrome de Widal).",
+            "Photosensibilité connue au kétoprofène ou aux dérivés du fénofibrate (notamment avec le gel cutané Kétum®)."
+        ],
+        "precautions": [
+            "Attention aux formes topiques (Kétum gel) : risque d'eczéma de contact allergique sévère avec photosensibilisation rémanente (interdiction de s'exposer au soleil pendant le traitement et 15 jours après l'arrêt)."
+        ],
+        "interactions": [
+            { "drug": "Aspirine et autres AINS", "level": "Association déconseillée", "mechanism": "Majoration synergique du risque d'ulcération gastro-intestinale et d'hémorragie." },
+            { "drug": "Méthotrexate", "level": "Contre-indication (> 20 mg/semaine)", "mechanism": "Chute de l'élimination rénale du méthotrexate et aplasie médullaire toxique." }
+        ],
+        "antidote": {
+            "name": "Traitement symptomatique en milieu hospitalier",
+            "protocol": "Protection gastrique par IPP à forte dose, maintien de la volémie par perfusion de sérum physiologique pour protéger la microcirculation rénale."
+        },
+        "concours_pearl": "Le Bi-Profénid® 150 mg est un comprimé sécable bicouche : la couche blanche libère 50 mg de kétoprofène immédiatement pour soulager la douleur en moins d'une heure, tandis que la couche jaune libère 100 mg de façon matricielle prolongée pour maintenir l'effet sur 24h."
+    },
+
+    {
+        "id": "celecoxib",
+        "name": "Célécoxib",
+        "dci": "Célécoxib",
+        "brand_names": ["Celebrex®"],
+        "class_name": "AINS sélectif de la cyclo-oxygénase 2 (Coxib / Diphénylpyrazole)",
+        "palier": 1,
+        "palier_label": "Palier I OMS (Coxib)",
+        "legal_status": "Liste I (Prescription médicale obligatoire)",
+        "formula": "C17H14F3N3O2S",
+        "mol_weight": 381.37,
+        "pk": {
+            "bioavailability": "20 à 40 % (absorption orale augmentée par la prise d'un repas riche en graisses)",
+            "tmax": "2 à 3 heures",
+            "vd": "400 L soit environ 5 à 7 L/kg (très large distribution tissulaire lipophile)",
+            "protein_binding": "97 % (fixation préférentielle à l'albumine et alpha-1-glycoprotéine acide)",
+            "halflife": "8 à 12 heures (permettant 1 à 2 prises par jour)",
+            "clearance": "500 mL/min (clairance hépatique prédominante)",
+            "ka": 0.8,
+            "ke": 0.07,
+            "therapeutic_window": "0.5 à 2 mg/L"
+        },
+        "metabolism": {
+            "pathways": "Métabolisme hépatique quasi-exclusif par le cytochrome CYP2C9 (oxydation du groupement méthyle en alcool benzylique puis acide carboxylique inactif). Glucuroconjugaison mineure.",
+            "toxic_intermediate": "Inhibiteur modéré du cytochrome CYP2D6 (peut majorer les concentrations des substrats du 2D6 comme les bêtabloquants ou les antidépresseurs).",
+            "excretion": "Élimination principalement sous forme de métabolites : 57% fécale, 27% urinaire. Moins de 3% de molécule mère inchangée dans les urines."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Inhibition hautement sélective de la COX-2 (environ 30 fois plus affin pour COX-2 que pour COX-1). La poche hydrophobe latérale de COX-2, élargie par la présence du résidu Valine 523 (au lieu de la volumineuse Isoleucine 523 dans COX-1), permet l'ancrage du groupement sulfamoyle (-SO2NH2) du célécoxib.",
+            "peripheral_effect": "Suppression puissante de la synthèse des prostaglandines inflammatoires PGE2 et PGI2 au site synovial sans altérer la synthèse de PGE2 gastrique protectrice par COX-1. Cependant, la suppression de la prostacycline endothéliale vasodilatatrice (PGI2) sans inhibition du thromboxane plaquettaire pro-agrégant (TXA2) rompt l'équilibre hémostatique au profit de la thrombose."
+        },
+        "posology": {
+            "adult": "Arthrose : 200 mg une fois par jour (ou 100 mg x 2/j). Polyarthrite rhumatoïde / Spondylarthrite : 200 mg à 400 mg par jour en 2 prises.",
+            "pediatric": "Non indiqué chez l'enfant.",
+            "renal_adjustment": "Non recommandé si DFG < 30 mL/min.",
+            "elderly": "Initier à la dose la plus faible (100 mg/j) chez les patients de moins de 50 kg ou très âgés."
+        },
+        "contraindications": [
+            "Cardiopathie ischémique avérée, artériopathie périphérique et/ou antécédent d'AVC ou AIT : CONTRE-INDICATION ABSOLUE.",
+            "Insuffisance cardiaque congestive (NYHA II à IV).",
+            "Hypertension artérielle non contrôlée de façon satisfaisante (PAS > 140 ou PAD > 90 mmHg).",
+            "Hypersensibilité connue aux sulfamides (allergie croisée via le groupement aryl-sulfonamide).",
+            "Ulcère gastrique actif.",
+            "Grossesse dès 24 SA."
+        ],
+        "precautions": [
+            "Surveillance régulière de la pression artérielle dès les 2 premières semaines de traitement (risque d'hypertension induite par rétention hydrosodée rénale).",
+            "Bien que moins ulcérogène que les AINS classiques, le risque digestif n'est pas nul chez le sujet âgé."
+        ],
+        "interactions": [
+            { "drug": "Inhibiteurs du CYP2C9 (Fluconazole)", "level": "Précaution d'emploi", "mechanism": "Le fluconazole double les concentrations plasmatiques de célécoxib par inhibition du CYP2C9. Réduire la dose de célécoxib de moitié." },
+            { "drug": "Substrats du CYP2D6 (Métoprolol, Dextrométhorphane)", "level": "Précaution d'emploi", "mechanism": "Le célécoxib inhibe le CYP2D6 et peut doubler les taux plasmatiques de métoprolol." }
+        ],
+        "antidote": {
+            "name": "Pas d'antidote spécifique",
+            "protocol": "Surveillance cardiovasculaire stricte, contrôle de l'ECG et de la tension, diurétiques de l'anse si rétention hydrosodée."
+        },
+        "concours_pearl": "Pourquoi les coxibs augmentent-ils le risque cardiovasculaire athérothrombotique ? Les cellules endothéliales vasculaires expriment COX-2 qui produit la prostacycline PGI2 (vasodilatatrice et antiagrégante). Les plaquettes sanguines n'expriment QUE COX-1 produisant le thromboxane TXA2 (vasoconstricteur et pro-agrégant). En bloquant COX-2 sans toucher à COX-1, le célécoxib supprime le frein endothélial (PGI2) laissant le champ libre au TXA2 plaquettaire : état pro-thrombotique favorisant l'infarctus du myocarde et l'AVC."
+    },
+
+    {
+        "id": "nefopam",
+        "name": "Néfopam",
+        "dci": "Chlorhydrate de Néfopam",
+        "brand_names": ["Acupan® (ampoules injectables 20 mg/2 mL)"],
+        "class_name": "Antalgique central non opioïde, non antipyrétique, dérivé de la benzoxazocine",
+        "palier": 1,
+        "palier_label": "Palier I OMS (Spécifique)",
+        "legal_status": "Liste I (Prescription médicale obligatoire, réserve hospitalière et officine sous conditions)",
+        "formula": "C17H21NO",
+        "mol_weight": 255.35,
+        "pk": {
+            "bioavailability": "Biodisponibilité par voie IM : 100 % ; IV : 100 % ; per os (utilisation hors AMM sur sucre) : variable (~30-40 %)",
+            "tmax": "30 à 60 min en IM, immédiat en IV",
+            "vd": "1.2 L/kg",
+            "protein_binding": "70 à 75 %",
+            "halflife": "4 à 5 heures",
+            "clearance": "350 mL/min",
+            "ka": 2.0,
+            "ke": 0.15,
+            "therapeutic_window": "50 à 100 ng/mL"
+        },
+        "metabolism": {
+            "pathways": "Biotransformation hépatique intensive par déméthylation et N-oxydation en dérivés désméthyl-néfopam et néfopam N-oxyde.",
+            "toxic_intermediate": "Pas de métabolite réactif spécifique.",
+            "excretion": "Excrétion urinaire à 87% (principalement sous forme de métabolites, moins de 5% sous forme inchangée) et fécale à 8%."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Inhibition puissante de la recapture des monoamines au niveau synaptique central : recapture de la sérotonine (5-HT), de la noradrénaline (NA) et de la dopamine. Il renforce ainsi l'action des voies descendantes inhibitrices de la transmission nociceptive au niveau spinal. Il possède également une action modulatrice sur les canaux sodiques voltage-dépendants et les récepteurs glutamatergiques NMDA.",
+            "peripheral_effect": "Effets anticholinergiques / parasympatholytiques et sympathomimétiques périphériques marqués (tachycardie, bouche sèche, sueurs, mydriase)."
+        },
+        "posology": {
+            "adult": "20 mg par injection IM profonde, ou 20 mg en perfusion IV lente sur 30 à 45 minutes (dilué dans du sérum physiologique ou G5%). Espacer les prises de 4 à 6 heures. Dose maximale : 120 mg / 24 heures.",
+            "pediatric": "Contre-indiqué chez l'enfant de moins de 15 ans.",
+            "renal_adjustment": "Prudence en cas d'insuffisance rénale sévère (accumulation métabolique).",
+            "elderly": "Prudence extrême en raison des effets anticholinergiques (confusion, rétention urinaire, glaucome)."
+        },
+        "contraindications": [
+            "Enfant de moins de 15 ans.",
+            "Convulsions ou antécédents d'épilepsie.",
+            "Risque de glaucome à angle fermé.",
+            "Risque de rétention aiguë d'urine liée à un obstacle urétro-prostatique.",
+            "Association aux IMAO."
+        ],
+        "precautions": [
+            "Ne JAMAIS injecter en IV directe rapide en bolus : risque de malaise vagal, nausées sévères, sueurs profuses, tachycardie réflexe et vertiges.",
+            "Usage détourné : surveillance du potentiel d'abus et de pharmacodépendance (effet stimulant dopaminergique)."
+        ],
+        "interactions": [
+            { "drug": "Médicaments atropiniques / anticholinergiques (Neuroleptiques, Antidépresseurs tricycliques, Antihistaminiques H1)", "level": "À prendre en compte", "mechanism": "Addition des effets indésirables atropiniques : constipation sévère, sécheresse buccale, risque de confusion et de rétention d'urine." },
+            { "drug": "Médicaments sérotoninergiques (Tramadol, ISRS, Triptans)", "level": "Précaution / Surveillance", "mechanism": "Majoration du risque de syndrome sérotoninergique." }
+        ],
+        "antidote": {
+            "name": "Pas d'antidote spécifique",
+            "protocol": "Traitement symptomatique en réanimation : benzodiazépines (Diazépam IV) si convulsions, surveillance cardiovasculaire continue (bêtabloquants prudents si tachycardie menaçante)."
+        },
+        "concours_pearl": "Le néfopam ne possède AUCUNE affinité pour les récepteurs opioïdes (la naloxone n'antagonise pas son effet antalgique) et ne provoque AUCUNE dépression respiratoire ni sédation motrice. Il est l'antalgique de référence de l'analgésie multimodale post-opératoire d'épargne opioïde."
+    },
+
+    # ==========================================
+    # PALIER II - OPIOÏDES FAIBLES
+    # ==========================================
+    {
+        "id": "codeine",
+        "name": "Codéine",
+        "dci": "Codéine (Méthylmorphine)",
+        "brand_names": ["Codoliprane® (Codéine + Paracétamol)", "Klipal®", "Prontalgine®", "Lindilane®", "Paderyl® (antitussif)"],
+        "class_name": "Opioïde faible de Palier II, promédicament de la morphine",
+        "palier": 2,
+        "palier_label": "Palier II OMS",
+        "legal_status": "Liste I (Obligatoirement sur ordonnance médicale depuis l'arrêté de juillet 2017)",
+        "formula": "C18H21NO3",
+        "mol_weight": 299.36,
+        "pk": {
+            "bioavailability": "50 à 70 % (faible premier passage hépatique par rapport à la morphine)",
+            "tmax": "1 heure",
+            "vd": "3.5 L/kg (large diffusion tissulaire, passage de la barrière hémato-encéphalique)",
+            "protein_binding": "10 à 25 %",
+            "halflife": "2.5 à 3.5 heures",
+            "clearance": "800 mL/min",
+            "ka": 1.9,
+            "ke": 0.23,
+            "therapeutic_window": "10 à 50 ng/mL"
+        },
+        "metabolism": {
+            "pathways": "Biotransformation hépatique majeure par 3 voies : 1) O-déméthylation par le CYP2D6 (5 à 10%) générant la MORPHINE active (seule responsable de l'effet antalgique). 2) N-déméthylation par le CYP3A4 (10-15%) en norcodéine inerte. 3) Glucuroconjugaison directe (70-80%) par l'UGT2B7 en codéine-6-glucuronide (C6G).",
+            "toxic_intermediate": "Polymorphisme génétique hautement critique du CYP2D6 : 1) Chez les métaboliseurs lents (PM, 7 à 10% de la population caucasienne, déficients en allèles fonctionnels CYP2D6) : la codéine n'est pas transformée en morphine, entraînant une inefficacité antalgique totale. 2) Chez les métaboliseurs ultra-rapides (UM, duplication du gène CYP2D6, prévalence jusqu'à 29% en Afrique de l'Est et Moyen-Orient) : la conversion en morphine est massive et ultra-rapide, entraînant un surdosage mortel en morphine même aux doses thérapeutiques usuelles !",
+            "excretion": "Élimination rénale à 86% sous forme de métabolites glucuroconjugués et dérivés libres en 24h."
+        },
+        "pharmacodynamics": {
+            "mechanism": "La codéine elle-même a une affinité très faible pour les récepteurs opioïdes mu (environ 200 fois plus faible que la morphine). Son effet antalgique repose intégralement sur sa conversion hépatique en morphine active qui se lie aux récepteurs mu-opioïdes centraux couplés aux protéines Gi, fermant les canaux calciques présynaptiques et ouvrant les canaux potassiques.",
+            "peripheral_effect": "Ralentissement du péristaltisme gastro-intestinal (constipation opioïde fréquente), effet antitussif central par dépression du centre bulbaire de la toux."
+        },
+        "posology": {
+            "adult": "30 à 60 mg de codéine par prise (souvent associée à 500 à 1000 mg de paracétamol), espacée de 4 à 6 heures. Dose maximale : 240 mg de codéine par 24 heures.",
+            "pediatric": "CONTRE-INDIQUÉ chez l'enfant de moins de 12 ans, et jusqu'à 18 ans après amygdalectomie ou adénoïdectomie pour syndrome d'apnées obstructives du sommeil.",
+            "renal_adjustment": "DFG < 50 mL/min : réduire la dose unitaire de moitié ou espacer les prises de 8 heures.",
+            "elderly": "Diminuer la posologie de moitié au départ. Prévention systématique de la constipation."
+        },
+        "contraindications": [
+            "Enfant de moins de 12 ans.",
+            "Patients connus comme métaboliseurs ultra-rapides du CYP2D6.",
+            "Femme qui allaite (risque de décès du nouveau-né par passage de morphine dans le lait maternel).",
+            "Insuffisance respiratoire sévère.",
+            "Asthme décompensé."
+        ],
+        "precautions": [
+            "Conduite de véhicules (médicament de niveau 2 : vigilance altérée, somnolence).",
+            "Alcool : potentialisation de l'effet sédatif et risque accru de dépression respiratoire."
+        ],
+        "interactions": [
+            { "drug": "Inhibiteurs puissants du CYP2D6 (Paroxétine, Fluoxétine, Bupropion, Quinidine)", "level": "Association déconseillée", "mechanism": "Blocage enzymatique du CYP2D6 : la codéine ne peut plus être convertie en morphine active -> Inefficacité antalgique complète du traitement." },
+            { "drug": "Autres dépresseurs du SNC (Benzodiazépines, Barbituriques, Alcool)", "level": "Association déconseillée / Précaution", "mechanism": "Addition des effets dépresseurs respiratoires et sédatifs pouvant conduire au coma." }
+        ],
+        "antidote": {
+            "name": "Naloxone IV (Narcan®)",
+            "protocol": "0.4 mg IV renouvelable toutes les 2-3 minutes jusqu'à récupération d'une ventilation spontanée adéquate (fréquence respiratoire > 10/min)."
+        },
+        "concours_pearl": "Pourquoi la codéine est-elle formellement contre-indiquée pendant l'allaitement ? Si la mère est métaboliseuse ultra-rapide du CYP2D6, elle produit des concentrations toxiques de morphine libre dans son sang. La morphine étant une base faible lipophile, elle franchit le tissu mammaire et se concentre dans le lait maternel (ratio lait/plasma élevé). Le nourrisson, dont l'équipement enzymatique de glucuronidation UGT2B7 est immature, accumule la morphine et succombe à une apnée fatale."
+    },
+
+    {
+        "id": "tramadol",
+        "name": "Tramadol",
+        "dci": "Chlorhydrate de Tramadol",
+        "brand_names": ["Topalgic®", "Contramal®", "Ixprim® (Tramadol 37.5mg + Paracétamol 325mg)", "Zaldiar®", "Monocrixo® (LP 24h)"],
+        "class_name": "Opioïde faible de Palier II à double mécanisme d'action (morphinomimétique et monoaminergique)",
+        "palier": 2,
+        "palier_label": "Palier II OMS",
+        "legal_status": "Liste I - Durée de prescription limitée à 12 SEMAINES (3 mois) maximum en France depuis avril 2020",
+        "formula": "C16H25NO2",
+        "mol_weight": 263.38,
+        "pk": {
+            "bioavailability": "70 % après prise unique, augmentant à 90-100 % lors de prises répétées (saturation du premier passage)",
+            "tmax": "1.5 à 2 heures (formes conventionnelles) ; 4 à 6 heures (formes LP)",
+            "vd": "2.5 à 3 L/kg (très forte fixation tissulaire)",
+            "protein_binding": "20 % (faible, peu d'interactions de déplacement)",
+            "halflife": "6 heures pour le tramadol ; 7.5 heures pour le métabolite actif O-desméthyltramadol (M1)",
+            "clearance": "450 mL/min",
+            "ka": 1.4,
+            "ke": 0.12,
+            "therapeutic_window": "100 à 300 ng/mL (seuil toxique > 800 ng/mL)"
+        },
+        "metabolism": {
+            "pathways": "Métabolisme hépatique par deux voies cytochromes majeures : 1) O-déméthylation par le CYP2D6 générant le métabolite M1 (O-desméthyltramadol), dont l'affinité pour le récepteur mu est 200 à 300 fois supérieure à celle du tramadol parent. 2) N-déméthylation par le CYP3A4 et CYP2B6 générant le métabolite M2 inactif. Conjugaison ultérieure en dérivés sulfatés et glucuronés.",
+            "toxic_intermediate": "1) Métaboliseurs lents du CYP2D6 : manque d'efficacité antalgique mais persistance des effets indésirables sérotoninergiques. 2) Métaboliseurs ultra-rapides du CYP2D6 : risque de toxicité opioïde aiguë (dépression respiratoire).",
+            "excretion": "Excrétion rénale à 90% (30% sous forme inchangée, 60% sous forme de métabolites). En cas d'insuffisance rénale, la demi-vie d'élimination du M1 est multipliée par deux."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Double mécanisme d'action analgésique synergique atypique : 1) Composante opioïde : le métabolite (+)M1 est un agoniste des récepteurs mu-opioïdes centraux. 2) Composante non opioïde monoaminergique : l'énantiomère (+)tramadol inhibe la recapture neuronale de la sérotonine (5-HT), tandis que l'énantiomère (-)tramadol inhibe la recapture de la noradrénaline (NA) et stimule les récepteurs alpha-2 adrénergiques présynaptiques. Cette double action stimule intensément les voies descendantes inhibitrices de la douleur.",
+            "peripheral_effect": "Baisse du péristaltisme digestif, nausées et vomissements fréquents par stimulation de la chemoreceptor trigger zone (CTZ) de l'area postrema."
+        },
+        "posology": {
+            "adult": "Formes immédiates : 50 à 100 mg toutes les 4 à 6 heures si besoin (max 400 mg/24h). Formes LP : 100 à 200 mg matin et soir (max 400 mg/j). Ixprim® (37.5/325 mg) : 1 à 2 comprimés par prise (max 8 cp/j).",
+            "pediatric": "Réservé à l'enfant de plus de 12 ans ou 15 ans selon la forme.",
+            "renal_adjustment": "DFG 10-30 mL/min : espacer les prises de 12 heures (max 200 mg/j). DFG < 10 mL/min : NON RECOMMANDÉ.",
+            "elderly": "Chez le sujet de plus de 75 ans, allongement de la demi-vie : posologie maximale limitée à 300 mg/j et espacer les prises."
+        },
+        "contraindications": [
+            "Insuffisance respiratoire sévère.",
+            "Épilepsie non contrôlée par un traitement (abaisse le seuil épileptogène).",
+            "Association aux IMAO non sélectifs (Iproniazide) ou sélectifs A (Moclobémide) : risque de syndrome sérotoninergique gravissime.",
+            "Intoxication aiguë par l'alcool, hypnotiques ou psychotropes.",
+            "Allaitement."
+        ],
+        "precautions": [
+            "Antécédents d'épilepsie ou prise concomitante de médicaments abaissant le seuil épileptogène (neuroleptiques, bupropion, antidépresseurs).",
+            "Risque élevé de pharmacodépendance psychique et physique et de syndrome de sevrage à l'arrêt brutal (angoisse, sudation, tremblements, diarrhée, hallucinations). Diminuer toujours les doses très progressivement.",
+            "Conduite automobile : Niveau 2 (somnolence, vertiges)."
+        ],
+        "interactions": [
+            { "drug": "Antidépresseurs ISRS (Fluoxétine, Paroxétine, Sertraline, Citalopram) et IRSNa (Venlafaxine)", "level": "Association déconseillée / Surveillance étroite", "mechanism": "1) Risque majeur de SYNDROME SÉROTONINERGIQUE (critères de Hunter : myoclonies, hyperréflexie, hyperthermie, agitation, rigidité, tachycardie). 2) De plus, la paroxétine et la fluoxétine inhibent le CYP2D6 et bloquent la formation du métabolite actif M1, détruisant l'efficacité antalgique du tramadol." },
+            { "drug": "Médicaments pro-convulsivants", "level": "Association déconseillée", "mechanism": "Addition des effets pro-épileptogènes favorisant l'apparition de crises convulsives généralisées." }
+        ],
+        "antidote": {
+            "name": "Naloxone IV (Efficacité partielle)",
+            "protocol": "La naloxone lève la dépression respiratoire et le coma opioïde, mais n'a AUCUN effet sur la composante sérotoninergique et NE RÉDUIT PAS le risque de convulsions (elle peut même majorer l'excitabilité motrice). Si convulsions : injection de Diazépam ou Clonazépam IV."
+        },
+        "concours_pearl": "Pourquoi la réglementation française du tramadol a-t-elle été durcie à 12 semaines de prescription maximale ? En raison de sa double composante (opioïde + inhibiteur de recapture monoaminergique), le tramadol présente un profil addictif singulier : effet anxiolytique et euphorisant précoce entraînant une escalade posologique et un syndrome de sevrage complexe associant un sevrage opioïde (douleurs, diarrhée) et un sevrage sérotoninergique (décharges électriques cérébrales, attaques de panique, dysphorie sévère)."
+    },
+
+    # ==========================================
+    # PALIER III - OPIOÏDES FORTS
+    # ==========================================
+    {
+        "id": "morphine",
+        "name": "Morphine",
+        "dci": "Sulfate de Morphine (oral) / Chlorhydrate de Morphine (injectable)",
+        "brand_names": ["Skenan® LP", "Kapanol® LP", "Actiskenan® LI", "Sevredol® LI", "Oramorph® (solution buvable)", "Morphine Lavoisier® (IV/SC)"],
+        "class_name": "Opioïde fort naturel de Palier III, agoniste pur des récepteurs mu",
+        "palier": 3,
+        "palier_label": "Palier III OMS",
+        "legal_status": "STUPÉFIANT (Réglementation stricte : ordonnance sécurisée, durée maximale de 28 jours, doses en toutes lettres, chevauchement interdit sauf mention expresse)",
+        "formula": "C17H19NO3",
+        "mol_weight": 285.34,
+        "pk": {
+            "bioavailability": "30 à 35 % par voie orale (effet de premier passage hépatique important) ; 100 % en SC et IV",
+            "tmax": "15 à 30 min (forme orale LI), 2 à 4 h (forme orale LP)",
+            "vd": "3 à 4 L/kg",
+            "protein_binding": "30 à 35 % (faible fixation à l'albumine)",
+            "halflife": "2 à 3 heures (élimination plasmatique rapide)",
+            "clearance": "1 000 mL/min (clairance métabolique élevée)",
+            "ka": 1.2,
+            "ke": 0.29,
+            "therapeutic_window": "Titration individuelle sans plafond absolu (analgésie guidée par l'EVA et la tolérance respiratoire)"
+        },
+        "metabolism": {
+            "pathways": "Glucuroconjugaison hépatique prédominante via l'UDP-glucuronosyltransférase UGT2B7 produisant deux métabolites polaires majeurs : 1) Morphine-3-glucuronide (M3G, 55-60%) : dénué d'activité antalgique, mais doté d'une neurotoxicité centrale (pro-convulsivant, hyperalgie paradoxale, allodynie, myoclonies). 2) Morphine-6-glucuronide (M6G, 10%) : puissant agoniste mu-opioïde, 2 à 4 fois plus puissant que la morphine mère in vivo, responsable d'une large part de l'analgésie en administration chronique.",
+            "toxic_intermediate": "Danger de l'insuffisance rénale : M3G et M6G sont des métabolites très hydrophiles éliminés exclusivement par filtration glomérulaire rénale. En cas d'altération de la fonction rénale (DFG < 30 mL/min), le M6G s'accumule massivement provoquant un coma et une bradypnée fatale, tandis que le M3G s'accumule provoquant des myoclonies et une agitation neurologique.",
+            "excretion": "Excrétion rénale à 90% (sous forme M3G et M6G, 10% morphine inchangée) et fécale à 10%."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Agoniste pur et sélectif des récepteurs mu-opioïdes (MOR, couplés aux protéines Gi/Go). Au niveau moléculaire : 1) Inhibition de l'adénylate cyclase et diminution de l'AMP cyclique intracellulaire. 2) Fermeture des canaux calciques voltage-dépendants présynaptiques (inhibition de l'exocytose des neurotransmetteurs algogènes : Substance P, glutamate, CGRP). 3) Ouverture des canaux potassiques rectifiants postsynaptiques (efflux d'ions K+ provoquant une hyperpolarisation membranaire qui bloque la transmission synaptique dans le faisceau spinothalamique).",
+            "peripheral_effect": "Action sur les récepteurs mu du tube digestif (plexus myentériques d'Auerbach) : suppression du péristaltisme propagateur, augmentation du tonus sphinctérien, dessèchement des matières fécales -> CONSTIPATION REBELLE CONSTANTE SANS AUCUNE ACCOUTUMANCE DANS LE TEMPS."
+        },
+        "posology": {
+            "adult": "Chez le patient naïf d'opioïdes forts : initiation par 60 mg/jour de morphine orale LP (ex. Skenan® LP 30 mg matin et soir), associée obligatoirement à des interdoses de morphine LI (Actiskenan® 10 mg) en cas d'accès douloureux. Titration par paliers de 30% ou 50% selon l'EVA.",
+            "breakthrough_pain": "Règle de l'accès douloureux paroxystique (ADP) : chaque interdose de morphine LI doit être égale à 1/6e ou 1/10e de la dose totale journalière de morphine de fond.",
+            "conversion_ratios": "Équivalences strictes entre les voies d'administration de la morphine : 1) Morphine Orale (Per Os) : ratio de base 1. 2) Morphine Sous-cutanée (SC) : diviser la dose orale par 2 (Ratio SC = PO / 2). 3) Morphine Intraveineuse (IV) : diviser la dose orale par 3 (Ratio IV = PO / 3).",
+            "renal_adjustment": "Contre-indiqué si DFG < 30 mL/min (risque d'accumulation toxique de M6G). Si nécessaire, espacer les prises ou basculer vers le Fentanyl dont les métabolites sont inactifs.",
+            "elderly": "Diviser les doses initiales par deux (ex. 10 mg matin et soir en LP) en raison de la sensibilité accrue des récepteurs cérébraux et de la baisse physiologique de la filtration glomérulaire."
+        },
+        "contraindications": [
+            "Insuffisance respiratoire décompensée (en l'absence de ventilation assistée mécanique).",
+            "Insuffisance rénale sévère (DFG < 30 mL/min) pour les formes à libération prolongée.",
+            "Insuffisance hépatocellulaire sévère.",
+            "Traumatisme crânien récent et hypertension intracrânienne non contrôlée (l'hypoventilation aggrave l'hypercapnie et l'œdème cérébral).",
+            "Iléus paralytique ou occlusion intestinale aiguë.",
+            "Association aux agonistes-antagonistes ou agonistes partiels (Buprénorphine, Nalbuphine)."
+        ],
+        "precautions": [
+            "PRESCRIPTION OBLIGATOIRE ET SYSTÉMATIQUE D'UN LAXATIF OSMOTIQUE (Macrogol) DÈS LE PREMIER JOUR (la tolérance s'installe pour l'analgésie, la sédation et les nausées, mais JAMAIS pour la constipation).",
+            "Prescription d'un antiémétique (Métoclopramide ou Dompéridone) pendant les premiers jours si nausées."
+        ],
+        "interactions": [
+            { "drug": "Buprénorphine (Temgesic®, Subutex®) et Nalbuphine", "level": "CONTRE-INDICATION ABSOLUE", "mechanism": "Agoniste partiel / agoniste-antagoniste à affinité réceptorielle mu extrêmement élevée mais activité intrinsèque faible : déplace brutalement la morphine de ses récepteurs -> Rupture brutale de l'analgésie et déclenchement d'un SYNDROME DE SEVRAGE AIGU IMMÉDIAT ET INTOLÉRABLE." },
+            { "drug": "Alcool et Benzodiazépines", "level": "Association déconseillée", "mechanism": "Majoration synergique de la dépression respiratoire et du risque de décès par arrêt respiratoire." }
+        ],
+        "antidote": {
+            "name": "Naloxone IV (Narcan® 0.4 mg/mL)",
+            "protocol": "Diluer 1 ampoule (0.4 mg) dans 9 mL de sérum physiologique pour obtenir 0.04 mg/mL. Injecter par bolus lents de 1 à 2 mL (0.04 à 0.08 mg) toutes les 2 à 3 minutes sous surveillance continue, jusqu'à obtention d'une fréquence respiratoire ≥ 10-12/min. Ne pas surdoser pour éviter de réveiller une douleur en éclair et un syndrome de sevrage hyperadrénergique aigu. La demi-vie de la naloxone (30-60 min) étant plus courte que celle de la morphine, surveiller la rechute respiratoire et instaurer une perfusion continue si nécessaire."
+        },
+        "concours_pearl": "Règle de rotation des opioïdes de l'ANSM : Lors du remplacement d'un opioïde fort par un autre (ex. Morphine vers Oxycodone ou Fentanyl), il faut TOUJOURS appliquer un coefficient de réduction de 25% à 50% sur la dose équi-analgésique théorique calculée. Cette décote obligatoire compense le phénomène de 'tolérance croisée incomplète' entre les molécules et protège le patient d'un surdosage accidentel mortel !"
+    },
+
+    {
+        "id": "oxycodone",
+        "name": "Oxycodone",
+        "dci": "Chlorhydrate d'Oxycodone",
+        "brand_names": ["OxyContin® LP", "OxyNorm® LI", "OxyNormoro® (comprimé orodispersible)", "Oxynaprex®"],
+        "class_name": "Opioïde fort semi-synthétique de Palier III, agoniste mu et kappa",
+        "palier": 3,
+        "palier_label": "Palier III OMS",
+        "legal_status": "STUPÉFIANT (Ordonnance sécurisée, 28 jours maximum, fractionnement obligatoire selon forme)",
+        "formula": "C18H21NO4",
+        "mol_weight": 315.36,
+        "pk": {
+            "bioavailability": "60 à 87 % par voie orale (biodisponibilité deux fois supérieure à celle de la morphine en raison d'un métabolisme de premier passage hépatique modéré)",
+            "tmax": "1 à 1.5 h (forme LI), 3 à 4 h (forme LP OxyContin)",
+            "vd": "2.6 L/kg",
+            "protein_binding": "45 %",
+            "halflife": "3 à 5 heures",
+            "clearance": "800 mL/min",
+            "ka": 1.3,
+            "ke": 0.18,
+            "therapeutic_window": "10 à 40 ng/mL"
+        },
+        "metabolism": {
+            "pathways": "Métabolisme hépatique par deux cytochromes : 1) N-déméthylation par le CYP3A4 (voie majeure, 70%) produisant la noroxycodone (antalgique très faible). 2) O-déméthylation par le CYP2D6 (voie mineure, 10-15%) produisant l'oxymorphone (antalgique puissant mais présent en très faible quantité circulante).",
+            "toxic_intermediate": "Les inhibiteurs du CYP3A4 (clarithromycine, kétoconazole, jus de pamplemousse) détournent le métabolisme vers l'oxymorphone et doublent les taux sanguins d'oxycodone, majorant le risque de surdosage.",
+            "excretion": "Excrétion rénale à 80% (sous forme de métabolites et 10-15% d'oxycodone inchangée)."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Agoniste pur des récepteurs mu-opioïdes avec une affinité complémentaire démontrée pour les récepteurs kappa-opioïdes (KOR). Cette double composante lui confère une efficacité reconnue dans les douleurs viscérales et les douleurs mixtes cancéreuses ou neuropathiques.",
+            "peripheral_effect": "Constipation, sédation et nausées similaires à la morphine, mais profil parfois mieux toléré sur le plan des hallucinations et du prurit (moindre libération d'histamine mastocytaire)."
+        },
+        "posology": {
+            "adult": "Ratio d'équi-analgésie : 1 mg d'Oxycodone orale = 1.5 à 2 mg de Morphine orale (soit une puissance environ 2 fois supérieure). Dose initiale naïve : 10 mg matin et soir en LP (OxyContin® 10 mg x 2/j) + interdoses de 5 mg LI (OxyNorm®).",
+            "breakthrough_pain": "Interdose d'OxyNorm LI = 1/6e de la dose totale journalière d'OxyContin LP.",
+            "renal_adjustment": "Accumulation moindre que la morphine chez l'insuffisant rénal léger à modéré (absence de métabolite de type M6G), mais prudence si DFG < 30 mL/min.",
+            "elderly": "Réduire la dose de moitié au départ."
+        },
+        "contraindications": [
+            "Insuffisance respiratoire sévère.",
+            "Insuffisance hépatique sévère.",
+            "Iléus paralytique.",
+            "Association aux agonistes-antagonistes opioïdes (Buprénorphine, Nalbuphine)."
+        ],
+        "precautions": [
+            "Surveillance des inhibiteurs et inducteurs enzymatiques du CYP3A4.",
+            "Laxatif osmotique obligatoire dès l'instauration."
+        ],
+        "interactions": [
+            { "drug": "Inhibiteurs puissants du CYP3A4 (Kétoconazole, Voriconazole, Érythromycine, Clarithromycine, Jus de pamplemousse)", "level": "Association déconseillée", "mechanism": "Élévation massive de l'aire sous la courbe (AUC) de l'oxycodone -> Somnolence sévère et dépression respiratoire." },
+            { "drug": "Inducteurs du CYP3A4 (Rifampicine, Millepertuis, Carbamazépine)", "level": "Précaution d'emploi", "mechanism": "Chute de 50 à 80% des taux d'oxycodone avec inefficacité analgésique complète." }
+        ],
+        "antidote": {
+            "name": "Naloxone IV (Narcan®)",
+            "protocol": "Protocole identique à celui de la morphine : bolus titrés de 0.04 à 0.08 mg IV toutes les 2 minutes."
+        },
+        "concours_pearl": "Règle de conversion pratique Morphine <-> Oxycodone : Pour passer de la morphine orale à l'oxycodone orale, on divise la dose journalière par 2 (ex. 60 mg de Morphine orale LP = 30 mg d'Oxycodone LP par jour). À l'inverse, pour passer de l'oxycodone à la morphine, on multiplie par 2."
+    },
+
+    {
+        "id": "fentanyl",
+        "name": "Fentanyl",
+        "dci": "Fentanyl",
+        "brand_names": ["Durogesic® (dispositif transdermique/patch)", "Matrifen®", "Abstral® (sublingual)", "Instanyl® (nasal)", "Pecfent® (nasal)", "Actiq® (applicateur buccal)", "Fentanyl injectable® (anesthésie)"],
+        "class_name": "Opioïde fort synthétique de Palier III dérivé de la 4-anilinopipéridine, 80 à 100 fois plus puissant que la morphine",
+        "palier": 3,
+        "palier_label": "Palier III OMS",
+        "legal_status": "STUPÉFIANT (Ordonnance sécurisée, durée max 28 jours, fractionnement obligatoire à 14 jours pour les patchs transdermiques)",
+        "formula": "C22H28N2O",
+        "mol_weight": 336.47,
+        "pk": {
+            "bioavailability": "Transdermique : 92 % (absorption cutanée continue avec constitution d'un dépôt dans le stratum corneum) ; Transmuqueux : 50 à 70 % ; Per os : 30 % (métabolisme hépatique de premier passage)",
+            "tmax": "Patch transdermique : 12 à 24 heures pour atteindre le plateau d'équilibre ; Spray nasal / sublingual : 5 à 15 minutes (action ultra-rapide)",
+            "vd": "4 à 6 L/kg (très lipophile, pénétration cérébrale instantanée)",
+            "protein_binding": "80 à 85 % à l'alpha-1-glycoprotéine acide et à l'albumine",
+            "halflife": "Patch transdermique : 17 à 24 heures après retrait du patch (relargage continu à partir du réservoir cutané) ; IV : 2 à 4 heures",
+            "clearance": "800 mL/min",
+            "ka": 0.5,
+            "ke": 0.03,
+            "therapeutic_window": "1 à 3 ng/mL pour l'analgésie"
+        },
+        "metabolism": {
+            "pathways": "Métabolisme hépatique presque exclusif par le CYP3A4 par N-désalkylation oxydative en norfentanyl, métabolite complètement INACTIF et non toxique.",
+            "toxic_intermediate": "ABSENCE DE MÉTABOLITE TOXIQUE ACTIF ACCUMULABLE EN CAS D'INSUFFISANCE RÉNALE. Le fentanyl est l'opioïde fort de choix chez l'insuffisant rénal sévère !",
+            "excretion": "Excrétion urinaire à 75% sous forme de métabolites inactifs (norfentanyl) et moins de 10% sous forme inchangée."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Agoniste pur ultra-sélectif des récepteurs mu-opioïdes. Sa lipophilie extrême lui permet de traverser la barrière hémato-encéphalique en quelques secondes, procurant une analgésie 80 à 100 fois plus puissante que celle de la morphine à poids égal.",
+            "peripheral_effect": "Rigidité musculaire à forte dose (thorax en bois en anesthésie), moindre libération d'histamine que la morphine (excellente stabilité hémodynamique sans vasodilatation brutale)."
+        },
+        "posology": {
+            "adult": "Dispositif transdermique (Durogesic®) : réservé EXCLUSIVEMENT aux patients DÉJÀ TOLÉRANTS aux opioïdes (recevant au moins 60 mg/j de morphine orale depuis au moins une semaine). Patch changé toutes les 72 heures (3 jours). Équivalence de référence : Patch 25 µg/h ≈ 60 mg de Morphine orale / 24h ; Patch 50 µg/h ≈ 120 mg/j ; Patch 75 µg/h ≈ 180 mg/j ; Patch 100 µg/h ≈ 240 mg/j.",
+            "breakthrough_pain": "Formes transmuqueuses rapides (Abstral, Instanyl, Pecfent) : indiquées UNIQUEMENT pour les accès douloureux paroxystiques de cancer chez des patients déjà sous traitement de fond opioïde continu. La dose initiale doit TOUJOURS débuter au palier le plus bas (ex. 100 µg d'Abstral) et être titrée indépendamment de la dose de fond !",
+            "renal_adjustment": "AUCUN AJUSTEMENT DE DOSE NÉCESSAIRE LIÉ AUX MÉTABOLITES. Opioïde fort de choix chez l'insuffisant rénal dialysé ou sévère.",
+            "elderly": "Prudence avec les patchs : peau atrophiée et fonte du tissu adipeux sous-cutané modifiant la pharmacocinétique de diffusion."
+        },
+        "contraindications": [
+            "PATIENT NON TOLÉRANT AUX OPIOÏDES (Naïf d'opioïdes) : CONTRE-INDICATION ABSOLUE DES PATCHS ET FORMES TRANSMUQUEUSES (risque d'apnée mortelle immédiate).",
+            "Douleurs aiguës de courte durée (post-opératoire immédiat, céphalées).",
+            "Insuffisance respiratoire sévère.",
+            "Association à la buprénorphine ou nalbuphine."
+        ],
+        "precautions": [
+            "Source de chaleur externe : NE JAMAIS EXPOSER LE PATCH À UNE SOURCE DE CHALEUR (bouillotte, coussin chauffant, sauna, bains très chauds, fièvre élevée > 39°C). La chaleur dilate les capillaires cutanés et multiplie par 2 ou 3 la vitesse de libération du fentanyl -> DÉCÈS PAR SURDOSAGE AIGU.",
+            "Lors du retrait du patch, le réservoir cutané continue de libérer du fentanyl pendant encore 12 à 24 heures."
+        ],
+        "interactions": [
+            { "drug": "Inhibiteurs puissants du CYP3A4 (Ritonavir, Clarithromycine, Kétoconazole)", "level": "Association déconseillée", "mechanism": "Blocage du catabolisme du fentanyl -> Augmentation majeure de la concentration plasmatique et risque d'arrêt respiratoire." }
+        ],
+        "antidote": {
+            "name": "Naloxone IV (Narcan®)",
+            "protocol": "Retirer immédiatement le patch transdermique et nettoyer la zone sans frotter. Injecter la naloxone en bolus titrés de 0.1 mg IV puis instaurer une perfusion continue de naloxone en raison de la persistance du réservoir cutané de fentanyl."
+        },
+        "concours_pearl": "Piège récurrent de dispensation : Pourquoi ne peut-on pas prescrire un patch de fentanyl de 25 µg/h à un patient qui n'a jamais pris d'opioïdes forts ? Parce que 25 µg/h correspond d'emblée à 60 mg/j de morphine orale. Chez un sujet naïf, une telle dose continue bloque le centre respiratoire bulbaire et provoque un coma asphyxique mortel pendant le sommeil."
+    },
+
+    # ==========================================
+    # CO-ANALGÉSIQUES / ADJUVANTS
+    # ==========================================
+    {
+        "id": "pregabaline",
+        "name": "Prégabaline",
+        "dci": "Prégabaline",
+        "brand_names": ["Lyrica®"],
+        "class_name": "Co-analgésique adjuvant, ligand de la sous-unité alpha-2-delta (α2-δ) des canaux calciques voltage-dépendants",
+        "palier": 0,
+        "palier_label": "Adjuvant / Co-analgésique",
+        "legal_status": "STUPÉFIANT ASSIMILÉ : Prescription sur ordonnance sécurisée limitée à 6 MOIS maximum en France depuis mai 2021",
+        "formula": "C8H17NO2",
+        "mol_weight": 159.23,
+        "pk": {
+            "bioavailability": "≥ 90 % indépendamment des repas (absorption saturable via le transporteur des acides aminés L)",
+            "tmax": "1 heure à jeun",
+            "vd": "0.56 L/kg",
+            "protein_binding": "0 % (aucune liaison aux protéines plasmatiques)",
+            "halflife": "6 heures",
+            "clearance": "70 mL/min (égale à la filtration glomérulaire)",
+            "ka": 1.6,
+            "ke": 0.11,
+            "therapeutic_window": "150 à 600 mg/jour"
+        },
+        "metabolism": {
+            "pathways": "NÉGLIGEABLE : moins de 1% de la dose est métabolisé dans l'organisme (dérivé N-méthylé mineur).",
+            "toxic_intermediate": "Aucun métabolite actif ou toxique.",
+            "excretion": "Excrétion rénale exclusive sous forme inchangée (98%) par filtration glomérulaire pure."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Analogue structural du GABA, mais DÉPOURVU de toute action sur les récepteurs GABAA, GABAB ou sur la recapture du GABA. Son mécanisme cible la sous-unité auxiliaire alpha-2-delta-1 (α2-δ-1) des canaux calciques voltage-dépendants pré-synaptiques (Cav2.1 et Cav2.2) surexprimés dans la corne dorsale de la moelle épinière lors d'une lésion nerveuse. La liaison réduit l'influx calcique présynaptique et diminue drastiquement la libération exocytotique de neurotransmetteurs excitateurs pro-nociceptifs (glutamate, Substance P, CGRP, noradrénaline).",
+            "peripheral_effect": "Effets sédatifs centraux, anxiolytiques, sensations vertigineuses, ataxie et prise de poids avec œdèmes périphériques."
+        },
+        "posology": {
+            "adult": "Douleurs neuropathiques périphériques et centrales : débuter par 150 mg/jour en 2 ou 3 prises (75 mg x 2/j), puis augmenter après 3 à 7 jours à 300 mg/jour selon la tolérance. Si nécessaire, palier maximal à 600 mg/jour après 7 jours supplémentaires. Toujours sevrer très progressivement.",
+            "pediatric": "Non indiqué chez l'enfant de moins de 18 ans.",
+            "renal_adjustment": "ADAPTATION OBLIGATOIRE STRICTE À LA CLAIRANCE DE LA CRÉATININE : DFG 30-60 mL/min : dose initiale 75 mg/j (max 300 mg/j) ; DFG 15-30 mL/min : dose initiale 25-50 mg/j (max 150 mg/j) ; DFG < 15 mL/min : dose max 75 mg/j en prise unique.",
+            "elderly": "Diminution systématique de la posologie guidée par le DFG calculé."
+        },
+        "contraindications": [
+            "Hypersensibilité à la prégabaline.",
+            "Grossesse (sauf nécessité absolue, tératogénicité suspectée).",
+            "Allaitement."
+        ],
+        "precautions": [
+            "Potentiel d'abus, de dépendance et d'usage récréatif majeur (recherche d'effets désinhibiteurs et empathogènes). Déclaration obligatoire des cas d'abus au centre d'addictovigilance.",
+            "Association aux opioïdes : risque décuplé de décès par dépression respiratoire synergique !",
+            "Idées et comportements suicidaires : surveillance clinique de l'humeur."
+        ],
+        "interactions": [
+            { "drug": "Opioïdes forts (Morphine, Oxycodone, Fentanyl)", "level": "Précaution majeure / Alerte ANSM", "mechanism": "Sommation des effets dépresseurs centraux sur le tronc cérébral : multiplication par 3 du risque d'arrêt respiratoire mortel en cas de coprescription à forte dose !" },
+            { "drug": "Alcool et Benzodiazépines (Lorazépam)", "level": "Association déconseillée", "mechanism": "Majoration de la sédation diurne, de l'ataxie et du risque de chutes traumatiques chez le sujet âgé." }
+        ],
+        "antidote": {
+            "name": "Pas d'antidote spécifique",
+            "protocol": "Hémodialyse très efficace (la prégabaline n'est pas liée aux protéines et est hydrosoluble : extraction de 50% de la molécule en 4h de dialyse)."
+        },
+        "concours_pearl": "Question de thérapeutique : Pourquoi les antalgiques purs (paracétamol, AINS, opioïdes faibles) sont-ils inefficaces sur les douleurs neuropathiques pures (score DN4 ≥ 4) ? Parce que la douleur neuropathique ne résulte pas d'un excès de stimulation nociceptive périphérique (qui répond aux AINS), mais d'une hyperexcitabilité neuronale autonome centrale consécutive à une déafférentation nerveuse (lésionaxonale, zona, neuropathie diabétique). Seuls les modulateurs de canaux membranaires (prégabaline/gabapentine) ou des voies descendantes monoaminergiques (antidépresseurs tricycliques/IRSNa) peuvent éteindre cette hyperactivité ectopique."
+    },
+
+    {
+        "id": "amitriptyline",
+        "name": "Amitriptyline",
+        "dci": "Chlorhydrate d'Amitriptyline",
+        "brand_names": ["Laroxyl® (comprimés et gouttes buvables 40 mg/mL)"],
+        "class_name": "Co-analgésique de première ligne dans les douleurs neuropathiques, antidépresseur tricyclique imipraminique",
+        "palier": 0,
+        "palier_label": "Adjuvant / Co-analgésique",
+        "legal_status": "Liste I (Prescription médicale obligatoire)",
+        "formula": "C20H23N",
+        "mol_weight": 277.40,
+        "pk": {
+            "bioavailability": "30 à 60 % (effet de premier passage hépatique important)",
+            "tmax": "2 à 4 heures",
+            "vd": "15 à 20 L/kg (très large diffusion tissulaire, passage transmembranaire élevé)",
+            "protein_binding": "95 %",
+            "halflife": "15 à 25 heures pour l'amitriptyline ; 20 à 40 heures pour son métabolite actif la nortriptyline",
+            "clearance": "600 mL/min",
+            "ka": 0.9,
+            "ke": 0.035,
+            "therapeutic_window": "Doses antalgiques (10 à 75 mg/j) très inférieures aux doses antidépressives (75 à 150 mg/j)"
+        },
+        "metabolism": {
+            "pathways": "Déméthylation hépatique par les cytochromes CYP2C19, CYP3A4 et CYP1A2 en son métabolite actif déméthylé : la nortriptyline. Hydroxylation secondaire par le CYP2D6.",
+            "toxic_intermediate": "Cardiotoxicité liée au blocage des canaux sodiques cardiaques de type Nav1.5 (effet stabilisant de membrane similaire aux antiarythmiques de classe Ia) en cas de surdosage : élargissement du QRS > 120 ms, torsades de pointes et arrêt cardiaque.",
+            "excretion": "Excrétion rénale sous forme de métabolites glucuroconjugués."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Inhibition puissante de la recapture présynaptique de la sérotonine (5-HT) et de la noradrénaline (NA) par blocage des transporteurs SERT et NET dans les cornes postérieures de la moelle épinière. Cette augmentation des monoamines active les récepteurs alpha-2 adrénergiques et 5-HT1A/1B postsynaptiques, restaurant l'inhibition descendante naturelle de la transmission douloureuse. Effet bloquant complémentaire sur les récepteurs NMDA et les canaux sodiques.",
+            "peripheral_effect": "Effets parasympatholytiques / anticholinergiques intenses (blocage récepteurs muscariniques M1-M5), antihistaminiques H1 (sédation marquée favorable si insomnie douloureuse) et adrénolytiques alpha-1 (hypotension orthostatique)."
+        },
+        "posology": {
+            "adult": "Douleurs neuropathiques (diabète, zona, névralgie faciale, fibromyalgie, céphalées de tension) : débuter le soir au coucher par 10 mg (soit 10 gouttes de Laroxyl® ou 1 cp à 10 mg). Augmenter très progressivement de 5 à 10 mg par semaine en fonction de la tolérance clinique. Posologie antalgique efficace habituelle : 25 mg à 75 mg le soir au coucher.",
+            "pediatric": "Réservé à l'adulte pour l'indication antalgique.",
+            "renal_adjustment": "Pas d'ajustement majeur nécessaire.",
+            "elderly": "Titration ultra-prudente (débuter à 5 mg le soir) en raison des risques de chutes, glaucome, confusion mentale et hypotension."
+        },
+        "contraindications": [
+            "Glaucome à angle fermé.",
+            "Risque de rétention aiguë d'urine (adénome prostatique).",
+            "Infarctus du myocarde récent, troubles de conduction intracardiaque (bloc auriculo-ventriculaire, bloc de branche, allongement du QT).",
+            "Association aux IMAO non sélectifs (respecter un intervalle de 15 jours entre l'arrêt de l'IMAO et le début de l'amitriptyline)."
+        ],
+        "precautions": [
+            "Réaliser impérativement un ÉLECTROCARDIOGRAMME (ECG) avant l'instauration chez le sujet âgé ou présentant des facteurs de risque cardiovasculaire.",
+            "Sécheresse buccale majeure (risque de caries galopantes : hygiène bucco-dentaire rigoureuse, substituts salivaires).",
+            "Prise de poids fréquente par stimulation de l'appétit (effet anti-H1)."
+        ],
+        "interactions": [
+            { "drug": "Médicaments allongeant l'intervalle QT (Méthadone, Macrolides, Antiarythmiques de classe Ia et III, Neuroleptiques)", "level": "Association déconseillée", "mechanism": "Majoration du risque de torsades de pointes et mort subite par syncope cardiaque." },
+            { "drug": "Tramadol", "level": "Association déconseillée / Surveillance", "mechanism": "Majoration synergique du risque convulsif et risque de syndrome sérotoninergique." }
+        ],
+        "antidote": {
+            "name": "Bicarbonate de sodium molaire à 8.4% IV",
+            "protocol": "Indiqué d'urgence en réanimation si élargissement du complexe QRS > 120 ms à l'ECG. La charge sodée rapide et l'alcalinisation plasmatique déplacent l'amitriptyline des canaux sodiques cardiaques Nav1.5 et rétablissent la conduction intracardiaque."
+        },
+        "concours_pearl": "Dans la prise en charge des douleurs neuropathiques, la cinétique de soulagement par l'amitriptyline est retardée : l'effet antalgique n'apparaît qu'au bout de 2 à 4 semaines de traitement régulier, alors que les effets indésirables sédatifs et anticholinergiques sont immédiats dès la première prise. Le pharmacien doit expliquer ce décalage pour éviter un abandon prématuré par le patient !"
+    },
+
+    # ==========================================
+    # TOXICOLOGIE & ANTIDOTES
+    # ==========================================
+    {
+        "id": "naloxone",
+        "name": "Naloxone",
+        "dci": "Chlorhydrate de Naloxone",
+        "brand_names": ["Narcan® (injectable 0.4 mg/mL)", "Prenoxad® (seringue préremplie pour usage extra-hospitalier)", "Nyxoid® (spray nasal 1.8 mg)"],
+        "class_name": "Antidote spécifique des opioïdes, antagoniste pur et compétitif des récepteurs morphiniques",
+        "palier": 99,
+        "palier_label": "Antidote Spécifique",
+        "legal_status": "Médicament d'urgence - Formes d'urgence Prenoxad et Nyxoid disponibles en kit de délivrance directe pour la prévention des surdoses d'opioïdes",
+        "formula": "C19H21NO4",
+        "mol_weight": 327.37,
+        "pk": {
+            "bioavailability": "Quasi-nulle par voie orale (< 2 %, dégradation hépatique totale) ; 100 % en IV/IM ; 50 % en pulvérisation nasale",
+            "tmax": "1 à 2 min en IV, 5 à 10 min en IM ou spray nasal",
+            "vd": "2 à 3 L/kg",
+            "protein_binding": "45 %",
+            "halflife": "30 à 60 minutes chez l'adulte (DEMI-VIE BEAUCOUP PLUS COURTE QUE CELLE DE LA MAJORITÉ DES OPIOÏDES TOXIQUES !)",
+            "clearance": "1 500 mL/min (très rapide)",
+            "ka": 3.0,
+            "ke": 0.8,
+            "therapeutic_window": "Titration jusqu'à réveil de la ventilation"
+        },
+        "metabolism": {
+            "pathways": "Glucuroconjugaison hépatique ultra-rapide par l'UGT2B7 en naloxone-3-glucuronide inactif.",
+            "toxic_intermediate": "Aucun.",
+            "excretion": "Élimination urinaire rapide sous forme glucuroconjuguée en 24h."
+        },
+        "pharmacodynamics": {
+            "mechanism": "Antagoniste pur, dénué de toute activité intrinsèque (alpha = 0), entrant en compétition directe sur les trois sous-types de récepteurs opioïdes : récepteurs mu (affinité maximale), kappa et delta. Il déplace les molécules opioïdes (morphine, héroïne, méthadone, oxycodone, codéine, fentanyl) de leurs récepteurs en moins de 90 secondes en IV, restaurant la sensibilité du centre respiratoire bulbaire au dioxyde de carbone (levée de l'apnée) et dissipant le coma.",
+            "peripheral_effect": "Restauration immédiate du péristaltisme intestinal, dilatation pupillaire (levée du myosis en tête d'épingle)."
+        },
+        "posology": {
+            "adult": "En milieu d'urgence hospitalière : bolus IV de 0.04 mg à 0.1 mg toutes les 2 minutes jusqu'à ce que la fréquence respiratoire atteigne ≥ 10-12 respirations par minute. Kit d'urgence communautaire (Prenoxad® IM ou Nyxoid® nasal) : administrer 1 dose immédiatement face à une suspicion de surdose opioïde (coma + bradypnée + myosis), appeler le 15, renouveler après 3 minutes si pas de réveil.",
+            "pediatric": "0.01 mg/kg IV en première intention.",
+            "renal_adjustment": "Pas d'ajustement nécessaire.",
+            "elderly": "Titration prudente."
+        },
+        "contraindications": [
+            "Hypersensibilité à la naloxone (en situation de menace vitale par arrêt respiratoire, il n'existe AUCUNE contre-indication absolue)."
+        ],
+        "precautions": [
+            "RECHUTE DU COMA ET DE L'APNÉE : La demi-vie d'élimination de la naloxone (30-60 min) est très inférieure à celle des opioïdes comme la morphine LP (12h), la méthadone (24-36h) ou le fentanyl TTS (24h). Le patient peut se réveiller, puis replonger dans un coma mortel lorsque la naloxone est éliminée. Surveillance hospitalière obligatoire pendant au moins 6 à 24 heures !",
+            "Syndrome de sevrage aigu provoqué chez le sujet dépendant : agitation, tachycardie, vomissements avec risque d'inhalation de liquide gastrique, crise hypertensive, œdème aigu du poumon catécholaminergique si injection d'un bolus massif brutal."
+        ],
+        "interactions": [
+            { "drug": "Opioïdes agonistes", "level": "Antagonisme pharmacodynamique direct recherché", "mechanism": "Annulation immédiate des effets antalgiques et dépresseurs respiratoires." }
+        ],
+        "antidote": {
+            "name": "N/A (Est l'antidote de référence)",
+            "protocol": "N/A"
+        },
+        "concours_pearl": "Triade clinique caractéristique du toxidrome opioïde (Overdose) : 1) Coma calme hypotonique et hyporéflexique. 2) Dépression respiratoire sévère (bradypnée < 10/min voire apnée avec cyanose). 3) Myosis bilatéral serré 'en tête d'épingle' punctiforme et symétrique. La confirmation diagnostique et thérapeutique est signée par le réveil ventilatoire immédiat après injection de Naloxone."
+    }
+]
+
+output_path = 'data/pharmacology_db.json'
+with open(output_path, 'w', encoding='utf-8') as f:
+    json.dump({"molecules": molecules, "total": len(molecules), "version": "2.0-DFGSP2"}, f, indent=2, ensure_ascii=False)
+
+print(f"Successfully wrote {len(molecules)} exhaustive drug monographs to {output_path}!")

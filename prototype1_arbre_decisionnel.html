@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 1 : Paliers OMS & Stratégie Antalgique | PharmaLab DFGSP2</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            pharma: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              200: '#99f6e4',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              800: '#115e59',
+              900: '#134e4a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-full flex flex-col antialiased selection:bg-teal-500 selection:text-white">
+
+  <!-- TOP NAVIGATION / HEADER -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-600 to-cyan-500 flex items-center justify-center text-white shadow-md shadow-teal-500/20">
+          <i data-lucide="activity" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-slate-900 to-teal-800 bg-clip-text text-transparent">PharmaLearn Pro</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">DFGSP2</span>
+          </div>
+          <p class="text-xs text-slate-500">Prototype 1 • Paliers OMS, Algorithme Décisionnel & Titration</p>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <nav class="hidden md:flex space-x-1 p-1 bg-slate-100 rounded-xl border border-slate-200/80 text-sm font-medium">
+        <button onclick="switchTab('decision-tree')" id="tab-btn-decision-tree" class="tab-btn active px-4 py-2 rounded-lg transition-all flex items-center space-x-2 bg-white text-teal-700 shadow-sm font-semibold">
+          <i data-lucide="git-branch" class="w-4 h-4"></i>
+          <span>Arbre Décisionnel</span>
+        </button>
+        <button onclick="switchTab('interaction-lab')" id="tab-btn-interaction-lab" class="tab-btn px-4 py-2 rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200/60">
+          <i data-lucide="shield-alert" class="w-4 h-4"></i>
+          <span>Règles d'Or & Associations</span>
+        </button>
+        <button onclick="switchTab('titration-calc')" id="tab-btn-titration-calc" class="tab-btn px-4 py-2 rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200/60">
+          <i data-lucide="calculator" class="w-4 h-4"></i>
+          <span>Titration & Équi-analgésie</span>
+        </button>
+        <button onclick="switchTab('mini-quiz')" id="tab-btn-mini-quiz" class="tab-btn px-4 py-2 rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200/60">
+          <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+          <span>Quiz Flash</span>
+        </button>
+      </nav>
+
+      <!-- Right status / Quick actions -->
+      <div class="flex items-center space-x-2">
+        <div class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-200/70 text-xs font-medium text-teal-700">
+          <span class="w-2 h-2 rounded-full bg-teal-500 animate-ping"></span>
+          <span>Module 1/5 Actif</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Bar -->
+    <div class="md:hidden flex overflow-x-auto border-t border-slate-200 bg-slate-50 p-1.5 gap-1 text-xs">
+      <button onclick="switchTab('decision-tree')" id="mob-tab-decision-tree" class="flex-1 py-2 px-2.5 rounded-lg font-semibold bg-white text-teal-700 shadow-sm whitespace-nowrap text-center">Arbre Décisionnel</button>
+      <button onclick="switchTab('interaction-lab')" id="mob-tab-interaction-lab" class="flex-1 py-2 px-2.5 rounded-lg font-medium text-slate-600 whitespace-nowrap text-center">Associations</button>
+      <button onclick="switchTab('titration-calc')" id="mob-tab-titration-calc" class="flex-1 py-2 px-2.5 rounded-lg font-medium text-slate-600 whitespace-nowrap text-center">Titration</button>
+      <button onclick="switchTab('mini-quiz')" id="mob-tab-mini-quiz" class="flex-1 py-2 px-2.5 rounded-lg font-medium text-slate-600 whitespace-nowrap text-center">Quiz Flash</button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- ========================================================================= -->
+    <!-- TAB 1: ARBRE DÉCISIONNEL DYNAMIQUE -->
+    <!-- ========================================================================= -->
+    <section id="section-decision-tree" class="space-y-6">
+      
+      <!-- Intro Card -->
+      <div class="bg-gradient-to-r from-teal-900 via-slate-900 to-indigo-950 text-white rounded-2xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-teal-500/20 text-teal-300 text-xs font-semibold mb-3">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span>Simulateur de Stratégie Thérapeutique</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">
+            Arbre Décisionnel Thérapeutique de la Douleur
+          </h1>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            Ajuste l'évaluation de la douleur (EVA) et le profil clinique du patient pour observer en temps réel la stratégie antalgique, les paliers OMS mobilisés et les règles d'escalade thérapeutique.
+          </p>
+        </div>
+      </div>
+
+      <!-- CONTROLS & INTERACTIVE SIMULATOR -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT COLUMN: CONTROLS PANEL (5 cols) -->
+        <div class="lg:col-span-5 space-y-5">
+          
+          <!-- 1. Intensity Slider -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+                <i data-lucide="gauge" class="w-4 h-4 text-teal-600"></i>
+                <span>1. Intensité de la Douleur (EVA / EN)</span>
+              </label>
+              <span id="eva-badge" class="px-2.5 py-1 text-sm font-bold rounded-lg bg-teal-50 text-teal-700 border border-teal-200 font-mono">
+                EVA : 2 / 10
+              </span>
+            </div>
+
+            <!-- Custom Slider -->
+            <div class="space-y-2">
+              <input type="range" id="eva-slider" min="0" max="10" value="2" step="1"
+                class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+              <div class="flex justify-between text-xs text-slate-500 font-medium px-1">
+                <span>0 (Nulle)</span>
+                <span class="text-teal-600 font-bold">1-3 (Légère)</span>
+                <span class="text-amber-600 font-bold">4-6 (Modérée)</span>
+                <span class="text-rose-600 font-bold">7-10 (Sévère)</span>
+              </div>
+            </div>
+
+            <!-- Dynamic Level Indicator Box -->
+            <div id="palier-tag-box" class="p-3 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <div id="palier-dot" class="w-3 h-3 rounded-full bg-teal-500"></div>
+                <div>
+                  <div id="palier-level-title" class="text-xs font-bold text-teal-900 uppercase tracking-wide">Palier I OMS</div>
+                  <div id="palier-level-sub" class="text-xs text-teal-700">Douleur légère à modérée • Non opioïdes</div>
+                </div>
+              </div>
+              <span id="palier-roman" class="text-xl font-extrabold text-teal-800 font-mono">I</span>
+            </div>
+          </div>
+
+          <!-- 2. Type of Pain Selector -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-3">
+            <label class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+              <i data-lucide="zap" class="w-4 h-4 text-indigo-600"></i>
+              <span>2. Typologie Physiopathologique</span>
+            </label>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button onclick="setPainType('nociceptive')" id="type-btn-nociceptive"
+                class="pain-type-btn p-3 rounded-xl border border-teal-500 bg-teal-50 text-teal-900 font-semibold text-left transition flex flex-col justify-between space-y-1">
+                <span class="flex items-center justify-between">
+                  <span class="font-bold">Nociceptive</span>
+                  <i data-lucide="check-circle" class="w-3.5 h-3.5 text-teal-600"></i>
+                </span>
+                <span class="text-[11px] text-slate-500 font-normal">Excès de stimulation (trauma, post-op, plaie)</span>
+              </button>
+
+              <button onclick="setPainType('inflammatory')" id="type-btn-inflammatory"
+                class="pain-type-btn p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 font-medium text-left transition flex flex-col justify-between space-y-1">
+                <span class="flex items-center justify-between">
+                  <span class="font-bold">Inflammatoire</span>
+                  <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-500"></i>
+                </span>
+                <span class="text-[11px] text-slate-500 font-normal">Arthrite, dysménorrhée, poussée aiguë</span>
+              </button>
+
+              <button onclick="setPainType('neuropathic')" id="type-btn-neuropathic"
+                class="pain-type-btn p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 font-medium text-left transition flex flex-col justify-between space-y-1">
+                <span class="flex items-center justify-between">
+                  <span class="font-bold">Neuropathique</span>
+                  <i data-lucide="network" class="w-3.5 h-3.5 text-purple-600"></i>
+                </span>
+                <span class="text-[11px] text-slate-500 font-normal">Lésion nerveuse, brûlures, décharges (DN4 &ge; 4)</span>
+              </button>
+
+              <button onclick="setPainType('visceral')" id="type-btn-visceral"
+                class="pain-type-btn p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 font-medium text-left transition flex flex-col justify-between space-y-1">
+                <span class="flex items-center justify-between">
+                  <span class="font-bold">Viscérale / Spasme</span>
+                  <i data-lucide="heart-pulse" class="w-3.5 h-3.5 text-rose-500"></i>
+                </span>
+                <span class="text-[11px] text-slate-500 font-normal">Colique néphrétique, spasmes digestifs</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Specific Patient Terrain Factors -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-bold text-slate-800 flex items-center space-x-2">
+                <i data-lucide="user-check" class="w-4 h-4 text-cyan-600"></i>
+                <span>3. Terrain & Facteurs de Risque</span>
+              </label>
+              <span class="text-[11px] text-slate-400">Modifier pour voir les alertes</span>
+            </div>
+            
+            <div class="space-y-2 text-xs">
+              <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer">
+                <input type="checkbox" id="terrain-grossesse" onchange="updateDecisionEngine()" class="rounded text-teal-600 focus:ring-teal-500 h-4 w-4">
+                <span class="font-medium text-slate-700">Grossesse &ge; 6e mois (ou T2/T3)</span>
+              </label>
+              <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer">
+                <input type="checkbox" id="terrain-insuffisance-renale" onchange="updateDecisionEngine()" class="rounded text-teal-600 focus:ring-teal-500 h-4 w-4">
+                <span class="font-medium text-slate-700">Insuffisance Rénale (DFG &lt; 30 mL/min)</span>
+              </label>
+              <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer">
+                <input type="checkbox" id="terrain-ulcere" onchange="updateDecisionEngine()" class="rounded text-teal-600 focus:ring-teal-500 h-4 w-4">
+                <span class="font-medium text-slate-700">Antécédent d'Ulcère Gastroduodénal évolutif</span>
+              </label>
+              <label class="flex items-center space-x-2.5 p-2 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer">
+                <input type="checkbox" id="terrain-sujet-age" onchange="updateDecisionEngine()" class="rounded text-teal-600 focus:ring-teal-500 h-4 w-4">
+                <span class="font-medium text-slate-700">Sujet Âgé (&gt; 75 ans / Fragile)</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: DYNAMIC DECISION & RECOMMENDATION (7 cols) -->
+        <div class="lg:col-span-7 space-y-5">
+          
+          <!-- Visual Decision Pathway / Flow Card -->
+          <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-5">
+            
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                <i data-lucide="git-merge" class="w-5 h-5 text-teal-600"></i>
+                <span>Arbre Décisionnel Thérapeutique</span>
+              </h2>
+              <span id="active-path-badge" class="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-mono font-semibold">
+                Stratégie : Palier I
+              </span>
+            </div>
+
+            <!-- Visual Flowchart Steps -->
+            <div class="space-y-3">
+              
+              <!-- Step 1: Évaluation -->
+              <div class="flex items-start space-x-3 p-3 rounded-xl bg-slate-50 border border-slate-200/60 transition-all">
+                <div class="w-7 h-7 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                  1
+                </div>
+                <div class="flex-1 text-xs">
+                  <div class="font-bold text-slate-700">Évaluation Clinique & Mécanisme</div>
+                  <div id="flow-step-1" class="text-slate-600 mt-0.5">
+                    Douleur légère (EVA 2), mécanisme <span class="font-semibold text-teal-700">nociceptif pur</span>.
+                  </div>
+                </div>
+                <i data-lucide="arrow-down" class="w-4 h-4 text-slate-300 self-center"></i>
+              </div>
+
+              <!-- Step 2: Choix de la Ligne Thérapeutique -->
+              <div class="flex items-start space-x-3 p-3 rounded-xl bg-slate-50 border border-slate-200/60 transition-all">
+                <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                  2
+                </div>
+                <div class="flex-1 text-xs">
+                  <div class="font-bold text-slate-700">Classe Thérapeutique Fondamentale</div>
+                  <div id="flow-step-2" class="text-slate-600 mt-0.5">
+                    Antalgique non opioïde en première intention.
+                  </div>
+                </div>
+                <i data-lucide="arrow-down" class="w-4 h-4 text-slate-300 self-center"></i>
+              </div>
+
+              <!-- Step 3: Adaptation au terrain & Sécurité -->
+              <div class="flex items-start space-x-3 p-3 rounded-xl bg-slate-50 border border-slate-200/60 transition-all">
+                <div class="w-7 h-7 rounded-lg bg-cyan-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                  3
+                </div>
+                <div class="flex-1 text-xs">
+                  <div class="font-bold text-slate-700">Filtre de Sécurité & Terrains</div>
+                  <div id="flow-step-3" class="text-slate-600 mt-0.5">
+                    Aucune contre-indication majeure sélectionnée.
+                  </div>
+                </div>
+                <i data-lucide="check" class="w-4 h-4 text-teal-600 self-center"></i>
+              </div>
+
+            </div>
+
+            <!-- Recommendation Box (Prescription Card) -->
+            <div id="recommendation-card" class="p-5 rounded-2xl bg-gradient-to-br from-teal-50/70 to-emerald-50/40 border border-teal-200/80 space-y-4">
+              
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-xs font-bold text-teal-800 uppercase tracking-wider">Proposition Thérapeutique Recommandée</span>
+                  <h3 id="rec-molecule-name" class="text-lg font-extrabold text-slate-900 mt-0.5">
+                    Paracétamol (DCI)
+                  </h3>
+                </div>
+                <span id="rec-palier-tag" class="px-2.5 py-1 text-xs font-extrabold rounded-lg bg-teal-600 text-white shadow-sm">
+                  Palier I
+                </span>
+              </div>
+
+              <!-- Prescription Details -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 bg-white rounded-xl border border-teal-100 shadow-2xs space-y-1">
+                  <span class="text-[11px] font-semibold text-slate-400 block">Posologie usuelle & maximale</span>
+                  <span id="rec-posology" class="font-bold text-slate-800 block text-sm">
+                    500 mg à 1 g / prise (max 3-4 g/j)
+                  </span>
+                  <span id="rec-posology-sub" class="text-slate-500 text-[11px] block">
+                    Espacement strict de 4 à 6 heures.
+                  </span>
+                </div>
+
+                <div class="p-3 bg-white rounded-xl border border-teal-100 shadow-2xs space-y-1">
+                  <span class="text-[11px] font-semibold text-slate-400 block">Délai & Rythme d'administration</span>
+                  <span id="rec-timing" class="font-bold text-slate-800 block text-sm">
+                    Action en 30 à 60 min
+                  </span>
+                  <span class="text-slate-500 text-[11px] block">
+                    Privilégier les prises régulières si douleur continue.
+                  </span>
+                </div>
+              </div>
+
+              <!-- Pharmaceutical Advice / Reflexe Officinal -->
+              <div class="p-3.5 bg-white/90 rounded-xl border border-teal-200/60 space-y-1.5">
+                <div class="flex items-center space-x-1.5 text-teal-900 font-bold text-xs">
+                  <i data-lucide="message-square" class="w-3.5 h-3.5 text-teal-700"></i>
+                  <span>Conseil du Pharmacien (Dispensation) :</span>
+                </div>
+                <p id="rec-pharma-advice" class="text-xs text-slate-700 leading-relaxed">
+                  Vérifier l'absence d'autres médicaments contenant du paracétamol (sirops, associations contre le rhume) pour éviter le surdosage hépatotoxique.
+                </p>
+              </div>
+
+              <!-- Specific Warning Alerts if applicable -->
+              <div id="rec-warnings" class="hidden p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
+                <div class="flex items-center space-x-1.5 font-bold">
+                  <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600"></i>
+                  <span>Alerte Clinique Particulière :</span>
+                </div>
+                <p id="rec-warning-text" class="text-amber-800 text-xs leading-relaxed"></p>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Paliers Summary Quick-Matrix -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-3">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-1.5">
+              <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+              <span>Rappel de l'Échelle OMS</span>
+            </h4>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <div class="p-2.5 rounded-xl bg-teal-50/60 border border-teal-200/60">
+                <div class="font-extrabold text-teal-800">Palier I (Non Opioïdes)</div>
+                <div class="text-[11px] text-teal-700 mt-0.5">Paracétamol, AINS (Ibuprofène, Kétoprofène), Néfopam</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-amber-50/60 border border-amber-200/60">
+                <div class="font-extrabold text-amber-800">Palier II (Opioïdes Faibles)</div>
+                <div class="text-[11px] text-amber-700 mt-0.5">Codéine, Tramadol, Poudre d'opium. Action centrale.</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-rose-50/60 border border-rose-200/60">
+                <div class="font-extrabold text-rose-800">Palier III (Opioïdes Forts)</div>
+                <div class="text-[11px] text-rose-700 mt-0.5">Morphine, Oxycodone, Fentanyl. Pas de dose plafond stricte.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 2: RÈGLES D'OR & LABO D'ASSOCIATIONS -->
+    <!-- ========================================================================= -->
+    <section id="section-interaction-lab" class="space-y-6 hidden">
+      
+      <!-- Banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-xl">
+        <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-rose-500/20 text-rose-300 text-xs font-semibold mb-3">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+          <span>Sécurité Pharmaceutique & Règles de Non-Association</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
+          Le Banc d'Essai des Associations Antalgiques
+        </h2>
+        <p class="text-slate-300 text-sm max-w-3xl leading-relaxed">
+          En pharmacologie d'officine, associer deux antalgiques peut produire une redoutable synergie bénéfique (épargne opioïde) ou un danger fatal (sevrage aigu induit, compétition des récepteurs, hémorragie, hépatotoxicité).
+        </p>
+      </div>
+
+      <!-- Association Interactive Tester -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Selection (5 cols) -->
+        <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-6">
+          <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-2">
+            <i data-lucide="flask-conical" class="w-4 h-4 text-indigo-600"></i>
+            <span>Tester une Association (2 Molécules)</span>
+          </h3>
+
+          <!-- Molecule A -->
+          <div class="space-y-2">
+            <label class="text-xs font-semibold text-slate-600 block">Médicament A :</label>
+            <select id="select-med-a" onchange="evaluateAssociation()"
+              class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 font-semibold text-slate-800 text-sm focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
+              <option value="paracetamol">Paracétamol (Palier I - Non opioïde)</option>
+              <option value="ibuprofene">Ibuprofène (Palier I - AINS)</option>
+              <option value="ketoprofene">Kétoprofène (Palier I - AINS)</option>
+              <option value="tramadol">Tramadol (Palier II - Opioïde faible + sérotoninergique)</option>
+              <option value="codeine">Codéine (Palier II - Opioïde faible promédicament)</option>
+              <option value="morphine">Morphine (Palier III - Agoniste pur &mu;)</option>
+              <option value="oxycodone">Oxycodone (Palier III - Agoniste pur)</option>
+              <option value="buprenorphine">Buprénorphine (Palier III - Agoniste partiel / haute affinité)</option>
+              <option value="pregabaline">Prégabaline (Co-analgésique - Canaux Ca2+ &alpha;2&delta;)</option>
+            </select>
+          </div>
+
+          <!-- Molecule B -->
+          <div class="space-y-2">
+            <label class="text-xs font-semibold text-slate-600 block">Médicament B :</label>
+            <select id="select-med-b" onchange="evaluateAssociation()"
+              class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 font-semibold text-slate-800 text-sm focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition">
+              <option value="tramadol">Tramadol (Palier II - Opioïde faible + sérotoninergique)</option>
+              <option value="paracetamol">Paracétamol (Palier I - Non opioïde)</option>
+              <option value="ibuprofene">Ibuprofène (Palier I - AINS)</option>
+              <option value="ketoprofene">Kétoprofène (Palier I - AINS)</option>
+              <option value="codeine">Codéine (Palier II - Opioïde faible promédicament)</option>
+              <option value="morphine">Morphine (Palier III - Agoniste pur &mu;)</option>
+              <option value="oxycodone">Oxycodone (Palier III - Agoniste pur)</option>
+              <option value="buprenorphine">Buprénorphine (Palier III - Agoniste partiel / haute affinité)</option>
+              <option value="pregabaline">Prégabaline (Co-analgésique - Canaux Ca2+ &alpha;2&delta;)</option>
+            </select>
+          </div>
+
+          <!-- Pre-set Fast Scenarios -->
+          <div class="space-y-2 pt-2 border-t border-slate-100">
+            <span class="text-xs font-bold text-slate-400 block uppercase">Cas Pièges d'Examen Fréquents :</span>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button onclick="setPreset('morphine', 'buprenorphine')" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-left truncate">
+                ⚠️ Morphine + Buprénorphine
+              </button>
+              <button onclick="setPreset('ibuprofene', 'ketoprofene')" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-left truncate">
+                ⚠️ Deux AINS associés
+              </button>
+              <button onclick="setPreset('tramadol', 'codeine')" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-left truncate">
+                ⚠️ Deux Opioïdes Palier II
+              </button>
+              <button onclick="setPreset('paracetamol', 'tramadol')" class="p-2 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 font-semibold text-left truncate">
+                ✅ Paracétamol + Tramadol
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Diagnostic Result (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          
+          <div id="assoc-result-box" class="bg-white rounded-2xl p-6 border-2 border-teal-300 shadow-md space-y-4 transition-all">
+            
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <div id="assoc-icon-container" class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center">
+                  <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                </div>
+                <div>
+                  <span id="assoc-status-label" class="text-xs font-bold uppercase tracking-wider text-teal-700">Association Synergique Valide</span>
+                  <h4 id="assoc-pair-title" class="text-base font-bold text-slate-900">Paracétamol + Tramadol</h4>
+                </div>
+              </div>
+              <span id="assoc-verdict-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-teal-100 text-teal-800 border border-teal-300">
+                AUTORISÉE &amp; RECOMMANDÉE
+              </span>
+            </div>
+
+            <!-- Pharmacology Mechanism Explanation -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center space-x-1.5">
+                <i data-lucide="book-open" class="w-3.5 h-3.5 text-indigo-600"></i>
+                <span>Mécanisme Pharmacologique de l'Association :</span>
+              </span>
+              <p id="assoc-pharmacology-text" class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                Synergie d'action reconnue (Palier I + Palier II). L'association permet un double mécanisme d'action (action centrale du paracétamol + agonisme récepteur &mu; et inhibition recapture 5-HT/NA du tramadol), favorisant une analgésie supérieure avec une moindre dose d'opioïde (effet d'épargne opioïde).
+              </p>
+            </div>
+
+            <!-- Clinical Consequence & Pharmacy Alert -->
+            <div id="assoc-clinical-box" class="p-4 rounded-xl bg-teal-50/70 border border-teal-200 text-xs space-y-1.5">
+              <span id="assoc-clinical-title" class="font-bold text-teal-900 flex items-center space-x-1.5">
+                <i data-lucide="info" class="w-4 h-4 text-teal-700"></i>
+                <span>Conseil &amp; Point Clé de Comptoir :</span>
+              </span>
+              <p id="assoc-clinical-text" class="text-teal-800 leading-relaxed">
+                Disponible en association fixe (ex: Ixprim®, Zaldiar® : 37.5 mg Tramadol + 325 mg Paracétamol). Attention à bien comptabiliser le paracétamol dans le calcul de la dose journalière maximale (3 à 4 g/j) !
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Essential 4 Golden Rules Card -->
+          <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-3">
+            <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center space-x-2">
+              <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
+              <span>Les 4 Règles d'Or Fondamentales des Paliers OMS (À Graver pour la DFGSP2)</span>
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <div class="p-3 rounded-xl bg-rose-50 border border-rose-200">
+                <span class="font-extrabold text-rose-900 block">1. Jamais deux AINS ensemble</span>
+                <span class="text-rose-700 mt-0.5 block">Effet plafond sur la douleur, mais toxicité gastro-intestinale et rénale cumulative et dramatique.</span>
+              </div>
+              <div class="p-3 rounded-xl bg-rose-50 border border-rose-200">
+                <span class="font-extrabold text-rose-900 block">2. Jamais deux Opioïdes Faibles</span>
+                <span class="text-rose-700 mt-0.5 block">Ex: Codéine + Tramadol. Majoration des toxicités (nausées, sédation, vertiges) sans aucun gain antalgique.</span>
+              </div>
+              <div class="p-3 rounded-xl bg-rose-50 border border-rose-200">
+                <span class="font-extrabold text-rose-900 block">3. Jamais Palier II + Palier III</span>
+                <span class="text-rose-700 mt-0.5 block">Compétition sur le récepteur &mu;. Si échec du Palier II, on l'arrête complètement avant de démarrer le Palier III.</span>
+              </div>
+              <div class="p-3 rounded-xl bg-rose-50 border border-rose-200">
+                <span class="font-extrabold text-rose-900 block">4. Jamais Agoniste Pur + Agoniste Partiel</span>
+                <span class="text-rose-700 mt-0.5 block">Morphine + Buprénorphine : La buprénorphine déplace la morphine par affinité extrême et induit un sevrage immédiat.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 3: TITRATION & ÉQUI-ANALGÉSIE DES OPIOÏDES -->
+    <!-- ========================================================================= -->
+    <section id="section-titration-calc" class="space-y-6 hidden">
+      
+      <div class="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-xl">
+        <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-teal-500/20 text-teal-300 text-xs font-semibold mb-3">
+          <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+          <span>Calculs Cliniques & Titration de la Morphine</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
+          Convertisseur d'Équi-analgésie & Gestion des Interdoses
+        </h2>
+        <p class="text-slate-300 text-sm max-w-3xl leading-relaxed">
+          Le maniement de la morphine exige une maîtrise parfaite des ratios de biodisponibilité (PO vs SC vs IV) et du dimensionnement des interdoses en accès douloureux paroxystique (ADP).
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Interactive Tool Form (5 cols) -->
+        <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-5">
+          <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-2">
+            <i data-lucide="sliders" class="w-4 h-4 text-teal-600"></i>
+            <span>Paramètres de la Dose Journalière</span>
+          </h3>
+
+          <!-- Molecule / Source -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-slate-700">Molécule & Voie d'Origine :</label>
+            <select id="titration-source" onchange="calculateTitration()"
+              class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-teal-500">
+              <option value="morphine-po">Morphine Orale (Per Os) [Réf = 1]</option>
+              <option value="morphine-sc">Morphine Sous-Cutanée (SC) [x 2]</option>
+              <option value="morphine-iv">Morphine Intra-Veineuse (IV) [x 3]</option>
+              <option value="oxycodone-po">Oxycodone Orale (Per Os) [x 1.5 - 2]</option>
+              <option value="tramadol-po">Tramadol Oral (Palier II) [x 0.2]</option>
+            </select>
+          </div>
+
+          <!-- Dose Input -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-slate-700">Dose Totale Reçue sur 24h :</label>
+              <span class="text-xs font-mono font-bold text-teal-700" id="dose-display">60 mg/24h</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <input type="number" id="titration-dose-input" value="60" min="5" max="1000" step="5" oninput="syncDoseSlider(); calculateTitration();"
+                class="w-24 p-2.5 rounded-xl border border-slate-300 font-mono font-bold text-base text-slate-900 text-center focus:ring-2 focus:ring-teal-500">
+              <input type="range" id="titration-dose-slider" value="60" min="5" max="300" step="5" oninput="syncDoseInput(); calculateTitration();"
+                class="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+            </div>
+          </div>
+
+          <!-- Fast Presets -->
+          <div class="space-y-2 pt-2 border-t border-slate-100">
+            <span class="text-xs font-bold text-slate-400 block uppercase">Cas Cliniques Types :</span>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <button onclick="setTitrationPreset('morphine-po', 60)" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium text-left">
+                Standard : Morphine 60 mg PO
+              </button>
+              <button onclick="setTitrationPreset('tramadol-po', 300)" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium text-left">
+                Relais : Tramadol 300 mg/j
+              </button>
+              <button onclick="setTitrationPreset('morphine-sc', 30)" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium text-left">
+                Soins palliatifs : 30 mg SC
+              </button>
+              <button onclick="setTitrationPreset('oxycodone-po', 40)" class="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium text-left">
+                Oxycodone : 40 mg PO
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Equivalence Results (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          
+          <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+                <i data-lucide="arrow-right-left" class="w-4 h-4 text-teal-600"></i>
+                <span>Tableau d'Équivalence & Titration Équi-analgésique</span>
+              </h3>
+              <span class="text-xs font-mono bg-teal-50 text-teal-700 px-2 py-0.5 rounded font-bold">Ratios Officiels DFGSP2</span>
+            </div>
+
+            <!-- Equi-analgesic Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+              
+              <!-- Morphine Orale -->
+              <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+                <div>
+                  <span class="text-[11px] font-bold text-slate-400 uppercase">Morphine Orale (PO)</span>
+                  <div id="res-morphine-po" class="text-2xl font-black text-slate-900 font-mono my-1.5">60 mg</div>
+                </div>
+                <span class="text-[11px] text-slate-500">Forme LP : 30 mg matin & soir</span>
+              </div>
+
+              <!-- Morphine SC -->
+              <div class="p-4 rounded-xl bg-teal-50 border border-teal-200 flex flex-col justify-between">
+                <div>
+                  <span class="text-[11px] font-bold text-teal-700 uppercase">Morphine Sous-Cutanée (SC)</span>
+                  <div id="res-morphine-sc" class="text-2xl font-black text-teal-900 font-mono my-1.5">30 mg</div>
+                </div>
+                <span class="text-[11px] text-teal-700 font-medium">Règle : Diviser par 2 la dose PO</span>
+              </div>
+
+              <!-- Morphine IV -->
+              <div class="p-4 rounded-xl bg-indigo-50 border border-indigo-200 flex flex-col justify-between">
+                <div>
+                  <span class="text-[11px] font-bold text-indigo-700 uppercase">Morphine Intra-Veineuse (IV)</span>
+                  <div id="res-morphine-iv" class="text-2xl font-black text-indigo-900 font-mono my-1.5">20 mg</div>
+                </div>
+                <span class="text-[11px] text-indigo-700 font-medium">Règle : Diviser par 3 la dose PO</span>
+              </div>
+
+            </div>
+
+            <!-- Interdose / ADP Section -->
+            <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold text-amber-900 flex items-center space-x-1.5">
+                  <i data-lucide="zap" class="w-4 h-4 text-amber-600"></i>
+                  <span>Calcul d'Interdose pour Accès Douloureux Paroxystique (ADP)</span>
+                </span>
+                <span class="text-xs font-mono font-bold bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded">Règle du 1/6e ou 1/10e</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="bg-white p-3 rounded-lg border border-amber-200">
+                  <span class="text-slate-500 font-medium block">Dose unitaire d'interdose (Morphine LI) :</span>
+                  <span id="res-interdose" class="text-base font-black text-amber-900 font-mono block mt-0.5">
+                    10 mg par prise (LI)
+                  </span>
+                  <span class="text-[11px] text-slate-500 block mt-1">Gélule ou solution buvable à libération immédiate.</span>
+                </div>
+
+                <div class="bg-white p-3 rounded-lg border border-amber-200">
+                  <span class="text-slate-500 font-medium block">Délai minimal entre deux interdoses :</span>
+                  <span class="text-base font-black text-slate-800 font-mono block mt-0.5">
+                    &ge; 4 heures (PO) / &ge; 1 heure (SC/IV)
+                  </span>
+                  <span class="text-[11px] text-slate-500 block mt-1">Si &gt; 4 interdoses / 24h : réévaluer et augmenter la dose de fond LP !</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mandatory Prescription Rules (Stupéfiants en France) -->
+            <div class="p-3.5 rounded-xl bg-slate-900 text-slate-200 text-xs space-y-2">
+              <div class="font-bold text-teal-400 flex items-center space-x-1.5">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span>Réglementation Officinale des Stupéfiants (Code de la Santé Publique) :</span>
+              </div>
+              <ul class="list-disc list-inside space-y-1 text-slate-300 text-[11px]">
+                <li>Prescription sur <strong class="text-white">ordonnance sécurisée</strong>, doses et unités rédigées <strong class="text-white">en toutes lettres</strong>.</li>
+                <li>Durée maximale de prescription : <strong class="text-white">28 jours</strong> (formes orales), fractionnée pour certaines formes (fentanyl TTS 28 jours avec fractionnement de 14 jours ; formes injectables souvent 7 jours sauf systèmes de perfusion).</li>
+                <li>Chevauchement interdit sauf mention expresse du médecin prescripteur.</li>
+                <li><strong class="text-teal-300">Co-prescription réflexe obligatoire :</strong> Laxatif osmotique ou stimulant systématique dès l'initiation (absence d'accoutumance à la constipation opioïde !).</li>
+              </ul>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 4: MINI-QUIZ D'ANCRAGE ACTIF EXPRESS -->
+    <!-- ========================================================================= -->
+    <section id="section-mini-quiz" class="space-y-6 hidden">
+      
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-xl">
+        <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-md bg-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3">
+          <i data-lucide="brain-circuit" class="w-3.5 h-3.5"></i>
+          <span>Ancrage Mémoriel Actif • DFGSP2</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight mb-2">
+          Mini-Test d'Évaluation Clinique Immédiate
+        </h2>
+        <p class="text-slate-300 text-sm max-w-3xl leading-relaxed">
+          3 questions ciblées sur les notions de cours les plus discriminantes aux examens de pharmacologie et au comptoir d'officine.
+        </p>
+      </div>
+
+      <div class="max-w-3xl mx-auto space-y-5">
+        
+        <!-- Question 1 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+          <div class="flex items-start justify-between">
+            <span class="text-xs font-bold px-2 py-1 rounded bg-teal-100 text-teal-800">Question 1 / 3</span>
+            <span class="text-xs text-slate-400 font-mono">Paliers &amp; Récepteurs</span>
+          </div>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900">
+            Un patient sous Morphine orale 90 mg/j arrive avec une ordonnance associant de la Buprénorphine sublinguale. Quelle est l'attitude immédiate du pharmacien ?
+          </h3>
+          
+          <div class="space-y-2 text-xs sm:text-sm">
+            <button onclick="answerQuiz(1, 'A', false)" class="quiz-btn-1 w-full p-3 rounded-xl border border-slate-200 text-left hover:bg-slate-50 transition flex items-center justify-between">
+              <span>A. Délivrer sans réserve, la synergie améliore le contrôle des douleurs réfractaires.</span>
+              <span class="quiz-badge-1 hidden"></span>
+            </button>
+            <button onclick="answerQuiz(1, 'B', true)" class="quiz-btn-1 w-full p-3 rounded-xl border border-slate-200 text-left hover:bg-slate-50 transition flex items-center justify-between">
+              <span>B. Refuser la dispensation : risque majeur de rupture de l'analgésie et de syndrome de sevrage aigu induit.</span>
+              <span class="quiz-badge-1 hidden"></span>
+            </button>
+            <button onclick="answerQuiz(1, 'C', false)" class="quiz-btn-1 w-full p-3 rounded-xl border border-slate-200 text-left hover:bg-slate-50 transition flex items-center justify-between">
+              <span>C. Délivrer en diminuant la dose de buprénorphine de moitié.</span>
+              <span class="quiz-badge-1 hidden"></span>
+            </button>
+          </div>
+
+          <div id="quiz-feedback-1" class="hidden p-4 rounded-xl text-xs leading-relaxed"></div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+          <div class="flex items-start justify-between">
+            <span class="text-xs font-bold px-2 py-1 rounded bg-teal-100 text-teal-800">Question 2 / 3</span>
+            <span class="text-xs text-slate-400 font-mono">Biodisponibilité &amp; Voies</span>
+          </div>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900">
+            Un patient hospitalisé reçoit 60 mg/24h de Morphine par voie Sous-Cutanée (SC). En vue d'un retour à domicile, on bascule vers la Morphine orale (Per Os). Quelle dose totale journalière de morphine per os faut-il prescrire ?
+          </h3>
+          
+          <div class="space-y-2 text-xs sm:text-sm">
+            <button onclick="answerQuiz(2, 'A', false)" class="quiz-btn-2 w-full p-3 rounded-xl border border-slate-200 text-left hover:bg-slate-50 transition flex items-center justify-between">
+              <span>A. 30 mg / 24h per os</span>
+              <span class="quiz-badge-2 hidden"></span>
+            </button>
+            <button onclick="answerQuiz(2, 'B', false)" class="quiz-btn-2 w-full p-3 rounded-xl border border-slate-200 text-left hover:bg-slate-50 transition flex items-center justify-between">
+              <span>B. 60 mg / 24h per os (dose identique)</span>
+              <span class="quiz-badge-2 hidden"></span>
+            </button>
+            <button onclick="answerQuiz(2, 'C', true)" class="quiz-btn-2 w-full p-3 rounded-xl border border-slate-200 text-left hover:bg-slate-50 transition flex items-center justify-between">
+              <span>C. 120 mg / 24h per os (ratio x 2 en raison du premier passage hépatique)</span>
+              <span class="quiz-badge-2 hidden"></span>
+            </button>
+          </div>
+
+          <div id="quiz-feedback-2" class="hidden p-4 rounded-xl text-xs leading-relaxed"></div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm space-y-4">
+          <div class="flex items-start justify-between">
+            <span class="text-xs font-bold px-2 py-1 rounded bg-teal-100 text-teal-800">Question 3 / 3</span>
+            <span class="text-xs text-slate-400 font-mono">Terrains &amp; Sécurité</span>
+          </div>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900">
+            Une patiente enceinte de 7 mois (31 SA) se présente pour des douleurs dentaires intenses. Elle demande de l'ibuprofène qu'elle prend d'habitude. Que répondez-vous ?
+          </h3>
+          
+          <div class="space-y-2 text-xs sm:text-sm">
+            <button onclick="answerQuiz(3, 'A', true)" class="quiz-btn-3 w-full p-3 rounded-xl border border-slate-200 text-left hover:bg-slate-50 transition flex items-center justify-between">
+              <span>A. Contre-indication formelle et absolue des AINS dès le début du 6e mois (fermeture prématurée du canal artériel fœtal et insuffisance rénale). Orienter vers le Paracétamol.</span>
+              <span class="quiz-badge-3 hidden"></span>
+            </button>
+            <button onclick="answerQuiz(3, 'B', false)" class="quiz-btn-3 w-full p-3 rounded-xl border border-slate-200 text-left hover:bg-slate-50 transition flex items-center justify-between">
+              <span>B. Autorisé à dose réduite (200 mg) pendant 48h maximum.</span>
+              <span class="quiz-badge-3 hidden"></span>
+            </button>
+            <button onclick="answerQuiz(3, 'C', false)" class="quiz-btn-3 w-full p-3 rounded-xl border border-slate-200 text-left hover:bg-slate-50 transition flex items-center justify-between">
+              <span>C. Proposer du kétoprofène à la place de l'ibuprofène car il passe moins le placenta.</span>
+              <span class="quiz-badge-3 hidden"></span>
+            </button>
+          </div>
+
+          <div id="quiz-feedback-3" class="hidden p-4 rounded-xl text-xs leading-relaxed"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="graduation-cap" class="w-4 h-4 text-teal-600"></i>
+        <span class="font-semibold text-slate-700">PharmaLab DFGSP2</span>
+        <span>• Conçu pour l'apprentissage actif en pharmacie</span>
+      </div>
+      <div>
+        <span>Prochain prototype disponible : <span class="font-bold text-teal-700">Module 2 (Mécanismes Moléculaires & Cibles)</span></span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <!-- ========================================================================= -->
+  <script>
+    // State
+    const state = {
+      eva: 2,
+      painType: 'nociceptive',
+      terrains: {
+        grossesse: false,
+        insuffisanceRenale: false,
+        ulcere: false,
+        sujetAge: false
+      }
+    };
+
+    // Initialize Lucide Icons
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initSlider();
+      updateDecisionEngine();
+      evaluateAssociation();
+      calculateTitration();
+    });
+
+    // Tab Switcher
+    function switchTab(tabId) {
+      const tabs = ['decision-tree', 'interaction-lab', 'titration-calc', 'mini-quiz'];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const mobBtn = document.getElementById(`mob-tab-${t}`);
+
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          if (btn) {
+            btn.className = 'tab-btn active px-4 py-2 rounded-lg transition-all flex items-center space-x-2 bg-white text-teal-700 shadow-sm font-semibold';
+          }
+          if (mobBtn) {
+            mobBtn.className = 'flex-1 py-2 px-2.5 rounded-lg font-semibold bg-white text-teal-700 shadow-sm whitespace-nowrap text-center';
+          }
+        } else {
+          sec.classList.add('hidden');
+          if (btn) {
+            btn.className = 'tab-btn px-4 py-2 rounded-lg transition-all flex items-center space-x-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200/60';
+          }
+          if (mobBtn) {
+            mobBtn.className = 'flex-1 py-2 px-2.5 rounded-lg font-medium text-slate-600 whitespace-nowrap text-center';
+          }
+        }
+      });
+      lucide.createIcons();
+    }
+
+    // Slider Setup
+    function initSlider() {
+      const slider = document.getElementById('eva-slider');
+      slider.addEventListener('input', (e) => {
+        state.eva = parseInt(e.target.value, 10);
+        updateDecisionEngine();
+      });
+    }
+
+    // Pain Type Selector
+    function setPainType(type) {
+      state.painType = type;
+      const types = ['nociceptive', 'inflammatory', 'neuropathic', 'visceral'];
+      types.forEach(t => {
+        const btn = document.getElementById(`type-btn-${t}`);
+        if (t === type) {
+          btn.className = 'pain-type-btn p-3 rounded-xl border border-teal-500 bg-teal-50 text-teal-900 font-semibold text-left transition flex flex-col justify-between space-y-1';
+        } else {
+          btn.className = 'pain-type-btn p-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 font-medium text-left transition flex flex-col justify-between space-y-1';
+        }
+      });
+      updateDecisionEngine();
+    }
+
+    // Main Algorithmic Decision Engine
+    function updateDecisionEngine() {
+      // Update Terrains
+      state.terrains.grossesse = document.getElementById('terrain-grossesse').checked;
+      state.terrains.insuffisanceRenale = document.getElementById('terrain-insuffisance-renale').checked;
+      state.terrains.ulcere = document.getElementById('terrain-ulcere').checked;
+      state.terrains.sujetAge = document.getElementById('terrain-sujet-age').checked;
+
+      // Update EVA badge
+      const badge = document.getElementById('eva-badge');
+      badge.textContent = `EVA : ${state.eva} / 10`;
+
+      // Determine WHO Tier & Strategy
+      let palier = 1;
+      let palierRoman = 'I';
+      let palierColor = 'teal';
+      let palierTitle = 'Palier I OMS';
+      let palierSub = 'Douleur légère à modérée • Non opioïdes';
+
+      if (state.eva === 0) {
+        palier = 0;
+        palierRoman = '0';
+        palierTitle = 'Absence de Douleur';
+        palierSub = 'Aucun traitement médicamenteux systématique requis';
+      } else if (state.eva <= 3) {
+        palier = 1;
+        palierRoman = 'I';
+        palierTitle = 'Palier I OMS';
+        palierSub = 'Douleur légère à modérée • Non opioïdes';
+      } else if (state.eva <= 6) {
+        palier = 2;
+        palierRoman = 'II';
+        palierColor = 'amber';
+        palierTitle = 'Palier II OMS';
+        palierSub = 'Douleur modérée à sévère • Opioïdes faibles ± Palier I';
+      } else {
+        palier = 3;
+        palierRoman = 'III';
+        palierColor = 'rose';
+        palierTitle = 'Palier III OMS';
+        palierSub = 'Douleur très sévère à rebelle • Opioïdes forts ± Palier I';
+      }
+
+      // Update Palier Box in Controls
+      const pBox = document.getElementById('palier-tag-box');
+      const pDot = document.getElementById('palier-dot');
+      const pLevelTitle = document.getElementById('palier-level-title');
+      const pLevelSub = document.getElementById('palier-level-sub');
+      const pRoman = document.getElementById('palier-roman');
+
+      pLevelTitle.textContent = palierTitle;
+      pLevelSub.textContent = palierSub;
+      pRoman.textContent = palierRoman;
+
+      if (palier === 1) {
+        pBox.className = 'p-3 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-between';
+        pDot.className = 'w-3 h-3 rounded-full bg-teal-500';
+        pLevelTitle.className = 'text-xs font-bold text-teal-900 uppercase tracking-wide';
+        pLevelSub.className = 'text-xs text-teal-700';
+        pRoman.className = 'text-xl font-extrabold text-teal-800 font-mono';
+      } else if (palier === 2) {
+        pBox.className = 'p-3 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between';
+        pDot.className = 'w-3 h-3 rounded-full bg-amber-500';
+        pLevelTitle.className = 'text-xs font-bold text-amber-900 uppercase tracking-wide';
+        pLevelSub.className = 'text-xs text-amber-700';
+        pRoman.className = 'text-xl font-extrabold text-amber-800 font-mono';
+      } else if (palier === 3) {
+        pBox.className = 'p-3 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-between';
+        pDot.className = 'w-3 h-3 rounded-full bg-rose-500';
+        pLevelTitle.className = 'text-xs font-bold text-rose-900 uppercase tracking-wide';
+        pLevelSub.className = 'text-xs text-rose-700';
+        pRoman.className = 'text-xl font-extrabold text-rose-800 font-mono';
+      } else {
+        pBox.className = 'p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between';
+        pDot.className = 'w-3 h-3 rounded-full bg-slate-400';
+        pLevelTitle.className = 'text-xs font-bold text-slate-800 uppercase tracking-wide';
+        pLevelSub.className = 'text-xs text-slate-600';
+        pRoman.className = 'text-xl font-extrabold text-slate-700 font-mono';
+      }
+
+      // Step Flow descriptions
+      const flow1 = document.getElementById('flow-step-1');
+      const flow2 = document.getElementById('flow-step-2');
+      const flow3 = document.getElementById('flow-step-3');
+      const activePathBadge = document.getElementById('active-path-badge');
+
+      const painTypeNames = {
+        nociceptive: 'Nociceptif pur',
+        inflammatory: 'Inflammatoire aigu',
+        neuropathic: 'Neuropathique (lésionnel)',
+        visceral: 'Viscéral / Spasmodique'
+      };
+
+      flow1.innerHTML = `Douleur EVA <strong>${state.eva}/10</strong> (${palierTitle}), composante <strong>${painTypeNames[state.painType]}</strong>.`;
+
+      // Compute Recommendation
+      let recName = "Paracétamol (DCI)";
+      let recTag = "Palier I";
+      let recPosology = "500 mg à 1 g / prise (max 3 à 4 g/24h)";
+      let recPosologySub = "Espacement de 4 à 6 heures minimum.";
+      let recTiming = "Délai : 30-60 min • Durée : 4-6h";
+      let recPharma = "Toujours vérifier l'absence d'autres spécialités contenant du paracétamol (automédication, rhume).";
+      let warningText = "";
+      let hasWarning = false;
+
+      // Special handling: Neuropathic Pain
+      if (state.painType === 'neuropathic') {
+        recName = "Co-analgésique de 1re ligne : Prégabaline OU Gabapentine OU Amitriptyline";
+        recTag = "Adjuvant Neuropathique";
+        recPosology = "Prégabaline : 75 mg x 2/j (titration jusqu'à 300-600 mg/j)";
+        recPosologySub = "OU Amitriptyline : 10 à 25 mg le soir au coucher.";
+        recTiming = "Effet retardé : évaluation sur 2 à 4 semaines de titration";
+        recPharma = "Les antalgiques conventionnels (paracétamol, AINS, opioïdes) ont une efficacité très faible sur les douleurs neuropathiques pures. Expliquer au patient que l'effet s'installe progressivement.";
+        flow2.textContent = "Indication formelle des modulateurs des canaux calciques voltage-dépendants ou antidépresseurs tricycliques/IRSNa.";
+      } 
+      // Special handling: Visceral Spasm
+      else if (state.painType === 'visceral') {
+        if (palier <= 1) {
+          recName = "Phloroglucinol + Paracétamol";
+          recTag = "Antispasmodique + Palier I";
+          recPosology = "Phloroglucinol 80 mg (2 lyocs ou cp au moment de la crise)";
+          recPosologySub = "+ Paracétamol 1 g si nécessaire.";
+          recTiming = "Prise sublinguale/orale au moment des spasmes douloureux";
+          recPharma = "L'antispasmodique lève le spasme de la fibre musculaire lisse viscérale, le paracétamol traite la douleur résiduelle.";
+          flow2.textContent = "Antispasmodique myotrope associé au Palier I de première intention.";
+        } else if (palier === 2) {
+          recName = "Tramadol OU Poudre d'Opium + Antispasmodique";
+          recTag = "Palier II + Spasmolytique";
+          recPosology = "Tramadol 50 mg (max 300-400 mg/j)";
+          recPosologySub = "Attention au risque de nausées et ralentissement du transit.";
+          recTiming = "1 gélule toutes les 6 heures si besoin.";
+          recPharma = "Attention : certains opioïdes peuvent aggraver les spasmes biliaires par contraction du sphincter d'Oddi.";
+          flow2.textContent = "Opioïde faible en cas de colique très douloureuse avec antispasmodique.";
+        } else {
+          recName = "Morphine IV / SC titrée (ex. Colique Néphrétique hyperalgique)";
+          recTag = "Palier III";
+          recPosology = "Titration hospitalière par bolus de 2-3 mg toutes les 5-10 min";
+          recPosologySub = "Jusqu'à soulagement du spasme hyperalgique.";
+          recTiming = "Action IV immédiate en milieu d'urgence";
+          recPharma = "Association systématique aux AINS injectables (Kétoprofène IV) en l'absence de contre-indication rénale dans la colique néphrétique.";
+          flow2.textContent = "Recours aux opioïdes forts en milieu médicalisé ou hospitalier.";
+        }
+      }
+      // Inflammatory Pain
+      else if (state.painType === 'inflammatory') {
+        if (state.terrains.grossesse || state.terrains.insuffisanceRenale || state.terrains.ulcere) {
+          // Contraindicated NSAIDs!
+          recName = "Paracétamol (AINS FORMELLEMENT CONTRE-INDIQUÉ)";
+          recTag = "Palier I Sécurisé";
+          recPosology = "1 g / prise, 3 fois par jour (max 3 g/j)";
+          recPosologySub = "CI stricte des AINS sur ce profil de risque.";
+          recTiming = "Prise régulière toutes les 6 à 8 heures";
+          recPharma = "Les AINS sont ici proscrits. En cas de douleur inflammatoire insupportable, discussion avec le médecin pour corticothérapie courte ou palier supérieur selon le cas.";
+          hasWarning = true;
+          warningText = "Alerte : Présence d'un terrain à très haut risque (Grossesse T2/T3, Insuffisance rénale ou Ulcère gastrique). Les AINS (Ibuprofène, Kétoprofène) sont strictement interdits !";
+          flow2.textContent = "Terrain à contre-indication absolue pour les anti-inflammatoires non stéroïdiens.";
+        } else {
+          recName = "Ibuprofène (AINS) OU Kétoprofène";
+          recTag = "Palier I (AINS)";
+          recPosology = "Ibuprofène 400 mg par prise (max 1200 mg/j automédication)";
+          recPosologySub = "3 prises par jour au milieu des repas.";
+          recTiming = "Action en 30-45 min • Durée 6h";
+          recPharma = "Prendre impérativement au cours d'un repas. Durée la plus courte possible (max 3 à 5 jours sans avis médical). Bien s'hydrater.";
+          flow2.textContent = "Inhibition des cyclo-oxygénases (COX-1 / COX-2) pour supprimer la production locale de prostaglandines algogènes.";
+        }
+      }
+      // Nociceptive Pain standard
+      else {
+        if (palier <= 1) {
+          recName = "Paracétamol (DCI)";
+          recTag = "Palier I";
+          recPosology = "500 mg à 1 g par prise (max 3 à 4 g/24h)";
+          recPosologySub = "Espacement de 4 à 6 heures minimum.";
+          recTiming = "Action en 30-60 min";
+          recPharma = "Médicament de 1re intention chez tout adulte sans hépatopathie. Réduire la dose à 2-3 g/j chez le sujet âgé ou de faible poids (< 50 kg).";
+          flow2.textContent = "Antalgique non opioïde, excellente tolérance gastrique et rénale.";
+        } else if (palier === 2) {
+          recName = "Tramadol (50 mg) OU Codéine (30-60 mg) + Paracétamol";
+          recTag = "Palier II";
+          recPosology = "Tramadol 50 mg toutes les 6h (max 300-400 mg/j)";
+          recPosologySub = "OU Paracétamol/Codéine 500/30 mg (max 4 cp/j)";
+          recTiming = "Action en 30-60 min • Durée 4-6h";
+          recPharma = "Surveiller les effets sédatifs, nausées, vertiges. Préciser au patient le risque sur la conduite automobile (Niveau 2). Prévenir la constipation.";
+          flow2.textContent = "Opioïde faible stimulant les récepteurs mu centraux couplé au paracétamol.";
+        } else {
+          recName = "Sulfate de Morphine Orale LP (Titration de Fond) + LI (Accès Aigus)";
+          recTag = "Palier III";
+          recPosology = "Dose initiale naïve : 60 mg/j de Morphine Orale LP (ex: 30 mg matin et soir)";
+          recPosologySub = "+ 1/6e de la dose journalière en Morphine LI (10 mg) pour les accès douloureux.";
+          recTiming = "Forme LP toutes les 12 heures à heures fixes.";
+          recPharma = "Ordonnance sécurisée (max 28 jours). Prescription OBLIGATOIRE et simultanée d'un laxatif osmotique (Macrogol). Vérifier la disponibilité de l'antidote (Naloxone).";
+          flow2.textContent = "Opioïde fort agoniste pur des récepteurs mu. Pas de dose plafond stricte, adaptation par titration progressive.";
+        }
+      }
+
+      // Terrain Filter Warning
+      let terrainNotes = [];
+      if (state.terrains.grossesse) terrainNotes.push("Grossesse T2/T3 : AINS interdits (risque de mort fœtale in utero par fermeture du canal artériel et anurie fœtale).");
+      if (state.terrains.insuffisanceRenale) terrainNotes.push("Insuffisance rénale : adapter les posologies des métabolites actifs (accumulation de M6G pour morphine, nor-tramadol). AINS formellement évités.");
+      if (state.terrains.ulcere) terrainNotes.push("Ulcère gastroduodénal : AINS formellement proscrits.");
+      if (state.terrains.sujetAge) terrainNotes.push("Sujet âgé : posologie de paracétamol limitée à 3 g/j, réduction des doses d'opioïdes de 50%, risque majeur de chutes et de syndrome confusionnel.");
+
+      if (terrainNotes.length > 0) {
+        flow3.innerHTML = `<span class="text-amber-700 font-semibold">${terrainNotes.join(' ')}</span>`;
+        hasWarning = true;
+        warningText = terrainNotes.join('<br>');
+      } else {
+        flow3.textContent = "Terrain standard sans contre-indication absolue détectée.";
+      }
+
+      // Update Recommendation Card Elements
+      document.getElementById('rec-molecule-name').textContent = recName;
+      document.getElementById('rec-palier-tag').textContent = recTag;
+      document.getElementById('rec-posology').textContent = recPosology;
+      document.getElementById('rec-posology-sub').textContent = recPosologySub;
+      document.getElementById('rec-timing').textContent = recTiming;
+      document.getElementById('rec-pharma-advice').textContent = recPharma;
+      activePathBadge.textContent = `Stratégie : ${recTag}`;
+
+      const warnContainer = document.getElementById('rec-warnings');
+      const warnP = document.getElementById('rec-warning-text');
+      if (hasWarning) {
+        warnContainer.classList.remove('hidden');
+        warnP.innerHTML = warningText;
+      } else {
+        warnContainer.classList.add('hidden');
+      }
+
+      lucide.createIcons();
+    }
+
+    // =========================================================================
+    // ASSOCIATION CHECKER LOGIC (TAB 2)
+    // =========================================================================
+    const DB_ASSOC = {
+      // Keys: sorted "medA+medB"
+      "buprenorphine+morphine": {
+        status: "FORBIDDEN",
+        title: "DANGER MAJEUR : Agoniste Pur + Agoniste Partiel",
+        badge: "CONTRE-INDICATION ABSOLUE",
+        badgeClass: "bg-rose-100 text-rose-800 border-rose-300",
+        boxBorder: "border-rose-400 bg-rose-50/20",
+        icon: "alert-octagon",
+        iconColor: "text-rose-600 bg-rose-100",
+        pharmacology: "La buprénorphine possède une affinité pour les récepteurs mu (&mu;) beaucoup plus élevée que la morphine, mais une activité intrinsèque partielle (&alpha; &lt; 1). En présence de morphine, elle déplace brutalement la morphine de ses récepteurs et agit comme un antagoniste compétitif.",
+        clinical: "Conséquence immédiate : rupture brutale de l'analgésie et déclenchement d'un syndrome de sevrage opioïde aigu sévère chez le patient dépendant aux opioïdes ! Règle d'or : JAMAIS de buprénorphine sur un patient sous agoniste pur sans fenêtre d'élimination complète."
+      },
+      "ibuprofene+ketoprofene": {
+        status: "FORBIDDEN",
+        title: "DANGER : Deux AINS associés simultanément",
+        badge: "INTERDIT & INUTILE",
+        badgeClass: "bg-rose-100 text-rose-800 border-rose-300",
+        boxBorder: "border-rose-400 bg-rose-50/20",
+        icon: "alert-triangle",
+        iconColor: "text-rose-600 bg-rose-100",
+        pharmacology: "Les anti-inflammatoires non stéroïdiens agissent tous sur la même cible moléculaire (COX-1 et COX-2). L'effet antalgique présente un « effet plafond » strict qui ne progresse plus au-delà des doses maximales.",
+        clinical: "Associer deux AINS n'apporte AUCUN bénéfice antalgique supplémentaire, mais multiplie de manière exponentielle le risque d'hémorragie digestive haute, d'ulcère gastrique perforant et d'insuffisance rénale aiguë par baisse de la perfusion glomérulaire."
+      },
+      "codeine+tramadol": {
+        status: "FORBIDDEN",
+        title: "DANGER : Deux Opioïdes Faibles (Palier II) associés",
+        badge: "NON CONFORME",
+        badgeClass: "bg-rose-100 text-rose-800 border-rose-300",
+        boxBorder: "border-rose-400 bg-rose-50/20",
+        icon: "ban",
+        iconColor: "text-rose-600 bg-rose-100",
+        pharmacology: "Compétition pharmacologique sur les récepteurs mu et saturation des cytochromes hépatiques (CYP2D6 notamment, responsable de la biotransformation de la codéine en morphine et du tramadol en O-desméthyltramadol).",
+        clinical: "Majoration cumulative des effets indésirables centraux (sédation profonde, nausées incoercibles, vertiges, convulsions avec le tramadol) sans efficacité antalgique démontrée. En cas d'inefficacité d'un Palier II, il faut passer au Palier III et non cumuler les Paliers II !"
+      },
+      "morphine+tramadol": {
+        status: "FORBIDDEN",
+        title: "DANGER : Palier II + Palier III simultanés",
+        badge: "NON CONFORME",
+        badgeClass: "bg-rose-100 text-rose-800 border-rose-300",
+        boxBorder: "border-rose-400 bg-rose-50/20",
+        icon: "alert-circle",
+        iconColor: "text-rose-600 bg-rose-100",
+        pharmacology: "Association incohérente sur le plan des récepteurs opioïdes. Le tramadol a une affinité plus faible mais encombre les récepteurs et complique l'adaptation posologique de la morphine.",
+        clinical: "Règle OMS : lorsqu'un patient passe du Palier II au Palier III, l'opioïde faible doit être complètement arrêté pour permettre une titration claire et sécurisée de la morphine."
+      },
+      "paracetamol+tramadol": {
+        status: "VALID",
+        title: "SYNERGIE RECOMMANDÉE : Paracétamol + Tramadol (Palier I + II)",
+        badge: "ASSOCIATION DE RÉFÉRENCE",
+        badgeClass: "bg-teal-100 text-teal-800 border-teal-300",
+        boxBorder: "border-teal-400 bg-teal-50/20",
+        icon: "check-circle-2",
+        iconColor: "text-teal-600 bg-teal-100",
+        pharmacology: "Complémentarité pharmacodynamique : action centrale du paracétamol couplée au double mécanisme du tramadol (agonisme mu central + inhibition de la recapture de la noradrénaline et sérotonine).",
+        clinical: "Permet une épargne d'opioïde (meilleure analgésie avec doses réduites). Existe en spécialité combinée (Ixprim®, Zaldiar® : 37.5 mg / 325 mg). Conseil : toujours s'assurer que le patient ne prend pas de paracétamol pur en plus !"
+      },
+      "codeine+paracetamol": {
+        status: "VALID",
+        title: "SYNERGIE RECOMMANDÉE : Paracétamol + Codéine (Palier I + II)",
+        badge: "ASSOCIATION DE RÉFÉRENCE",
+        badgeClass: "bg-teal-100 text-teal-800 border-teal-300",
+        boxBorder: "border-teal-400 bg-teal-50/20",
+        icon: "check-circle-2",
+        iconColor: "text-teal-600 bg-teal-100",
+        pharmacology: "La codéine est un promédicament méthylé métabolisé à environ 10% en morphine active par le cytochrome CYP2D6. Associée au paracétamol, elle procure une analgésie synergique.",
+        clinical: "Spécialités courantes (ex: Codoliprane®, Klipal®). Attention aux métaboliseurs lents (inefficacité) et métaboliseurs ultra-rapides (risque de surdosage toxique en morphine)."
+      },
+      "morphine+paracetamol": {
+        status: "VALID",
+        title: "SYNERGIE D'ÉPARGNE OPIOÏDE : Morphine + Paracétamol",
+        badge: "RECOMMANDÉE EN PRATIQUE",
+        badgeClass: "bg-teal-100 text-teal-800 border-teal-300",
+        boxBorder: "border-teal-400 bg-teal-50/20",
+        icon: "check-circle-2",
+        iconColor: "text-teal-600 bg-teal-100",
+        pharmacology: "L'administration conjointe d'un Palier I non opioïde (paracétamol) avec la morphine permet une réduction prouvée de 20 à 30% des doses requises de morphine.",
+        clinical: "Diminue significativement la fréquence et la sévérité des effets indésirables opioïdes (somnolence, nausées, vomissements, ralentissement du transit)."
+      },
+      "morphine+pregabaline": {
+        status: "CAUTION",
+        title: "ASSOCIATION CLINIQUE VALIDÉE mais SURVEILLANCE REQUISE",
+        badge: "SURVEILLANCE SÉDATION",
+        badgeClass: "bg-amber-100 text-amber-800 border-amber-300",
+        boxBorder: "border-amber-400 bg-amber-50/20",
+        icon: "shield-alert",
+        iconColor: "text-amber-600 bg-amber-100",
+        pharmacology: "Association fréquente et très efficace dans les douleurs mixtes (cancérologie, sciatique hyperalgique rebelle) : la morphine cible la composante nociceptive, la prégabaline module la composante neuropathique via la sous-unité &alpha;2&delta; des canaux Ca2+.",
+        clinical: "Attention : sommation des effets dépresseurs du système nerveux central. Risque majoré de somnolence diurne, sensations vertigineuses, ataxie et risque accru de dépression respiratoire chez les patients vulnérables."
+      }
+    };
+
+    function evaluateAssociation() {
+      const medA = document.getElementById('select-med-a').value;
+      const medB = document.getElementById('select-med-b').value;
+
+      const titleEl = document.getElementById('assoc-pair-title');
+      const statusLabel = document.getElementById('assoc-status-label');
+      const verdictBadge = document.getElementById('assoc-verdict-badge');
+      const pharmEl = document.getElementById('assoc-pharmacology-text');
+      const clinTitle = document.getElementById('assoc-clinical-title');
+      const clinText = document.getElementById('assoc-clinical-text');
+      const iconContainer = document.getElementById('assoc-icon-container');
+      const box = document.getElementById('assoc-result-box');
+
+      // Check identical molecules
+      if (medA === medB) {
+        statusLabel.textContent = "REDONDANCE THÉRAPEUTIQUE";
+        titleEl.textContent = `Double prise de la même molécule : ${medA.toUpperCase()}`;
+        verdictBadge.textContent = "ERREUR DE PRESCRIPTION";
+        verdictBadge.className = "px-3 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800 border border-rose-300";
+        box.className = "bg-white rounded-2xl p-6 border-2 border-rose-400 bg-rose-50/10 shadow-md space-y-4";
+        iconContainer.className = "w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center";
+        iconContainer.innerHTML = `<i data-lucide="alert-octagon" class="w-6 h-6"></i>`;
+        pharmEl.textContent = "Prescription redondante entraînant un risque immédiat de dépassement de la dose maximale journalière et de toxicité d'accumulation.";
+        clinTitle.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4 text-rose-700"></i><span>Avis d'Officine :</span>`;
+        clinText.textContent = "Intervention pharmaceutique obligatoire pour refuser la délivrance d'un doublement de ligne.";
+        lucide.createIcons();
+        return;
+      }
+
+      // Lookup in DB
+      const key = [medA, medB].sort().join('+');
+      const found = DB_ASSOC[key];
+
+      if (found) {
+        statusLabel.textContent = found.title;
+        titleEl.textContent = `${medA.toUpperCase()} + ${medB.toUpperCase()}`;
+        verdictBadge.textContent = found.badge;
+        verdictBadge.className = `px-3 py-1 rounded-full text-xs font-extrabold border ${found.badgeClass}`;
+        box.className = `bg-white rounded-2xl p-6 border-2 ${found.boxBorder} shadow-md space-y-4`;
+        iconContainer.className = `w-10 h-10 rounded-xl flex items-center justify-center ${found.iconColor}`;
+        iconContainer.innerHTML = `<i data-lucide="${found.icon}" class="w-6 h-6"></i>`;
+        pharmEl.textContent = found.pharmacology;
+        clinTitle.innerHTML = `<i data-lucide="info" class="w-4 h-4"></i><span>Point Clé Officinal & Clinique :</span>`;
+        clinText.textContent = found.clinical;
+      } else {
+        // Generic fallback logic
+        const isAINS = (m) => m === 'ibuprofene' || m === 'ketoprofene';
+        const isOpioidWeak = (m) => m === 'tramadol' || m === 'codeine';
+        const isOpioidStrong = (m) => m === 'morphine' || m === 'oxycodone';
+
+        if (isAINS(medA) && isAINS(medB)) {
+          statusLabel.textContent = "ASSOCIATION FORMELLEMENT DÉCONSEILLÉE";
+          titleEl.textContent = `${medA.toUpperCase()} + ${medB.toUpperCase()}`;
+          verdictBadge.textContent = "DEUX AINS = INTERDIT";
+          verdictBadge.className = "px-3 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800 border border-rose-300";
+          box.className = "bg-white rounded-2xl p-6 border-2 border-rose-400 bg-rose-50/10 shadow-md space-y-4";
+          iconContainer.className = "w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center";
+          iconContainer.innerHTML = `<i data-lucide="alert-octagon" class="w-6 h-6"></i>`;
+          pharmEl.textContent = "Effet plafond sur la douleur, multiplication des risques ulcérogènes et d'insuffisance rénale fonctionnelle.";
+          clinText.textContent = "Ne jamais délivrer deux AINS simultanément.";
+        } else if ((isOpioidWeak(medA) && isOpioidStrong(medB)) || (isOpioidStrong(medA) && isOpioidWeak(medB))) {
+          statusLabel.textContent = "ASSOCIATION NON CONFORME";
+          titleEl.textContent = `${medA.toUpperCase()} + ${medB.toUpperCase()}`;
+          verdictBadge.textContent = "PALIER II + PALIER III = NON";
+          verdictBadge.className = "px-3 py-1 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800 border border-rose-300";
+          box.className = "bg-white rounded-2xl p-6 border-2 border-rose-400 bg-rose-50/10 shadow-md space-y-4";
+          iconContainer.className = "w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center";
+          iconContainer.innerHTML = `<i data-lucide="ban" class="w-6 h-6"></i>`;
+          pharmEl.textContent = "On n'associe pas un opioïde faible et un opioïde fort. Arrêt de l'opioïde faible lors du passage au Palier III.";
+          clinText.textContent = "Contacter le médecin pour basculer totalement vers le palier III.";
+        } else {
+          statusLabel.textContent = "ASSOCIATION POSSIBLE OU CO-PRESCRIPTION";
+          titleEl.textContent = `${medA.toUpperCase()} + ${medB.toUpperCase()}`;
+          verdictBadge.textContent = "GÉRABLE SOUS CONTRÔLE";
+          verdictBadge.className = "px-3 py-1 rounded-full text-xs font-extrabold bg-teal-100 text-teal-800 border border-teal-300";
+          box.className = "bg-white rounded-2xl p-6 border-2 border-teal-300 shadow-md space-y-4";
+          iconContainer.className = "w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center";
+          iconContainer.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6"></i>`;
+          pharmEl.textContent = "Mécanismes complémentaires sans compétition réceptorielle directe proscrite par les référentiels.";
+          clinText.textContent = "Vérifier le respect des posologies individuelles de chaque molécule et les terrains de tolérance rénale et hépatique.";
+        }
+      }
+
+      lucide.createIcons();
+    }
+
+    function setPreset(a, b) {
+      document.getElementById('select-med-a').value = a;
+      document.getElementById('select-med-b').value = b;
+      evaluateAssociation();
+    }
+
+    // =========================================================================
+    // TITRATION & EQUI-ANALGESIA LOGIC (TAB 3)
+    // =========================================================================
+    function syncDoseSlider() {
+      const val = document.getElementById('titration-dose-input').value;
+      document.getElementById('titration-dose-slider').value = val;
+      document.getElementById('dose-display').textContent = `${val} mg/24h`;
+    }
+
+    function syncDoseInput() {
+      const val = document.getElementById('titration-dose-slider').value;
+      document.getElementById('titration-dose-input').value = val;
+      document.getElementById('dose-display').textContent = `${val} mg/24h`;
+    }
+
+    function setTitrationPreset(src, dose) {
+      document.getElementById('titration-source').value = src;
+      document.getElementById('titration-dose-input').value = dose;
+      document.getElementById('titration-dose-slider').value = dose;
+      document.getElementById('dose-display').textContent = `${dose} mg/24h`;
+      calculateTitration();
+    }
+
+    function calculateTitration() {
+      const source = document.getElementById('titration-source').value;
+      const dose = parseFloat(document.getElementById('titration-dose-input').value) || 0;
+
+      // Compute equivalent in Morphine Orale (Per Os) base
+      let morphinePoEquiv = 0;
+
+      switch(source) {
+        case 'morphine-po':
+          morphinePoEquiv = dose;
+          break;
+        case 'morphine-sc':
+          morphinePoEquiv = dose * 2; // 1 mg SC = 2 mg PO
+          break;
+        case 'morphine-iv':
+          morphinePoEquiv = dose * 3; // 1 mg IV = 3 mg PO
+          break;
+        case 'oxycodone-po':
+          morphinePoEquiv = dose * 1.5; // 1 mg Oxycodone PO ~ 1.5 - 2 mg Morphine PO
+          break;
+        case 'tramadol-po':
+          morphinePoEquiv = dose * 0.2; // 100 mg Tramadol ~ 20 mg Morphine PO (ratio 1/5)
+          break;
+        default:
+          morphinePoEquiv = dose;
+      }
+
+      const morphineScEquiv = Math.round((morphinePoEquiv / 2) * 10) / 10;
+      const morphineIvEquiv = Math.round((morphinePoEquiv / 3) * 10) / 10;
+      const interdose = Math.round((morphinePoEquiv / 6) * 10) / 10;
+
+      document.getElementById('res-morphine-po').textContent = `${Math.round(morphinePoEquiv)} mg`;
+      document.getElementById('res-morphine-sc').textContent = `${morphineScEquiv} mg`;
+      document.getElementById('res-morphine-iv').textContent = `${morphineIvEquiv} mg`;
+      document.getElementById('res-interdose').textContent = `${interdose} mg (soit ~ ${Math.round(interdose)} mg LI)`;
+    }
+
+    // =========================================================================
+    // MINI-QUIZ LOGIC (TAB 4)
+    // =========================================================================
+    const quizExplanations = {
+      1: {
+        correct: true,
+        text: "<strong>Exactement !</strong> La buprénorphine a une affinité réceptorielle bien plus forte pour les récepteurs mu que la morphine, mais une activité intrinsèque partielle. Elle éjecte la morphine et provoque un <em>syndrome de sevrage aigu induit immédiat</em> avec rebond hyperalgique intolérable pour le patient. Règle fondamentale de DFGSP2 !"
+      },
+      2: {
+        correct: true,
+        text: "<strong>Bravo !</strong> En raison du premier passage hépatique important de la morphine (biodisponibilité per os d'environ 30 à 33%), la dose par voie orale doit être le double de la dose sous-cutanée (Ratio SC:PO = 1:2) et le triple de la dose intraveineuse (Ratio IV:PO = 1:3). Donc 60 mg SC équivaut à 120 mg PO."
+      },
+      3: {
+        correct: true,
+        text: "<strong>Excellente réponse !</strong> Tous les AINS (même à dose minimale, en prise unique ou en gel percutané étendu) sont <em>formellement contre-indiqués à partir de la 24e semaine d'aménorrhée (début du 6e mois)</em>. Ils risquent d'entraîner une fermeture prématurée in utero du canal artériel fœtal (hypertension pulmonaire fœtale sévère) et une anurie fœtale par toxicité rénale. Le paracétamol reste l'antalgique de choix à tout stade de la grossesse."
+      }
+    };
+
+    function answerQuiz(qNum, choice, isCorrect) {
+      const buttons = document.querySelectorAll(`.quiz-btn-${qNum}`);
+      const feedback = document.getElementById(`quiz-feedback-${qNum}`);
+
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.classList.remove('hover:bg-slate-50', 'border-slate-200');
+      });
+
+      if (isCorrect) {
+        feedback.className = "p-4 rounded-xl text-xs sm:text-sm leading-relaxed bg-emerald-50 border border-emerald-200 text-emerald-900";
+        feedback.innerHTML = quizExplanations[qNum].text;
+      } else {
+        feedback.className = "p-4 rounded-xl text-xs sm:text-sm leading-relaxed bg-rose-50 border border-rose-200 text-rose-900";
+        feedback.innerHTML = `<strong>Faux !</strong> Réexaminez la pharmacologie de cette situation.<br><br>` + quizExplanations[qNum].text;
+      }
+      feedback.classList.remove('hidden');
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

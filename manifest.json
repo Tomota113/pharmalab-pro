@@ -1,0 +1,68 @@
+{
+  "name": "PharmaLab Pro • DFGSP2",
+  "short_name": "PharmaLab",
+  "description": "Plateforme d'Excellence en Pharmacologie des Antalgiques | DFGSP2 & Concours de l'Internat",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "lang": "fr",
+  "categories": ["medical", "education"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Studio 3D",
+      "short_name": "3D",
+      "description": "Visualiseur moléculaire 3D et relations structure-activité",
+      "url": "./index.html#sec-studio-3d",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Flashcards Anki SRS",
+      "short_name": "Flashcards",
+      "description": "Répétition espacée algorithme SM-2",
+      "url": "./index.html#sec-bonus-hub",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Module 1 (Palier 1)",
+      "short_name": "Palier 1",
+      "description": "Paracétamol, AINS, Coxibs, Rein & Foie",
+      "url": "./prototype1_palier1.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Module 2 & 3 (Opioïdes)",
+      "short_name": "Opioïdes",
+      "description": "Morphine, Tramadol, CYP2D6, Naloxone",
+      "url": "./prototype2_palier2_palier3.html",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

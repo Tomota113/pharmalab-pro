@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PHARMA-MATRIX 3D | Module 2 & 3 : Les Opioïdes & Antidote (DFGSP2 Major)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bioemerald: {
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              950: '#022c22',
+            },
+            opioid: {
+              400: '#c084fc',
+              500: '#a855f7',
+              600: '#9333ea',
+              900: '#3b0764',
+              950: '#1f0337'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- 3Dmol.js (WebGL Molecular Viewer) CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #05070d;
+      color: #e2e8f0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+    .glow-cyan { box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.35); }
+    .glow-purple { box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.35); }
+    .glow-rose { box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.35); }
+    .glow-emerald { box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.35); }
+
+    .tech-panel {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(10, 15, 29, 0.95) 100%);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    .tech-panel-purple {
+      background: linear-gradient(135deg, rgba(31, 3, 55, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(147, 51, 234, 0.35);
+    }
+    
+    #g3d-container {
+      width: 100%;
+      height: 480px;
+      position: relative;
+      background: radial-gradient(circle at center, #0e1526 0%, #050811 100%);
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    input[type=range] {
+      accent-color: #a855f7;
+    }
+    .badge-concours {
+      background: linear-gradient(90deg, #3b0764 0%, #1e1b4b 100%);
+      border: 1px solid #c084fc;
+    }
+    
+    /* Animation pulse pupil */
+    @keyframes pupilPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(0.96); }
+    }
+    .animate-pupil {
+      animation: pupilPulse 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-purple-500 selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- TOP APPLICATION HEADER & MASTER NAVIGATION -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 shadow-2xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-purple-600/30">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-purple-400 via-cyan-300 to-indigo-200 bg-clip-text text-transparent">
+              PHARMA-MATRIX 3D
+            </span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-950 text-purple-300 border border-purple-800">
+              MODULE 2 & 3 • OPIOÏDES
+            </span>
+            <a href="prototype1_palier1.html" class="hidden sm:inline-flex text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 hover:text-cyan-300 border border-slate-700 transition">
+              ← Vers Palier 1
+            </a>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">Récepteurs µ, Pharmacogénomique CYP2D6, Dépression Respiratoire & Antidote Naloxone</p>
+        </div>
+      </div>
+
+      <!-- MASTER TABS -->
+      <nav class="hidden md:flex items-center space-x-1 p-1 bg-slate-900/90 rounded-xl border border-slate-800 text-xs font-semibold">
+        <button onclick="switchTab('tab-rsa')" id="btn-tab-rsa" class="tab-btn flex items-center gap-2 px-3 py-2 rounded-lg text-purple-400 bg-purple-950/40 border border-purple-800/60 transition-all whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
+          <span>1. Studio 3D & RSA</span>
+        </button>
+        <button onclick="switchTab('tab-pharmacogenomics')" id="btn-tab-pharmacogenomics" class="tab-btn flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent transition-all whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+          <span>2. CYP2D6 & Signalisation</span>
+        </button>
+        <button onclick="switchTab('tab-sedation')" id="btn-tab-sedation" class="tab-btn flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent transition-all whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+          <span>3. Sédation & Naloxone</span>
+        </button>
+        <button onclick="switchTab('tab-rotation')" id="btn-tab-rotation" class="tab-btn flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent transition-all whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+          <span>4. Équianalgésie & Rotation</span>
+        </button>
+        <button onclick="switchTab('tab-crashtest')" id="btn-tab-crashtest" class="tab-btn flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent transition-all whitespace-nowrap">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <span>5. Crash Test (QCM)</span>
+        </button>
+      </nav>
+
+      <!-- Exam Score Pill -->
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800">
+          <span class="text-xs font-mono text-slate-400">Score QCM :</span>
+          <span id="header-score-badge" class="text-xs font-mono font-bold text-purple-400">0 / 4</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Mobile Nav Bar -->
+    <div class="md:hidden flex overflow-x-auto border-t border-slate-800 bg-slate-950 px-2 py-1.5 gap-1 text-xs">
+      <button onclick="switchTab('tab-rsa')" class="px-2.5 py-1 rounded bg-purple-950 text-purple-300 font-bold whitespace-nowrap">1. 3D & RSA</button>
+      <button onclick="switchTab('tab-pharmacogenomics')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white whitespace-nowrap">2. CYP2D6</button>
+      <button onclick="switchTab('tab-sedation')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white whitespace-nowrap">3. Naloxone</button>
+      <button onclick="switchTab('tab-rotation')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white whitespace-nowrap">4. Rotation</button>
+      <button onclick="switchTab('tab-crashtest')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white whitespace-nowrap">5. Crash Test</button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN WORKSPACE -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: STUDIO 3D & RSA MORPHINIQUE -->
+    <!-- ===================================================================== -->
+    <div id="tab-rsa" class="space-y-6">
+      
+      <!-- Top Mol Selector Bar -->
+      <div class="tech-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse"></span>
+            Pharmacologie Structurale 3D & Relations Structure-Activité (RSA)
+          </h2>
+          <p class="text-xs text-slate-400">Examinez l'interaction conformationnelle avec le récepteur opioïde µ (Asp147, His297, poche N-allyle).</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="molbtn-morphine" onclick="selectMolecule('morphine')" class="mol-selector-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-600 text-white shadow-md shadow-purple-600/30 border border-purple-400 transition-all flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-white"></span> Morphine (P3)
+          </button>
+          <button id="molbtn-codeine" onclick="selectMolecule('codeine')" class="mol-selector-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition-all flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-amber-400"></span> Codéine (P2)
+          </button>
+          <button id="molbtn-tramadol" onclick="selectMolecule('tramadol')" class="mol-selector-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition-all flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-cyan-400"></span> Tramadol (P2)
+          </button>
+          <button id="molbtn-fentanyl" onclick="selectMolecule('fentanyl')" class="mol-selector-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition-all flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-rose-400"></span> Fentanyl (P3)
+          </button>
+          <button id="molbtn-naloxone" onclick="selectMolecule('naloxone')" class="mol-selector-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition-all flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-emerald-400"></span> Naloxone (Antidote)
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Split Screen -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT 7 COLS: 3D VIEWER CONTAINER -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="tech-panel p-3 rounded-2xl relative">
+            
+            <!-- Viewer Viewport -->
+            <div id="g3d-container"></div>
+
+            <!-- Floating Viewer Controls Overlay -->
+            <div class="absolute top-6 left-6 flex flex-wrap gap-1.5 z-10">
+              <button onclick="setViewerStyle('stick')" class="px-2.5 py-1 rounded bg-slate-900/80 hover:bg-slate-800 text-[11px] font-mono border border-slate-700 text-slate-200 backdrop-blur-sm transition">Bâtonnets</button>
+              <button onclick="setViewerStyle('sphere')" class="px-2.5 py-1 rounded bg-slate-900/80 hover:bg-slate-800 text-[11px] font-mono border border-slate-700 text-slate-200 backdrop-blur-sm transition">Sphères (VDW)</button>
+              <button onclick="setViewerStyle('ballAndStick')" class="px-2.5 py-1 rounded bg-slate-900/80 hover:bg-slate-800 text-[11px] font-mono border border-slate-700 text-slate-200 backdrop-blur-sm transition">Boules & Bâtonnets</button>
+              <button onclick="setViewerStyle('surface')" class="px-2.5 py-1 rounded bg-slate-900/80 hover:bg-slate-800 text-[11px] font-mono border border-slate-700 text-slate-200 backdrop-blur-sm transition">Surface VDW</button>
+            </div>
+
+            <div class="absolute bottom-6 right-6 flex items-center gap-2 z-10">
+              <button id="btn-spin" onclick="toggleSpin()" class="px-3 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-xs font-mono border border-slate-700 text-slate-200 backdrop-blur-sm transition flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                <span>Rotation</span>
+              </button>
+              <button onclick="resetCamera()" class="px-3 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-xs font-mono border border-slate-700 text-slate-200 backdrop-blur-sm transition flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                <span>Centrer</span>
+              </button>
+            </div>
+
+            <!-- Molecular Info Ribbon -->
+            <div class="mt-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div>
+                <span id="view-mol-name" class="font-bold text-white text-sm">Morphine</span>
+                <span id="view-mol-cid" class="text-purple-400 font-mono text-xs ml-2">CID: 5288826</span>
+              </div>
+              <div id="view-mol-formula" class="font-mono text-slate-400 text-[11px]">C17H19NO3 • 285.34 g/mol</div>
+            </div>
+
+            <!-- Pharmacophore Interactive Highlights Bar -->
+            <div class="mt-3 p-3 rounded-xl bg-purple-950/20 border border-purple-900/40 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                  Pharmacophores Critiques (Cibles Atomiques) :
+                </span>
+                <button onclick="clearHighlights()" class="text-[11px] text-slate-400 hover:text-white underline">Vue standard</button>
+              </div>
+              <div id="pharmacophore-buttons" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- Highlight Detail Card -->
+            <div id="highlight-detail-card" class="mt-3 p-3 rounded-xl bg-purple-950/40 border border-purple-700/60 text-xs space-y-1 hidden">
+              <div id="highlight-title" class="font-bold text-purple-300"></div>
+              <div id="highlight-desc" class="text-slate-300 leading-relaxed text-[11px]"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RIGHT 5 COLS: PHARMACOLOGICAL DOSSIER & RSA -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <!-- Physico-chemical Badge Grid -->
+          <div class="tech-panel p-4 rounded-2xl space-y-3">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Constantes Physico-Chimiques & Pharmacocinétiques</h3>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                <div class="text-[10px] text-slate-400 font-mono">pKa (Azote / Phénol)</div>
+                <div id="prop-pka" class="font-bold font-mono text-purple-300 mt-0.5">8.0 / 9.9</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                <div class="text-[10px] text-slate-400 font-mono">LogP (Lipophilie)</div>
+                <div id="prop-logp" class="font-bold font-mono text-cyan-300 mt-0.5">0.89 (Faible)</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                <div class="text-[10px] text-slate-400 font-mono">Biodisponibilité Orale</div>
+                <div id="prop-bio" class="font-bold font-mono text-amber-300 mt-0.5">20 - 40% (1er passage)</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                <div class="text-[10px] text-slate-400 font-mono">Demi-Vie d'Élimination</div>
+                <div id="prop-thalf" class="font-bold font-mono text-rose-300 mt-0.5">2 - 3 heures</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RSA In-Depth Breakdown -->
+          <div class="tech-panel p-4 rounded-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h3 class="text-xs font-bold text-purple-400 uppercase tracking-wider">Relation Structure-Activité (RSA)</h3>
+              <span id="rsa-target-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">Cible: Récepteur µ-Opioïde (Asp147 / His297)</span>
+            </div>
+
+            <div id="rsa-analysis-text" class="text-xs leading-relaxed text-slate-300 space-y-2.5"></div>
+          </div>
+
+          <!-- Concours / Major Key Note -->
+          <div class="tech-panel-purple p-4 rounded-2xl space-y-2">
+            <div class="flex items-center gap-2 text-xs font-bold text-amber-300">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+              <span>RÉFLEXE CONCOURS / MAJOR DE PROMOTION</span>
+            </div>
+            <p id="rsa-concours-key" class="text-xs leading-relaxed text-purple-100 font-medium"></p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: PHARMACOGÉNOMIQUE DU CYP2D6 & SIGNALISATION DU RÉCEPTEUR µ -->
+    <!-- ===================================================================== -->
+    <div id="tab-pharmacogenomics" class="space-y-6 hidden">
+      
+      <!-- Banner -->
+      <div class="tech-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+            Pharmacogénomique du CYP2D6 & Signalisation Intracellulaire du Récepteur µ
+          </h2>
+          <p class="text-xs text-slate-400">Pourquoi la génétique transforme-t-elle la codéine en poison ou en placebo ? Comment le récepteur µ active-t-il la protéine Gi vs la β-arrestine 2 ?</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-mono text-cyan-400 px-2.5 py-1 rounded-lg bg-cyan-950/60 border border-cyan-800">
+            Polymorphisme Hépatique & Biais de Signalisation
+          </span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT 7 COLS: CYP2D6 SIMULATOR -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="tech-panel p-5 rounded-2xl space-y-4">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                <span>Simulateur de Phénotype Génétique CYP2D6</span>
+              </h3>
+              <span id="cyp-status-pill" class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold">
+                Activité Normale (100%)
+              </span>
+            </div>
+
+            <!-- Phenotype Selection Buttons -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button onclick="selectGenotype('PM')" id="cypbtn-PM" class="cyp-btn p-3 rounded-xl bg-slate-900 border border-slate-800 text-left hover:border-slate-700 transition">
+                <div class="text-[10px] font-mono text-slate-400">Lent (PM)</div>
+                <div class="text-xs font-bold text-slate-200 mt-1">Activité 0%</div>
+                <div class="text-[9px] text-slate-400 mt-0.5">7-10% Caucasiens</div>
+              </button>
+              <button onclick="selectGenotype('IM')" id="cypbtn-IM" class="cyp-btn p-3 rounded-xl bg-slate-900 border border-slate-800 text-left hover:border-slate-700 transition">
+                <div class="text-[10px] font-mono text-slate-400">Intermédiaire (IM)</div>
+                <div class="text-xs font-bold text-slate-200 mt-1">Activité 50%</div>
+                <div class="text-[9px] text-slate-400 mt-0.5">10-15% Population</div>
+              </button>
+              <button onclick="selectGenotype('NM')" id="cypbtn-NM" class="cyp-btn p-3 rounded-xl bg-cyan-950/60 border border-cyan-700 text-left transition">
+                <div class="text-[10px] font-mono text-cyan-400">Normal (NM/EM)</div>
+                <div class="text-xs font-bold text-cyan-200 mt-1">Activité 100%</div>
+                <div class="text-[9px] text-cyan-300/80 mt-0.5">65-70% Population</div>
+              </button>
+              <button onclick="selectGenotype('UM')" id="cypbtn-UM" class="cyp-btn p-3 rounded-xl bg-slate-900 border border-slate-800 text-left hover:border-slate-700 transition">
+                <div class="text-[10px] font-mono text-rose-400">Ultra-Rapide (UM)</div>
+                <div class="text-xs font-bold text-rose-300 mt-1">Activité 300%</div>
+                <div class="text-[9px] text-rose-400 mt-0.5">Jusqu'à 30% Maghreb</div>
+              </button>
+            </div>
+
+            <!-- Drug Tested Selection -->
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
+              <span class="font-bold text-slate-300">Molécule administrée :</span>
+              <label class="flex items-center gap-1.5 cursor-pointer">
+                <input type="radio" name="cyp-drug" value="codeine" checked onchange="updateCYP2D6Simulation()" class="text-cyan-500">
+                <span>Codéine (60 mg)</span>
+              </label>
+              <label class="flex items-center gap-1.5 cursor-pointer ml-3">
+                <input type="radio" name="cyp-drug" value="tramadol" onchange="updateCYP2D6Simulation()" class="text-cyan-500">
+                <span>Tramadol (100 mg)</span>
+              </label>
+            </div>
+
+            <!-- Bioactivation Gauge & Flux -->
+            <div class="space-y-3 p-4 rounded-xl bg-slate-900/80 border border-slate-800">
+              <div class="flex justify-between items-center text-xs">
+                <span id="active-metabolite-label" class="font-bold text-purple-300">Morphine active libérée :</span>
+                <span id="active-metabolite-val" class="font-mono font-bold text-purple-400">6.0 mg (10%)</span>
+              </div>
+              <div class="h-3 w-full bg-slate-800 rounded-full overflow-hidden p-0.5">
+                <div id="active-metabolite-bar" class="h-full bg-gradient-to-r from-purple-500 to-cyan-400 rounded-full transition-all duration-500" style="width: 25%;"></div>
+              </div>
+
+              <!-- Therapeutic vs Toxic Threshold Visual Marker -->
+              <div class="flex justify-between text-[10px] font-mono text-slate-400 pt-1">
+                <span>0% (Échec thérapeutique)</span>
+                <span class="text-emerald-400 font-bold">Zone Analgésique Optimale</span>
+                <span class="text-rose-400 font-bold">Zone de Dépression Respiratoire</span>
+              </div>
+            </div>
+
+            <!-- Dynamic Clinical Verdict Box -->
+            <div id="cyp-verdict-box" class="p-4 rounded-xl text-xs leading-relaxed space-y-2 bg-slate-900 border border-slate-800">
+              <h4 id="cyp-verdict-title" class="font-bold text-sm text-cyan-300">Phénotype Normal : Analgésie Efficace et Sécurisée</h4>
+              <p id="cyp-verdict-desc" class="text-slate-300">L'O-déméthylation par le CYP2D6 convertit environ 10% de la codéine en morphine. La morphine libérée s'ancre sur les récepteurs µ de la moelle épinière pour bloquer la transmission nociceptive.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RIGHT 5 COLS: RECEPTOR SIGNALING & BIASED AGONISM -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="tech-panel p-5 rounded-2xl space-y-4">
+            <div class="border-b border-slate-800 pb-2 flex items-center justify-between">
+              <h3 class="text-sm font-bold text-purple-300">Voie de Signalisation du Récepteur µ</h3>
+              <span class="text-[10px] font-mono text-purple-400 bg-purple-950 px-2 py-0.5 rounded border border-purple-800">Agonisme Biaisé</span>
+            </div>
+
+            <p class="text-xs text-slate-300 leading-relaxed">
+              La liaison d'un opioïde au récepteur µ déclenche une <strong>bifurcation intracellulaire critique</strong> entre l'analgésie et la toxicité :
+            </p>
+
+            <!-- Bifurcation Cards -->
+            <div class="space-y-2 text-xs">
+              <div class="p-3 rounded-xl bg-emerald-950/40 border border-emerald-800/60 space-y-1">
+                <div class="font-bold text-emerald-300 flex items-center gap-1.5">
+                  <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                  1. Voie de la Protéine Gi/o → ANALGÉSIE
+                </div>
+                <p class="text-slate-300 text-[11px] leading-relaxed">
+                  Inhibition de l'Adénylate Cyclase → Chute de l'AMPc → <strong>Ouverture des canaux K+ GIRK</strong> (hyperpolarisation post-synaptique) et <strong>fermeture des canaux Ca2+ présynaptiques</strong> voltage-dépendants → Blocage net de la libération de Substance P et Glutamate.
+                </p>
+              </div>
+
+              <div class="p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 space-y-1">
+                <div class="font-bold text-rose-300 flex items-center gap-1.5">
+                  <span class="h-2 w-2 rounded-full bg-rose-400"></span>
+                  2. Voie de la β-Arrestine 2 → TOLÉRANCE & DÉPRESSION
+                </div>
+                <p class="text-slate-300 text-[11px] leading-relaxed">
+                  Phosphorylation par GRK et recrutement de la β-arrestine 2 → Internalisation du récepteur µ → Responsable direct de la <strong>tolérance rapide</strong>, de l'iléus paralytique (constipation sévère) et de la <strong>dépression respiratoire fatale</strong> au niveau des neurones du complexe pré-Bötzinger.
+                </p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-1">
+              <span class="font-bold text-cyan-300">Frontière Thérapeutique (Agonistes Biaisés) :</span>
+              <p class="text-[11px] leading-relaxed text-slate-400">
+                La recherche pharmaceutique moderne (ex: <em>Olicéridine</em>) conçoit des ligands qui activent préférentiellement la voie Gi en évitant le recrutement de la β-arrestine 2, afin de procurer une analgésie puissante sans dépression respiratoire.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: DÉPRESSION RESPIRATOIRE, SÉDATION & TITRATION NALOXONE -->
+    <!-- ===================================================================== -->
+    <div id="tab-sedation" class="space-y-6 hidden">
+      
+      <!-- Top Banner -->
+      <div class="tech-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+            Simulateur de Dépression Respiratoire & Réanimation par la Naloxone
+          </h2>
+          <p class="text-xs text-slate-400">Surveillez les 3 signes cardinaux de l'overdose (Coma, Bradypnée, Myosis) et titrez l'antidote spécifique sans déclencher de sevrage cataclysmique.</p>
+        </div>
+        <button id="btn-naloxone-rescue" onclick="injectNaloxoneBolus()" class="px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-lg shadow-emerald-600/30 border border-emerald-300 transition-all flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+          <span id="naloxone-btn-text">Injecter un Bolus de Naloxone (0.04 mg IVD)</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT 7 COLS: OPIOID DOSE SLIDER & CLINICAL BIOSENSORS -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="tech-panel p-5 rounded-2xl space-y-5">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Dose de Morphine IV Reçue</span>
+              <div class="flex items-center gap-2">
+                <span id="opioid-dose-display" class="font-mono text-xl font-black text-rose-400">10 mg</span>
+                <span id="opioid-status-badge" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800">Dose Thérapeutique</span>
+              </div>
+            </div>
+
+            <!-- Slider Control -->
+            <div class="space-y-2">
+              <input type="range" id="opioid-slider" min="0" max="60" step="2" value="10" oninput="setOpioidDose(parseFloat(this.value))" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer">
+              <div class="flex justify-between text-[10px] font-mono text-slate-400">
+                <span>0 mg (Nul)</span>
+                <span>10 mg (Standard)</span>
+                <span>25 mg (Sédation ++)</span>
+                <span>40 mg (Overdose)</span>
+                <span class="text-rose-400 font-bold">60 mg (Arrêt respiratoire)</span>
+              </div>
+            </div>
+
+            <!-- Vital Biosensors Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              
+              <!-- FR -->
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div class="text-[10px] font-mono text-slate-400">Fréquence Resp.</div>
+                <div id="vital-fr" class="text-xl font-mono font-bold text-emerald-400">16 / min</div>
+                <div id="vital-fr-sub" class="text-[9px] text-emerald-300/80 font-mono">Eupnéique normal</div>
+              </div>
+
+              <!-- SpO2 -->
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div class="text-[10px] font-mono text-slate-400">Saturation SpO2</div>
+                <div id="vital-spo2" class="text-xl font-mono font-bold text-emerald-400">99 %</div>
+                <div id="vital-spo2-sub" class="text-[9px] text-emerald-300/80 font-mono">Oxygénation idéale</div>
+              </div>
+
+              <!-- Rudkin -->
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div class="text-[10px] font-mono text-slate-400">Score de Rudkin</div>
+                <div id="vital-rudkin" class="text-xl font-mono font-bold text-emerald-400">1 / 5</div>
+                <div id="vital-rudkin-sub" class="text-[9px] text-emerald-300/80 font-mono">Patient éveillé</div>
+              </div>
+
+              <!-- Naloxone in Blood -->
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div class="text-[10px] font-mono text-slate-400">Naloxone Active</div>
+                <div id="vital-naloxone" class="text-xl font-mono font-bold text-slate-400">0.00 mg</div>
+                <div id="vital-naloxone-sub" class="text-[9px] text-slate-400 font-mono">Non perfusé</div>
+              </div>
+
+            </div>
+
+            <!-- Dynamic Clinical Eye / Pupil SVG -->
+            <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between gap-4">
+              <div class="space-y-1">
+                <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                  <span>Examen Pupillaire Pathognomonique :</span>
+                </h4>
+                <p id="pupil-desc" class="text-[11px] text-slate-300 leading-relaxed">
+                  Pupilles isochores, réactives à la lumière. Diamètre normal (4.0 mm).
+                </p>
+                <div id="pupil-state-tag" class="text-[10px] font-mono text-emerald-400 font-bold">Normale (4 mm)</div>
+              </div>
+
+              <!-- Pupil Graphic Box -->
+              <div class="w-24 h-24 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center relative shadow-inner shrink-0">
+                <svg viewBox="0 0 100 100" class="w-20 h-20">
+                  <!-- Sclera -->
+                  <circle cx="50" cy="50" r="42" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
+                  <!-- Iris -->
+                  <circle cx="50" cy="50" r="28" fill="#3b82f6" stroke="#1d4ed8" stroke-width="1.5" />
+                  <!-- Pupil (size dynamically updated) -->
+                  <circle id="pupil-circle" cx="50" cy="50" r="14" fill="#020617" class="transition-all duration-500" />
+                  <!-- Light reflection -->
+                  <circle cx="43" cy="43" r="3" fill="#ffffff" opacity="0.8" />
+                </svg>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RIGHT 5 COLS: NALOXONE PROTOCOL & TRAP -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="tech-panel p-5 rounded-2xl space-y-4">
+            
+            <div class="border-b border-slate-800 pb-2 flex items-center justify-between">
+              <h3 class="text-sm font-bold text-emerald-400">Protocole Officiel de Titration (SFAR / SRLF)</h3>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">Urgence Vitale</span>
+            </div>
+
+            <div class="text-xs text-slate-300 space-y-2 leading-relaxed">
+              <p><strong>1. Dilution standard :</strong> Diluer 1 ampoule de 0.4 mg de Naloxone dans 10 mL de sérum physiologique (0.04 mg/mL).</p>
+              <p><strong>2. Titration progressive :</strong> Injecter 1 à 2 mL (0.04 à 0.08 mg) par voie IV directe toutes les 2 à 3 minutes jusqu'à récupération d'une fréquence respiratoire &ge; 10-12/min.</p>
+              <p class="text-amber-300"><strong>3. Objectif clinique :</strong> Restaurer la commande ventilatoire SANS réveiller totalement le patient et sans déclencher de crise de sevrage aiguë hyperalgique avec poussée hypertensive et œdème aigu du poumon (OAP) catécholaminergique !</p>
+            </div>
+
+            <!-- Critical Trap Card -->
+            <div class="tech-panel-purple p-4 rounded-xl border border-rose-800/80 space-y-2">
+              <div class="flex items-center gap-2 text-xs font-bold text-rose-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>LE PIÈGE MORTEL DU CONCOURS : LA RE-NARCOTISATION</span>
+              </div>
+              <p class="text-[11px] leading-relaxed text-purple-100">
+                La demi-vie d'élimination de la Naloxone est très brève : <strong>45 à 60 minutes</strong>.<br>
+                Celle de la Morphine est de <strong>2 à 3 heures</strong> (et jusqu'à 24-36h pour la Méthadone !).<br>
+                Dès que la naloxone quitte les récepteurs µ, les molécules morphiniques circulantes s'y fixent à nouveau → <strong>Rechute en coma respiratoire secondaire</strong>. Une surveillance minimale de 24 à 48h en soins continus est médico-légalement obligatoire !
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 4: CALCULATRICE D'ÉQUIANALGÉSIE & ROTATION DES OPIOÏDES -->
+    <!-- ===================================================================== -->
+    <div id="tab-rotation" class="space-y-6 hidden">
+      
+      <!-- Top Banner -->
+      <div class="tech-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+            Réglette Tactique d'Équianalgésie & Rotation Sécurisée des Opioïdes
+          </h2>
+          <p class="text-xs text-slate-400">Règles de conversion officielles (SFETD / ANSM), abattement de sécurité pour tolérance croisée incomplète et calcul des interdoses.</p>
+        </div>
+        <div class="text-xs font-mono px-3 py-1.5 rounded-lg bg-amber-950/60 border border-amber-800 text-amber-300">
+          Tolérance Croisée Incomplète (-30%)
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT 6 COLS: INTERACTIVE CALCULATOR -->
+        <div class="lg:col-span-6 space-y-4">
+          <div class="tech-panel p-5 rounded-2xl space-y-4">
+            <h3 class="text-sm font-bold text-white border-b border-slate-800 pb-2">Calculateur de Switch Opioïde</h3>
+            
+            <!-- Source Opioid Form -->
+            <div class="space-y-3 text-xs">
+              <label class="block font-bold text-slate-300">1. Traitement Actuel (Opioïde Source) :</label>
+              <select id="rot-source-drug" onchange="calculateRotation()" class="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-mono">
+                <option value="morphine_po" selected>Morphine Orale (PO) - Facteur 1.0</option>
+                <option value="morphine_sc">Morphine Sous-Cutanée / IV - Facteur 3.0</option>
+                <option value="oxycodone_po">Oxycodone Orale (PO) - Facteur 1.5</option>
+                <option value="tramadol_po">Tramadol Oral (PO) - Facteur 0.2</option>
+                <option value="fentanyl_patch">Fentanyl Patch Transdermique (µg/h)</option>
+              </select>
+
+              <div class="flex items-center gap-3 pt-1">
+                <div class="flex-1">
+                  <label class="block text-[11px] text-slate-400 mb-1">Dose Journalière Totale :</label>
+                  <input type="number" id="rot-source-dose" value="60" min="1" step="5" oninput="calculateRotation()" class="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-purple-400 font-mono font-bold text-base">
+                </div>
+                <div class="w-28">
+                  <label class="block text-[11px] text-slate-400 mb-1">Unité :</label>
+                  <div id="rot-unit-display" class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 font-mono text-slate-300 text-xs text-center font-bold">mg / 24h</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Target Opioid Selection -->
+            <div class="space-y-3 text-xs pt-2">
+              <label class="block font-bold text-slate-300">2. Molécule Cible (Nouveau Traitement) :</label>
+              <select id="rot-target-drug" onchange="calculateRotation()" class="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-100 font-mono">
+                <option value="oxycodone_po" selected>Oxycodone Orale (PO)</option>
+                <option value="morphine_po">Morphine Orale (PO)</option>
+                <option value="morphine_sc">Morphine Sous-Cutanée / IV</option>
+                <option value="fentanyl_patch">Fentanyl Patch Transdermique (µg/h)</option>
+                <option value="tramadol_po">Tramadol Oral (PO)</option>
+              </select>
+            </div>
+
+            <!-- Result Box -->
+            <div class="p-4 rounded-xl bg-purple-950/40 border border-purple-800/80 space-y-3">
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-300">Équivalent Morphine Orale (ÉMO) :</span>
+                <span id="rot-emo-val" class="font-mono font-bold text-purple-300">60 mg / 24h</span>
+              </div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-slate-300">Dose Théorique Brute Cible :</span>
+                <span id="rot-raw-val" class="font-mono font-bold text-slate-400">40 mg / 24h</span>
+              </div>
+              <div class="flex justify-between items-center text-xs border-t border-purple-900/60 pt-2">
+                <div>
+                  <span class="font-bold text-amber-300">Dose Recommandée avec Abattement (-30%) :</span>
+                  <div class="text-[10px] text-slate-400">Prévention de la tolérance croisée incomplète</div>
+                </div>
+                <span id="rot-safe-val" class="font-mono text-lg font-black text-amber-400">28 mg / 24h</span>
+              </div>
+              <div class="flex justify-between items-center text-xs border-t border-purple-900/60 pt-2">
+                <div>
+                  <span class="font-bold text-emerald-300">Dose de Secours (Interdose) :</span>
+                  <div class="text-[10px] text-slate-400">1/6e de la dose journalière de base</div>
+                </div>
+                <span id="rot-rescue-val" class="font-mono font-bold text-emerald-400">5 mg / prise</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RIGHT 6 COLS: RULES & STUPEFIANT REGULATIONS -->
+        <div class="lg:col-span-6 space-y-4">
+          <div class="tech-panel p-5 rounded-2xl space-y-4">
+            <h3 class="text-sm font-bold text-amber-400 border-b border-slate-800 pb-2">Cadre Réglementaire & Sécurité Officinale</h3>
+
+            <div class="space-y-3 text-xs leading-relaxed text-slate-300">
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div class="font-bold text-white flex items-center gap-1.5">
+                  <span class="text-purple-400 font-mono">1.</span> Ordonnance Sécurisée d'Airain
+                </div>
+                <p class="text-[11px] text-slate-400">
+                  Prescription en <strong>toutes lettres</strong> (nombre d'unités thérapeutiques par prise, nombre de prises, dosage). Mention obligatoire de la pharmacie dispensatrice si demandée.
+                </p>
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div class="font-bold text-white flex items-center gap-1.5">
+                  <span class="text-purple-400 font-mono">2.</span> Durées Maximales de Prescription
+                </div>
+                <p class="text-[11px] text-slate-400">
+                  • <strong>28 jours :</strong> Formes orales sèches (Morphine PO, Oxycodone PO, Méthadone gélules). Délivrance fractionnée de 7 ou 14 jours sauf mention expresse <em>« délivrance en une seule fois »</em>.<br>
+                  • <strong>14 jours :</strong> Formes injectables IV/SC (Morphine injectable).<br>
+                  • <strong>72 heures :</strong> Formes injectables via systèmes actifs de perfusion ambulatoire sans sécurité.
+                </p>
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                <div class="font-bold text-white flex items-center gap-1.5">
+                  <span class="text-purple-400 font-mono">3.</span> Règle de Chevauchement
+                </div>
+                <p class="text-[11px] text-slate-400">
+                  Interdiction stricte de chevauchement d'ordonnances de stupéfiants sans mention explicite du prescripteur : <em>« En complément de... »</em> ou <em>« En remplacement de... »</em>.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 5: CLINICAL CRASH TEST EXAM SUITE -->
+    <!-- ===================================================================== -->
+    <div id="tab-crashtest" class="space-y-6 hidden">
+      
+      <!-- Top Banner -->
+      <div class="tech-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+            Crash Test Clinique & QCM Concours : Opioïdes & Antidotes
+          </h2>
+          <p class="text-xs text-slate-400">4 dossiers à haut risque sémiologique et pharmacocinétique pour viser le rang 1 de l'Internat.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-xs font-mono px-3 py-1 rounded-lg bg-slate-900 border border-slate-800">
+            Score Total : <span id="exam-score-total" class="font-bold text-purple-400">0 / 4</span>
+          </div>
+          <button onclick="resetExam()" class="text-xs text-slate-400 hover:text-white underline">Réinitialiser</button>
+        </div>
+      </div>
+
+      <!-- Cases Grid (2 cols) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- CASE 1 -->
+        <div class="tech-panel p-5 rounded-2xl space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 font-bold">Dossier 1 • Pharmacogénomique</span>
+              <span id="case-status-1" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">À résoudre</span>
+            </div>
+
+            <h3 class="text-sm font-bold text-white">Cas 1 : Allaitement maternel et décès inopiné du nouveau-né sous Codéine</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Une primipare de 28 ans reçoit de la codéine (60 mg x 3/j) pour des douleurs d'épisiotomie. Elle allaite exclusivement son nouveau-né. Au 12e jour de vie, le bébé présente une léthargie sévère, une hypotonie et décède brutalement d'un arrêt respiratoire. L'autopsie révèle des concentrations sanguines de morphine de 70 ng/mL (valeur létale). Quelle anomalie génétique maternelle explique ce drame ?
+            </p>
+
+            <!-- Options -->
+            <div class="space-y-2 pt-2 text-xs">
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-1" value="A" class="mt-0.5 text-purple-500">
+                <span><strong>A.</strong> Phénotype métaboliseur lent du CYP2D6 (accumulation de codéine mère toxique pour le fœtus).</span>
+              </label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-1" value="B" class="mt-0.5 text-purple-500">
+                <span><strong>B.</strong> Phénotype métaboliseur ultra-rapide (UM) du CYP2D6 (duplication allélique provoquant une formation massive de morphine passant dans le lait maternel).</span>
+              </label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-1" value="C" class="mt-0.5 text-purple-500">
+                <span><strong>C.</strong> Déficit congénital en P-glycoprotéine rénale chez la mère bloquant l'excrétion urinaire.</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="pt-3">
+            <button onclick="submitCase(1, 'B')" class="w-full py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white transition">Valider l'Analyse</button>
+            <div id="case-feedback-1" class="mt-3 hidden"></div>
+          </div>
+        </div>
+
+        <!-- CASE 2 -->
+        <div class="tech-panel p-5 rounded-2xl space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 font-bold">Dossier 2 • Interaction Psychiatrie</span>
+              <span id="case-status-2" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">À résoudre</span>
+            </div>
+
+            <h3 class="text-sm font-bold text-white">Cas 2 : Association Tramadol + Fluoxétine (Prozac)</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Un patient de 45 ans traité par Fluoxétine (20 mg/j) pour dépression consulte pour une lombosciatique aiguë. Son médecin lui prescrit du Tramadol (50 mg x 3/j). 48 heures plus tard, il est admis aux urgences pour agitation, hyperthermie à 39.5°C, myoclonies, sueurs profuses et diarrhée, sans aucun soulagement de sa lombalgie. Quel double mécanisme explique ce tableau ?
+            </p>
+
+            <!-- Options -->
+            <div class="space-y-2 pt-2 text-xs">
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-2" value="A" class="mt-0.5 text-purple-500">
+                <span><strong>A.</strong> Syndrome sérotoninergique par synergie 5-HT + inhibition du CYP2D6 par la fluoxétine empêchant la conversion du tramadol en métabolite actif antalgique M1.</span>
+              </label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-2" value="B" class="mt-0.5 text-purple-500">
+                <span><strong>B.</strong> Induction enzymatique massive du CYP3A4 par la fluoxétine dégradant tout le tramadol.</span>
+              </label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-2" value="C" class="mt-0.5 text-purple-500">
+                <span><strong>C.</strong> Méningite bactérienne sans aucun lien avec la coprescription.</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="pt-3">
+            <button onclick="submitCase(2, 'A')" class="w-full py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white transition">Valider l'Analyse</button>
+            <div id="case-feedback-2" class="mt-3 hidden"></div>
+          </div>
+        </div>
+
+        <!-- CASE 3 -->
+        <div class="tech-panel p-5 rounded-2xl space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 font-bold">Dossier 3 • Insuffisance Rénale</span>
+              <span id="case-status-3" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">À résoudre</span>
+            </div>
+
+            <h3 class="text-sm font-bold text-white">Cas 3 : Morphine chez l'insuffisant rénal sévère (DFG 18 mL/min)</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Un patient atteint d'insuffisance rénale terminale (DFG 18 mL/min) reçoit de la Morphine LP 60 mg/j pour des douleurs cancéreuses. Au bout de 4 jours, il développe des myoclonies diffuses, une hyperalgie paradoxale puis un coma respiratoire. Quel est le substrat toxique accumulé ?
+            </p>
+
+            <!-- Options -->
+            <div class="space-y-2 pt-2 text-xs">
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-3" value="A" class="mt-0.5 text-purple-500">
+                <span><strong>A.</strong> La morphine libre non métabolisée qui ne peut être éliminée par le foie.</span>
+              </label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-3" value="B" class="mt-0.5 text-purple-500">
+                <span><strong>B.</strong> Accumulation toxique des métabolites glucuronides : le M6G (dépresseur respiratoire puissant) et le M3G (neurotoxique, myoclonies, sans effet analgésique).</span>
+              </label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-3" value="C" class="mt-0.5 text-purple-500">
+                <span><strong>C.</strong> Précipitation tubulaire de cristaux d'acide salicylique.</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="pt-3">
+            <button onclick="submitCase(3, 'B')" class="w-full py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white transition">Valider l'Analyse</button>
+            <div id="case-feedback-3" class="mt-3 hidden"></div>
+          </div>
+        </div>
+
+        <!-- CASE 4 -->
+        <div class="tech-panel p-5 rounded-2xl space-y-4 flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 font-bold">Dossier 4 • Piège Toxico-Cinétique</span>
+              <span id="case-status-4" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">À résoudre</span>
+            </div>
+
+            <h3 class="text-sm font-bold text-white">Cas 4 : Overdose à la Méthadone et Réveil sous Naloxone</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Un patient comateux en bradypnée sévère (4/min) suite à une prise massive de Méthadone reçoit 0.4 mg de Naloxone IV. Il se réveille instantanément, retire sa voie veineuse et veut signer une sortie contre avis médical après 30 minutes. Quelle consigne impérative devez-vous donner à l'équipe soignante ?
+            </p>
+
+            <!-- Options -->
+            <div class="space-y-2 pt-2 text-xs">
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-4" value="A" class="mt-0.5 text-purple-500">
+                <span><strong>A.</strong> Le laisser sortir car la naloxone a détruit irréversiblement les molécules de méthadone dans le sang.</span>
+              </label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-4" value="B" class="mt-0.5 text-purple-500">
+                <span><strong>B.</strong> Maintien sous surveillance hospitalière stricte pendant au moins 24 à 48h car la demi-vie de la naloxone (45-60 min) est très inférieure à celle de la méthadone (24-36h), exposant à une re-narcotisation létale.</span>
+              </label>
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:bg-slate-800 cursor-pointer transition">
+                <input type="radio" name="case-4" value="C" class="mt-0.5 text-purple-500">
+                <span><strong>C.</strong> Administrer 1000 mg de paracétamol pour prévenir un syndrome de sevrage.</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="pt-3">
+            <button onclick="submitCase(4, 'B')" class="w-full py-2 rounded-xl text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white transition">Valider l'Analyse</button>
+            <div id="case-feedback-4" class="mt-3 hidden"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Final Score Verdict Card -->
+      <div id="final-exam-card" class="tech-panel-purple p-6 rounded-2xl space-y-3 hidden">
+        <div class="flex items-center justify-between">
+          <h3 id="final-verdict-title" class="text-base font-bold text-white"></h3>
+          <span id="exam-rank-text" class="text-xs font-mono font-bold text-bioemerald-400"></span>
+        </div>
+        <p id="final-verdict-desc" class="text-xs leading-relaxed text-purple-100"></p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- JAVASCRIPT APPLICATION CORE LOGIC -->
+  <script>
+    const EMBEDDED_SDF = {"morphine": "5288826\n  -OEChem-09122618243D\n\n 40 44  0     1  0  0  0  0  0999 V2000\n   -1.9930   -0.4740    1.2005 O   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.7826   -2.5168   -0.2218 O   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.6220    1.8421    0.5579 O   0  0  0  0  0  0  0  0  0  0  0  0\n    3.1777   -0.0101    0.4474 N   0  0  2  0  0  0  0  0  0  0  0  0\n    0.3699   -0.7149    0.6616 C   0  0  1  0  0  0  0  0  0  0  0  0\n    1.2913   -1.3046   -0.4170 C   0  0  2  0  0  0  0  0  0  0  0  0\n    2.3441   -0.2023   -0.7640 C   0  0  1  0  0  0  0  0  0  0  0  0\n   -0.9377   -1.4750    0.9848 C   0  0  2  0  0  0  0  0  0  0  0  0\n    1.1988   -0.3907    1.9201 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.2516    0.5302    0.1205 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.6887    1.1052   -1.3279 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.4315    0.4754    1.6126 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.3384    1.4306   -0.7480 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.3631   -2.5067   -0.0924 C   0  0  2  0  0  0  0  0  0  0  0  0\n    0.5066   -1.8183   -1.5971 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.5672    0.6306    0.5136 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.7155   -2.3492   -1.4425 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.3733    0.7916    0.2084 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.4184    2.5415   -1.1246 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.3310    1.7217    0.1620 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.7382    2.6936   -0.6541 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.8278   -2.1759   -0.0118 H   0  0  0  0  0  0  0  0  0  0  0  0\n    3.0029   -0.6035   -1.5465 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.8451   -2.0128    1.9373 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.5366   -1.3335    2.3712 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.5899    0.1174    2.6790 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.5474    0.9596   -2.4075 H   0  0  0  0  0  0  0  0  0  0  0  0\n    2.3530    1.9680   -1.2194 H   0  0  0  0  0  0  0  0  0  0  0  0\n    2.1271    1.5205    1.4760 H   0  0  0  0  0  0  0  0  0  0  0  0\n    3.0801    0.4584    2.4975 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.0772   -3.5067    0.2593 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.9601   -1.7947   -2.5831 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.2300   -2.7505   -2.3109 H   0  0  0  0  0  0  0  0  0  0  0  0\n    4.1500    1.8479    0.0287 H   0  0  0  0  0  0  0  0  0  0  0  0\n    4.9380    0.4055   -0.6472 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.0444    0.7352    1.0730 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.0062    3.2824   -1.8043 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.3121    3.5638   -0.9645 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.1557   -2.6446    0.6672 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.8483    1.0686    1.1031 H   0  0  0  0  0  0  0  0  0  0  0  0\n  1  8  1  0  0  0  0\n  1 16  1  0  0  0  0\n  2 14  1  0  0  0  0\n  2 39  1  0  0  0  0\n  3 20  1  0  0  0  0\n  3 40  1  0  0  0  0\n  4  7  1  0  0  0  0\n  4 12  1  0  0  0  0\n  4 18  1  0  0  0  0\n  5  6  1  0  0  0  0\n  5  8  1  0  0  0  0\n  5  9  1  0  0  0  0\n  5 10  1  0  0  0  0\n  6  7  1  0  0  0  0\n  6 15  1  0  0  0  0\n  6 22  1  0  0  0  0\n  7 11  1  0  0  0  0\n  7 23  1  0  0  0  0\n  8 14  1  0  0  0  0\n  8 24  1  0  0  0  0\n  9 12  1  0  0  0  0\n  9 25  1  0  0  0  0\n  9 26  1  0  0  0  0\n 10 13  2  0  0  0  0\n 10 16  1  0  0  0  0\n 11 13  1  0  0  0  0\n 11 27  1  0  0  0  0\n 11 28  1  0  0  0  0\n 12 29  1  0  0  0  0\n 12 30  1  0  0  0  0\n 13 19  1  0  0  0  0\n 14 17  1  0  0  0  0\n 14 31  1  0  0  0  0\n 15 17  2  0  0  0  0\n 15 32  1  0  0  0  0\n 16 20  2  0  0  0  0\n 17 33  1  0  0  0  0\n 18 34  1  0  0  0  0\n 18 35  1  0  0  0  0\n 18 36  1  0  0  0  0\n 19 21  2  0  0  0  0\n 19 37  1  0  0  0  0\n 20 21  1  0  0  0  0\n 21 38  1  0  0  0  0\nM  END\n> <PUBCHEM_COMPOUND_CID>\n5288826\n\n> <PUBCHEM_CONFORMER_RMSD>\n0.6\n\n> <PUBCHEM_CONFORMER_DIVERSEORDER>\n1\n\n> <PUBCHEM_MMFF94_PARTIAL_CHARGES>\n26\n1 -0.36\n10 -0.14\n11 0.14\n12 0.27\n13 -0.14\n14 0.42\n15 -0.29\n16 0.08\n17 -0.29\n18 0.27\n19 -0.15\n2 -0.68\n20 0.08\n21 -0.15\n3 -0.53\n32 0.15\n33 0.15\n37 0.15\n38 0.15\n39 0.4\n4 -0.81\n40 0.45\n5 0.14\n6 0.14\n7 0.27\n8 0.28\n\n> <PUBCHEM_EFFECTIVE_ROTOR_COUNT>\n1.2\n\n> <PUBCHEM_PHARMACOPHORE_FEATURES>\n10\n1 1 acceptor\n1 2 acceptor\n1 2 donor\n1 3 donor\n1 4 cation\n5 1 5 8 10 16 rings\n6 10 13 16 19 20 21 rings\n6 4 5 6 7 9 12 rings\n6 5 6 7 10 11 13 rings\n6 5 6 8 14 15 17 rings\n\n> <PUBCHEM_HEAVY_ATOM_COUNT>\n21\n\n> <PUBCHEM_ATOM_DEF_STEREO_COUNT>\n5\n\n> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_BOND_DEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_BOND_UDEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_ISOTOPIC_ATOM_COUNT>\n0\n\n> <PUBCHEM_COMPONENT_COUNT>\n1\n\n> <PUBCHEM_CACTVS_TAUTO_COUNT>\n3\n\n> <PUBCHEM_CONFORMER_ID>\n0050B37A00000001\n\n> <PUBCHEM_MMFF94_ENERGY>\n74.8429\n\n> <PUBCHEM_FEATURE_SELFOVERLAP>\n52.873\n\n> <PUBCHEM_SHAPE_FINGERPRINT>\n10165383 225 18201451224619826784\n10863032 1 18271807882738128182\n10871710 139 17975427020448559044\n10948715 1 18269553840856601268\n11578080 2 17916862543033451120\n12035758 1 17979921506076134602\n12326174 3 16761939621672351259\n12403814 3 18127127700562790162\n12423570 1 13554306196661771698\n13132413 78 16832327581639147097\n13140716 1 18188786057421996321\n13172582 1 18260836951273720209\n13681431 1 17258466355483259718\n141345 1 11468367428490074574\n144361 1 17623048910753830566\n14817 1 13651070280742688743\n15852999 172 18199182901892535827\n16945 1 18189637062236146638\n17357779 13 17772166846782183447\n18393751 57 17187542376137546200\n19868273 325 18263924500288743760\n21524375 3 18267574711299526024\n22112679 90 18121790679236681172\n22182313 1 18194427527483256583\n2334 1 17972616638225251261\n23388829 49 17833828657105785732\n23402539 116 18338509850163596911\n23419403 2 15694871661581035675\n23557571 272 18270408299151999272\n23559900 14 18059580127798590934\n238 59 17618764874292193101\n2748010 2 17975155161707925181\n34934 24 18113338621838265964\n495365 180 17547829890269334821\n7364860 26 17256519721717681045\n81228 2 18194937829152466419\n84936 31 17124492616027647943\n\n> <PUBCHEM_SHAPE_MULTIPOLES>\n409.58\n4.45\n3.02\n1.55\n2.3\n0.24\n-0.13\n-1.6\n-0.99\n-2.59\n1.17\n0.46\n0.26\n-0.03\n\n> <PUBCHEM_SHAPE_SELFOVERLAP>\n930.437\n\n> <PUBCHEM_SHAPE_VOLUME>\n211.2\n\n> <PUBCHEM_COORDINATE_TYPE>\n2\n5\n10\n\n$$$$\n", "codeine": "5284371\n  -OEChem-09122618383D\n\n 43 47  0     1  0  0  0  0  0999 V2000\n   -1.5926   -1.0371    1.1890 O   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.8298   -3.2224   -0.2208 O   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.7490    0.7880    0.5181 O   0  0  0  0  0  0  0  0  0  0  0  0\n    3.2987    0.7132    0.4612 N   0  0  2  0  0  0  0  0  0  0  0  0\n    0.7585   -0.6767    0.6654 C   0  0  1  0  0  0  0  0  0  0  0  0\n    1.8071   -1.0215   -0.4031 C   0  0  2  0  0  0  0  0  0  0  0  0\n    2.5499    0.3087   -0.7532 C   0  0  1  0  0  0  0  0  0  0  0  0\n   -0.3170   -1.7404    0.9876 C   0  0  2  0  0  0  0  0  0  0  0  0\n    1.4691   -0.1453    1.9259 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.1533    0.3674    0.1106 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.5897    1.4045   -1.3316 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.4454    1.0021    1.6181 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.1967    1.3820   -0.7621 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.4599   -2.8532   -0.0835 C   0  0  2  0  0  0  0  0  0  0  0  0\n    1.1865   -1.7246   -1.5833 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.4545    0.1347    0.4954 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.1370   -2.5460   -1.4311 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.2548    1.7894    0.2223 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.8133    2.2630   -1.1520 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.4665    0.9951    0.1305 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.1323    2.0799   -0.6902 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -4.7250    1.7390    0.0868 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.5432   -1.7265    0.0124 H   0  0  0  0  0  0  0  0  0  0  0  0\n    3.2945    0.0818   -1.5287 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.0988   -2.2310    1.9450 H   0  0  0  0  0  0  0  0  0  0  0  0\n    2.0307   -0.9692    2.3866 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.7460    0.1975    2.6771 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.4978    1.2209   -2.4108 H   0  0  0  0  0  0  0  0  0  0  0  0\n    2.0137    2.4078   -1.2265 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.8878    1.9354    1.4711 H   0  0  0  0  0  0  0  0  0  0  0  0\n    3.0705    1.1554    2.5067 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0666   -3.7461    0.2781 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.6268   -1.5936   -2.5669 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.2529   -3.0700   -2.2991 H   0  0  0  0  0  0  0  0  0  0  0  0\n    3.7733    2.7539    0.0327 H   0  0  0  0  0  0  0  0  0  0  0  0\n    4.9052    1.5529   -0.6269 H   0  0  0  0  0  0  0  0  0  0  0  0\n    4.9119    1.9100    1.0911 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.5953    3.0800   -1.8348 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.8599    2.8061   -1.0394 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.1650   -3.4351    0.6669 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -4.5125    2.7381    0.4819 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -5.6882    1.4255    0.5022 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -4.8280    1.7389   -1.0034 H   0  0  0  0  0  0  0  0  0  0  0  0\n  1  8  1  0  0  0  0\n  1 16  1  0  0  0  0\n  2 14  1  0  0  0  0\n  2 40  1  0  0  0  0\n  3 20  1  0  0  0  0\n  3 22  1  0  0  0  0\n  4  7  1  0  0  0  0\n  4 12  1  0  0  0  0\n  4 18  1  0  0  0  0\n  5  6  1  0  0  0  0\n  5  8  1  0  0  0  0\n  5  9  1  0  0  0  0\n  5 10  1  0  0  0  0\n  6  7  1  0  0  0  0\n  6 15  1  0  0  0  0\n  6 23  1  0  0  0  0\n  7 11  1  0  0  0  0\n  7 24  1  0  0  0  0\n  8 14  1  0  0  0  0\n  8 25  1  0  0  0  0\n  9 12  1  0  0  0  0\n  9 26  1  0  0  0  0\n  9 27  1  0  0  0  0\n 10 13  2  0  0  0  0\n 10 16  1  0  0  0  0\n 11 13  1  0  0  0  0\n 11 28  1  0  0  0  0\n 11 29  1  0  0  0  0\n 12 30  1  0  0  0  0\n 12 31  1  0  0  0  0\n 13 19  1  0  0  0  0\n 14 17  1  0  0  0  0\n 14 32  1  0  0  0  0\n 15 17  2  0  0  0  0\n 15 33  1  0  0  0  0\n 16 20  2  0  0  0  0\n 17 34  1  0  0  0  0\n 18 35  1  0  0  0  0\n 18 36  1  0  0  0  0\n 18 37  1  0  0  0  0\n 19 21  2  0  0  0  0\n 19 38  1  0  0  0  0\n 20 21  1  0  0  0  0\n 21 39  1  0  0  0  0\n 22 41  1  0  0  0  0\n 22 42  1  0  0  0  0\n 22 43  1  0  0  0  0\nM  END\n> <PUBCHEM_COMPOUND_CID>\n5284371\n\n> <PUBCHEM_CONFORMER_RMSD>\n0.6\n\n> <PUBCHEM_CONFORMER_DIVERSEORDER>\n1\n\n> <PUBCHEM_MMFF94_PARTIAL_CHARGES>\n26\n1 -0.36\n10 -0.14\n11 0.14\n12 0.27\n13 -0.14\n14 0.42\n15 -0.29\n16 0.08\n17 -0.29\n18 0.27\n19 -0.15\n2 -0.68\n20 0.08\n21 -0.15\n22 0.28\n3 -0.36\n33 0.15\n34 0.15\n38 0.15\n39 0.15\n4 -0.81\n40 0.4\n5 0.14\n6 0.14\n7 0.27\n8 0.28\n\n> <PUBCHEM_EFFECTIVE_ROTOR_COUNT>\n2.2\n\n> <PUBCHEM_PHARMACOPHORE_FEATURES>\n10\n1 1 acceptor\n1 2 acceptor\n1 2 donor\n1 3 acceptor\n1 4 cation\n5 1 5 8 10 16 rings\n6 10 13 16 19 20 21 rings\n6 4 5 6 7 9 12 rings\n6 5 6 7 10 11 13 rings\n6 5 6 8 14 15 17 rings\n\n> <PUBCHEM_HEAVY_ATOM_COUNT>\n22\n\n> <PUBCHEM_ATOM_DEF_STEREO_COUNT>\n5\n\n> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_BOND_DEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_BOND_UDEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_ISOTOPIC_ATOM_COUNT>\n0\n\n> <PUBCHEM_COMPONENT_COUNT>\n1\n\n> <PUBCHEM_CACTVS_TAUTO_COUNT>\n1\n\n> <PUBCHEM_CONFORMER_ID>\n0050A21300000001\n\n> <PUBCHEM_MMFF94_ENERGY>\n86.8514\n\n> <PUBCHEM_FEATURE_SELFOVERLAP>\n52.875\n\n> <PUBCHEM_SHAPE_FINGERPRINT>\n10165383 225 18271815626612006224\n104564 63 18125434469387790263\n10863032 1 17988923383575816526\n10871710 139 17542518574892179276\n10948715 1 18342174462167820428\n11578080 2 17844243154462313416\n12035758 1 18268145349714419042\n12423570 1 15172270675521901358\n12716301 132 18057589053141114482\n13140716 1 18263933150569377027\n13172582 1 18187366536328367929\n13681431 1 17265523648286347086\n141345 1 12873117395699313718\n14142880 1 18051390053876007888\n144361 1 17404908054592749606\n14817 1 12459610013145756230\n15852999 172 18343868809459746170\n16945 1 17901124210549227282\n17357779 13 17556563675936898375\n20905425 154 17467348928812575822\n21524375 3 18410286982720648920\n22112679 90 17761784265775947238\n22182313 1 18193585370116762235\n23388829 49 17400638723840670292\n23419403 2 17768575717183535390\n23557571 272 18197788906206643080\n238 59 17907274586516203221\n2748010 2 18191613919887358891\n3060560 45 18262806138313347471\n34934 24 18040714818066959332\n427121 178 18343298145787175057\n4340502 62 18060137626799898305\n495365 180 17981021043542337733\n5939293 188 18113347418026474357\n7364860 26 17906448831692679861\n81228 2 17979044387501088682\n84936 31 17556843742222085087\n\n> <PUBCHEM_SHAPE_MULTIPOLES>\n430.16\n5.34\n3.13\n1.5\n2.68\n2.14\n0.13\n-4.47\n0.91\n0.8\n-0.96\n-0.71\n0.14\n0.53\n\n> <PUBCHEM_SHAPE_SELFOVERLAP>\n969.267\n\n> <PUBCHEM_SHAPE_VOLUME>\n224.4\n\n> <PUBCHEM_COORDINATE_TYPE>\n2\n5\n10\n\n$$$$\n", "tramadol": "33741\n  -OEChem-09122618243D\n\n 44 45  0     1  0  0  0  0  0999 V2000\n   -1.2421    1.4059    1.6782 O   0  0  0  0  0  0  0  0  0  0  0  0\n    3.5426   -0.4131   -1.6077 O   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.3974   -2.3616    0.0088 N   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.5979   -0.0487   -0.2112 C   0  0  2  0  0  0  0  0  0  0  0  0\n   -0.6980    1.0757    0.3899 C   0  0  1  0  0  0  0  0  0  0  0  0\n   -3.0394    0.4487   -0.4414 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.7842    2.3543   -0.4812 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.0802    1.7118   -1.2951 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.2237    2.8207   -0.6986 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.6466   -1.3078    0.6675 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.7637    0.6314    0.5226 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.4939    0.3076   -0.6172 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.3514    0.5554    1.7820 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.4472   -3.5662    0.8432 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.8140   -2.6794   -1.2981 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.8237   -0.0960   -0.4964 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.6810    0.1520    1.9027 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.4173   -0.1735    0.7636 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.8969   -0.8170   -1.4117 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.1682   -0.2798   -1.1919 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.5286    0.6499    0.5204 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.6455   -0.3123   -0.9455 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.3267    2.1932   -1.4649 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.2269    3.1721   -0.0057 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -4.1155    2.0584   -1.3901 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.7274    1.4800   -2.3077 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.2294    3.6888   -1.3677 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.6578    3.1526    0.2522 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.1192   -1.0652    1.6278 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.6310   -1.6550    0.8938 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.8516    2.2477    1.9695 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.0480    0.3569   -1.6066 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.8111    0.7945    2.6926 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.9045   -3.3426    1.8136 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.4510   -3.9881    1.0193 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.0714   -4.3348    0.3739 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.0392   -1.9175   -2.0502 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.2595   -3.5985   -1.6993 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.7302   -2.8360   -1.2475 H   0  0  0  0  0  0  0  0  0  0  0  0\n    3.1423    0.0901    2.8842 H   0  0  0  0  0  0  0  0  0  0  0  0\n    4.4445   -0.4794    0.9298 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.3167   -1.0307   -2.4001 H   0  0  0  0  0  0  0  0  0  0  0  0\n    4.9605   -1.7431   -0.8303 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.4981   -0.0115   -0.9765 H   0  0  0  0  0  0  0  0  0  0  0  0\n  1  5  1  0  0  0  0\n  1 31  1  0  0  0  0\n  2 16  1  0  0  0  0\n  2 19  1  0  0  0  0\n  3 10  1  0  0  0  0\n  3 14  1  0  0  0  0\n  3 15  1  0  0  0  0\n  4  5  1  0  0  0  0\n  4  6  1  0  0  0  0\n  4 10  1  0  0  0  0\n  4 20  1  0  0  0  0\n  5  7  1  0  0  0  0\n  5 11  1  0  0  0  0\n  6  8  1  0  0  0  0\n  6 21  1  0  0  0  0\n  6 22  1  0  0  0  0\n  7  9  1  0  0  0  0\n  7 23  1  0  0  0  0\n  7 24  1  0  0  0  0\n  8  9  1  0  0  0  0\n  8 25  1  0  0  0  0\n  8 26  1  0  0  0  0\n  9 27  1  0  0  0  0\n  9 28  1  0  0  0  0\n 10 29  1  0  0  0  0\n 10 30  1  0  0  0  0\n 11 12  2  0  0  0  0\n 11 13  1  0  0  0  0\n 12 16  1  0  0  0  0\n 12 32  1  0  0  0  0\n 13 17  2  0  0  0  0\n 13 33  1  0  0  0  0\n 14 34  1  0  0  0  0\n 14 35  1  0  0  0  0\n 14 36  1  0  0  0  0\n 15 37  1  0  0  0  0\n 15 38  1  0  0  0  0\n 15 39  1  0  0  0  0\n 16 18  2  0  0  0  0\n 17 18  1  0  0  0  0\n 17 40  1  0  0  0  0\n 18 41  1  0  0  0  0\n 19 42  1  0  0  0  0\n 19 43  1  0  0  0  0\n 19 44  1  0  0  0  0\nM  END\n> <PUBCHEM_COMPOUND_CID>\n33741\n\n> <PUBCHEM_CONFORMER_RMSD>\n0.8\n\n> <PUBCHEM_CONFORMER_DIVERSEORDER>\n1\n8\n6\n14\n4\n12\n16\n10\n17\n11\n9\n13\n3\n7\n2\n15\n5\n\n> <PUBCHEM_MMFF94_PARTIAL_CHARGES>\n19\n1 -0.68\n10 0.27\n11 -0.14\n12 -0.15\n13 -0.15\n14 0.27\n15 0.27\n16 0.08\n17 -0.15\n18 -0.15\n19 0.28\n2 -0.36\n3 -0.81\n31 0.4\n32 0.15\n33 0.15\n40 0.15\n41 0.15\n5 0.42\n\n> <PUBCHEM_EFFECTIVE_ROTOR_COUNT>\n5.2\n\n> <PUBCHEM_PHARMACOPHORE_FEATURES>\n6\n1 1 acceptor\n1 1 donor\n1 2 acceptor\n1 3 cation\n6 11 12 13 16 17 18 rings\n6 4 5 6 7 8 9 rings\n\n> <PUBCHEM_HEAVY_ATOM_COUNT>\n19\n\n> <PUBCHEM_ATOM_DEF_STEREO_COUNT>\n2\n\n> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_BOND_DEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_BOND_UDEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_ISOTOPIC_ATOM_COUNT>\n0\n\n> <PUBCHEM_COMPONENT_COUNT>\n1\n\n> <PUBCHEM_CACTVS_TAUTO_COUNT>\n1\n\n> <PUBCHEM_CONFORMER_ID>\n000083CD00000001\n\n> <PUBCHEM_MMFF94_ENERGY>\n63.8339\n\n> <PUBCHEM_FEATURE_SELFOVERLAP>\n30.446\n\n> <PUBCHEM_SHAPE_FINGERPRINT>\n107951 10 17969521315366842595\n11640471 11 17313385569895509084\n116883 192 18124297557833393975\n12202030 40 17845937436959911658\n12363563 72 17903337535925082147\n12500047 106 18265600010149488928\n12553582 1 18116432742190702211\n12714826 92 18339929310874020595\n12788726 201 17895195532388922691\n12841375 5 17181670991853999123\n133893 2 17182775468611668777\n13538477 17 18040704862142512384\n14251764 30 17752787975834026531\n14817 1 13526123742251884593\n15163728 17 17390786666054213389\n15342168 16 14563399266784338692\n15669948 3 18186236212610335756\n15852999 172 18198045993926387564\n15906896 17 17894912884875519297\n16752209 62 18261940878517818347\n16945 1 18336532855295074657\n17357779 13 17985810752225974439\n1813 80 18048885379214781395\n18186145 218 17915446216942472489\n19868273 293 18187926127638332916\n200 152 14691988233758231372\n20600515 1 18267563789409481528\n20645476 183 17822293435863290783\n20645477 70 16916775267800600476\n20693207 138 18060136548689481476\n20871999 31 18335144210468221007\n21421566 26 18264787595367911052\n21452121 199 17758379061237700243\n21731516 1 18046062924249783723\n22907989 373 18410583889425443549\n23184049 29 18118670243952263561\n23366157 5 17034433770966052333\n23526113 38 17702926115387052840\n23557571 272 18339631360650812408\n23559900 14 18342452605062091408\n23598288 3 17749393624497962889\n2748010 2 18127398158468299459\n298252 57 17897151434652162849\n458136 41 17761778369218879921\n4921388 177 18411709759504625036\n6049 1 18131351951153728768\n7615 1 17240748602144242872\n77492 1 17241037704682450688\n81228 2 18339067302827495561\n88987 49 18262223452916804480\n90525 40 17968373425300537593\n9709674 26 18131055061333729180\n\n> <PUBCHEM_SHAPE_MULTIPOLES>\n374.29\n6.61\n3.17\n1.68\n6.91\n2.01\n-0.27\n1.43\n2.56\n-4.84\n0.31\n1.22\n0.07\n1.04\n\n> <PUBCHEM_SHAPE_SELFOVERLAP>\n771.871\n\n> <PUBCHEM_SHAPE_VOLUME>\n215\n\n> <PUBCHEM_COORDINATE_TYPE>\n2\n5\n10\n\n$$$$\n", "fentanyl": "3345\n  -OEChem-09122618383D\n\n 53 55  0     0  0  0  0  0  0999 V2000\n   -3.7000   -2.9403   -0.0314 O   0  0  0  0  0  0  0  0  0  0  0  0\n    1.2909   -0.1114   -0.4784 N   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.8764   -0.7175   -0.0363 N   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.4766   -1.0199   -0.2022 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.9404   -0.4203   -1.5019 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.6597   -0.5161    0.9880 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.5661   -0.6478   -1.6387 C   0  0  0  0  0  0  0  0  0  0  0  0\n    0.8373   -0.7417    0.7691 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.7326   -0.2919   -0.6480 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.5059    0.3786    0.4882 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.2795    0.6836    0.0623 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.8870   -1.7228    0.0362 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.9952    0.2192    0.3135 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -5.3128   -1.1944    0.1652 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.3214    1.2427    1.3046 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.5847    1.3353   -1.0951 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -6.3477   -2.3057    0.2534 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.6318   -0.8815    0.8667 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.7039    1.1761   -0.3973 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.7053    2.5805    1.3984 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.9684    2.6732   -1.0014 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -4.0287    3.2957    0.2454 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.0096   -1.0288    0.7055 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.0814    1.0288   -0.5586 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.7343   -0.0737   -0.0071 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.3624   -2.1101   -0.2568 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.1021    0.6624   -1.5464 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.4600   -0.8563   -2.3638 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.9803   -1.0212    1.9074 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.8000    0.5585    1.1496 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.7659   -1.7204   -1.7631 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.9046   -0.1462   -2.5537 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.3201   -0.3087    1.6486 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.0535   -1.8182    0.7685 H   0  0  0  0  0  0  0  0  0  0  0  0\n    2.9914   -1.3578   -0.7077 H   0  0  0  0  0  0  0  0  0  0  0  0\n    3.0464    0.1616   -1.5975 H   0  0  0  0  0  0  0  0  0  0  0  0\n    3.2645   -0.0385    1.4708 H   0  0  0  0  0  0  0  0  0  0  0  0\n    3.2545    1.4462    0.5438 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -5.5528   -0.5791   -0.7074 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -5.3980   -0.5875    1.0716 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.0829    0.6864    2.2049 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.5516    0.8515   -2.0656 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -7.3527   -1.8831    0.3501 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -6.1624   -2.9480    1.1206 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -6.3274   -2.9349   -0.6426 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.0764   -1.6325    1.4212 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.2042    2.0372   -0.8319 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.7553    3.0642    2.3695 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -4.2233    3.2291   -1.8989 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -4.3290    4.3368    0.3186 H   0  0  0  0  0  0  0  0  0  0  0  0\n    7.5179   -1.8876    1.1341 H   0  0  0  0  0  0  0  0  0  0  0  0\n    7.6458    1.7722   -1.1140 H   0  0  0  0  0  0  0  0  0  0  0  0\n    8.8069   -0.1885   -0.1331 H   0  0  0  0  0  0  0  0  0  0  0  0\n  1 12  2  0  0  0  0\n  2  7  1  0  0  0  0\n  2  8  1  0  0  0  0\n  2  9  1  0  0  0  0\n  3  4  1  0  0  0  0\n  3 11  1  0  0  0  0\n  3 12  1  0  0  0  0\n  4  5  1  0  0  0  0\n  4  6  1  0  0  0  0\n  4 26  1  0  0  0  0\n  5  7  1  0  0  0  0\n  5 27  1  0  0  0  0\n  5 28  1  0  0  0  0\n  6  8  1  0  0  0  0\n  6 29  1  0  0  0  0\n  6 30  1  0  0  0  0\n  7 31  1  0  0  0  0\n  7 32  1  0  0  0  0\n  8 33  1  0  0  0  0\n  8 34  1  0  0  0  0\n  9 10  1  0  0  0  0\n  9 35  1  0  0  0  0\n  9 36  1  0  0  0  0\n 10 13  1  0  0  0  0\n 10 37  1  0  0  0  0\n 10 38  1  0  0  0  0\n 11 15  2  0  0  0  0\n 11 16  1  0  0  0  0\n 12 14  1  0  0  0  0\n 13 18  2  0  0  0  0\n 13 19  1  0  0  0  0\n 14 17  1  0  0  0  0\n 14 39  1  0  0  0  0\n 14 40  1  0  0  0  0\n 15 20  1  0  0  0  0\n 15 41  1  0  0  0  0\n 16 21  2  0  0  0  0\n 16 42  1  0  0  0  0\n 17 43  1  0  0  0  0\n 17 44  1  0  0  0  0\n 17 45  1  0  0  0  0\n 18 23  1  0  0  0  0\n 18 46  1  0  0  0  0\n 19 24  2  0  0  0  0\n 19 47  1  0  0  0  0\n 20 22  2  0  0  0  0\n 20 48  1  0  0  0  0\n 21 22  1  0  0  0  0\n 21 49  1  0  0  0  0\n 22 50  1  0  0  0  0\n 23 25  2  0  0  0  0\n 23 51  1  0  0  0  0\n 24 25  1  0  0  0  0\n 24 52  1  0  0  0  0\n 25 53  1  0  0  0  0\nM  END\n> <PUBCHEM_COMPOUND_CID>\n3345\n\n> <PUBCHEM_CONFORMER_RMSD>\n0.8\n\n> <PUBCHEM_CONFORMER_DIVERSEORDER>\n1\n19\n98\n53\n87\n56\n27\n89\n36\n9\n61\n24\n54\n90\n11\n63\n86\n101\n16\n95\n42\n77\n34\n40\n70\n20\n7\n30\n73\n85\n102\n84\n21\n62\n81\n97\n3\n17\n22\n78\n60\n79\n92\n25\n100\n43\n83\n64\n33\n12\n67\n71\n76\n31\n44\n46\n48\n59\n4\n18\n32\n47\n82\n65\n74\n28\n41\n68\n15\n6\n99\n23\n39\n96\n55\n45\n38\n80\n93\n29\n10\n13\n75\n50\n66\n57\n69\n91\n52\n103\n8\n88\n35\n58\n37\n72\n94\n51\n26\n5\n14\n49\n2\n\n> <PUBCHEM_MMFF94_PARTIAL_CHARGES>\n32\n1 -0.57\n10 0.14\n11 0.12\n12 0.57\n13 -0.14\n14 0.06\n15 -0.15\n16 -0.15\n18 -0.15\n19 -0.15\n2 -0.81\n20 -0.15\n21 -0.15\n22 -0.15\n23 -0.15\n24 -0.15\n25 -0.15\n3 -0.48\n4 0.3\n41 0.15\n42 0.15\n46 0.15\n47 0.15\n48 0.15\n49 0.15\n50 0.15\n51 0.15\n52 0.15\n53 0.15\n7 0.27\n8 0.27\n9 0.27\n\n> <PUBCHEM_EFFECTIVE_ROTOR_COUNT>\n8.2\n\n> <PUBCHEM_PHARMACOPHORE_FEATURES>\n6\n1 1 acceptor\n1 17 hydrophobe\n1 2 cation\n6 11 15 16 20 21 22 rings\n6 13 18 19 23 24 25 rings\n6 2 4 5 6 7 8 rings\n\n> <PUBCHEM_HEAVY_ATOM_COUNT>\n25\n\n> <PUBCHEM_ATOM_DEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_BOND_DEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_BOND_UDEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_ISOTOPIC_ATOM_COUNT>\n0\n\n> <PUBCHEM_COMPONENT_COUNT>\n1\n\n> <PUBCHEM_CACTVS_TAUTO_COUNT>\n1\n\n> <PUBCHEM_CONFORMER_ID>\n00000D1100000001\n\n> <PUBCHEM_MMFF94_ENERGY>\n82.3692\n\n> <PUBCHEM_FEATURE_SELFOVERLAP>\n30.446\n\n> <PUBCHEM_SHAPE_FINGERPRINT>\n10076449 9 16988551421749220037\n100830 39 18410572851655170552\n10291535 26 17988928816941931753\n105312 117 17417809522122235596\n10595046 47 18334574668331032298\n10638233 991 17968106369336519004\n11101153 10 18263647436107004445\n11135926 11 13686303439729384212\n11315181 36 18113336427209717413\n11524674 6 16773519974684719303\n12107183 9 17903349317236309042\n12107698 1 18340486771822268857\n12166972 35 18335422417402743088\n12236239 1 18040432204659995746\n12403259 415 17561077029777519104\n12596602 18 18333167271856468256\n13073987 5 18408318900431687170\n13583140 156 18130496479135357046\n13631057 29 18410007780256891603\n14068700 675 18262518238324219887\n14150022 121 17703522038885892713\n14251764 18 18187367649320697742\n14856354 85 18340492278044650359\n15021287 119 17167867456843939956\n15183329 4 18260264132276347376\n15778101 99 18339644442957678505\n15876981 60 18334579061608160829\n17844677 252 18410578426786140096\n19303781 99 17341237540302021999\n19489759 90 18410292523123147434\n20281389 69 18411980261288683608\n21033648 144 18197215850132150549\n21033648 29 17346304995328218472\n21130935 74 18334849499531822514\n21236236 1 18335137591965802573\n21792961 116 17775289331282932954\n22956985 138 17257372376380535507\n23081809 10 17821449054584425750\n23198884 109 18186802500106715938\n23522609 53 17822876194971299252\n23559900 14 18117272777468500499\n23569943 247 16952234432124326762\n249057 25 18113910389491291988\n2838139 119 18059285466549965408\n3633792 109 17022893584425359263\n3663271 9 18333729118388253946\n497634 4 18113892775640409255\n5104073 3 18267873795531965202\n5969126 39 18201147846090225695\n6327066 14 18118397350843125661\n6431902 208 10159683708125070236\n7226269 152 18338517435324060488\n9996256 80 18334574651066656450\n\n> <PUBCHEM_SHAPE_MULTIPOLES>\n498.66\n19.34\n2.74\n1.23\n33.77\n1.16\n-0.13\n-0.58\n2.01\n-6.71\n0.24\n-0.41\n0.28\n-0.68\n\n> <PUBCHEM_SHAPE_SELFOVERLAP>\n1048.005\n\n> <PUBCHEM_SHAPE_VOLUME>\n278.1\n\n> <PUBCHEM_COORDINATE_TYPE>\n2\n5\n10\n\n$$$$\n", "naloxone": "5284596\n  -OEChem-09122618383D\n\n 45 49  0     1  0  0  0  0  0999 V2000\n   -2.3481   -0.0431   -1.4754 O   0  0  0  0  0  0  0  0  0  0  0  0\n    1.0921    2.6455   -0.1296 O   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.6117    1.9732   -0.1866 O   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.6888   -2.5505   -0.8043 O   0  0  0  0  0  0  0  0  0  0  0  0\n    2.6104    0.3444    0.0358 N   0  0  2  0  0  0  0  0  0  0  0  0\n   -0.2097    0.6516   -0.5852 C   0  0  1  0  0  0  0  0  0  0  0  0\n    0.4832    1.5008    0.4907 C   0  0  1  0  0  0  0  0  0  0  0  0\n    1.6095    0.6012    1.1041 C   0  0  1  0  0  0  0  0  0  0  0  0\n   -1.5552    1.1417   -1.1443 C   0  0  2  0  0  0  0  0  0  0  0  0\n    0.8033    0.2982   -1.6997 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.7182   -0.6102    0.0221 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.5179    2.0544    1.5203 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.0363   -0.6938    1.7816 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.0809   -0.3545   -1.1396 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.1438   -1.3032    1.0706 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.6307    2.8400    0.8283 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.3803    1.9644   -0.1502 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.9039   -0.9850   -0.5767 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.8375   -0.2778    0.5209 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.7726   -2.4861    1.4592 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.5321   -2.1555   -0.2190 C   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.9478   -2.9157    0.8047 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.9109   -0.2685   -0.5237 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.4967   -1.3713   -1.0038 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.1228    1.1908    1.8758 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.4280    1.7467   -2.0492 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.0771    1.2089   -2.2484 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.3612   -0.3802   -2.4415 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.0010    2.7299    2.2114 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.9628    1.2568    2.1247 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.6971   -0.4147    2.7881 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.8111   -1.4531    1.9226 H   0  0  0  0  0  0  0  0  0  0  0  0\n    1.8849   -1.4094   -0.9097 H   0  0  0  0  0  0  0  0  0  0  0  0\n    2.8058   -0.3502   -1.9618 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -1.2537    3.7187    0.2966 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.3389    3.1958    1.5854 H   0  0  0  0  0  0  0  0  0  0  0  0\n    0.4687    3.0200   -0.7739 H   0  0  0  0  0  0  0  0  0  0  0  0\n    3.6603   -1.3031    0.8655 H   0  0  0  0  0  0  0  0  0  0  0  0\n    4.2223    0.2844    1.3808 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -0.3739   -3.0765    2.2798 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -2.4203   -3.8410    1.1268 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.2369    0.6979   -0.9009 H   0  0  0  0  0  0  0  0  0  0  0  0\n   -3.9331   -1.8900   -1.4759 H   0  0  0  0  0  0  0  0  0  0  0  0\n    6.2734   -1.2967   -1.7570 H   0  0  0  0  0  0  0  0  0  0  0  0\n    5.2143   -2.3600   -0.6597 H   0  0  0  0  0  0  0  0  0  0  0  0\n  1  9  1  0  0  0  0\n  1 18  1  0  0  0  0\n  2  7  1  0  0  0  0\n  2 37  1  0  0  0  0\n  3 17  2  0  0  0  0\n  4 21  1  0  0  0  0\n  4 43  1  0  0  0  0\n  5  8  1  0  0  0  0\n  5 14  1  0  0  0  0\n  5 19  1  0  0  0  0\n  6  7  1  0  0  0  0\n  6  9  1  0  0  0  0\n  6 10  1  0  0  0  0\n  6 11  1  0  0  0  0\n  7  8  1  0  0  0  0\n  7 12  1  0  0  0  0\n  8 13  1  0  0  0  0\n  8 25  1  0  0  0  0\n  9 17  1  0  0  0  0\n  9 26  1  0  0  0  0\n 10 14  1  0  0  0  0\n 10 27  1  0  0  0  0\n 10 28  1  0  0  0  0\n 11 15  2  0  0  0  0\n 11 18  1  0  0  0  0\n 12 16  1  0  0  0  0\n 12 29  1  0  0  0  0\n 12 30  1  0  0  0  0\n 13 15  1  0  0  0  0\n 13 31  1  0  0  0  0\n 13 32  1  0  0  0  0\n 14 33  1  0  0  0  0\n 14 34  1  0  0  0  0\n 15 20  1  0  0  0  0\n 16 17  1  0  0  0  0\n 16 35  1  0  0  0  0\n 16 36  1  0  0  0  0\n 18 21  2  0  0  0  0\n 19 23  1  0  0  0  0\n 19 38  1  0  0  0  0\n 19 39  1  0  0  0  0\n 20 22  2  0  0  0  0\n 20 40  1  0  0  0  0\n 21 22  1  0  0  0  0\n 22 41  1  0  0  0  0\n 23 24  2  0  0  0  0\n 23 42  1  0  0  0  0\n 24 44  1  0  0  0  0\n 24 45  1  0  0  0  0\nM  END\n> <PUBCHEM_COMPOUND_CID>\n5284596\n\n> <PUBCHEM_CONFORMER_RMSD>\n0.6\n\n> <PUBCHEM_CONFORMER_DIVERSEORDER>\n1\n4\n3\n2\n\n> <PUBCHEM_MMFF94_PARTIAL_CHARGES>\n29\n1 -0.36\n11 -0.14\n13 0.14\n14 0.27\n15 -0.14\n16 0.06\n17 0.45\n18 0.08\n19 0.41\n2 -0.68\n20 -0.15\n21 0.08\n22 -0.15\n23 -0.29\n24 -0.3\n3 -0.57\n37 0.4\n4 -0.53\n40 0.15\n41 0.15\n42 0.15\n43 0.45\n44 0.15\n45 0.15\n5 -0.81\n6 0.14\n7 0.28\n8 0.27\n9 0.34\n\n> <PUBCHEM_EFFECTIVE_ROTOR_COUNT>\n3.4\n\n> <PUBCHEM_PHARMACOPHORE_FEATURES>\n12\n1 1 acceptor\n1 2 acceptor\n1 2 donor\n1 24 hydrophobe\n1 3 acceptor\n1 4 donor\n1 5 cation\n5 1 6 9 11 18 rings\n6 11 15 18 20 21 22 rings\n6 5 6 7 8 10 14 rings\n6 6 7 8 11 13 15 rings\n6 6 7 9 12 16 17 rings\n\n> <PUBCHEM_HEAVY_ATOM_COUNT>\n24\n\n> <PUBCHEM_ATOM_DEF_STEREO_COUNT>\n4\n\n> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_BOND_DEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_BOND_UDEF_STEREO_COUNT>\n0\n\n> <PUBCHEM_ISOTOPIC_ATOM_COUNT>\n0\n\n> <PUBCHEM_COMPONENT_COUNT>\n1\n\n> <PUBCHEM_CACTVS_TAUTO_COUNT>\n9\n\n> <PUBCHEM_CONFORMER_ID>\n0050A2F400000001\n\n> <PUBCHEM_MMFF94_ENERGY>\n82.5979\n\n> <PUBCHEM_FEATURE_SELFOVERLAP>\n62.969\n\n> <PUBCHEM_SHAPE_FINGERPRINT>\n10382601 240 17262742987754479089\n104564 63 18333729143720539123\n107951 10 18195534696452308902\n10863032 1 18270393885115205166\n10948715 1 18121221978348781624\n1100329 8 18410857655173689009\n11315181 36 18409733933743076174\n11578080 2 16485321424314029784\n12293681 4 17774729662426297473\n12423570 1 11842699984544947368\n12592029 89 17242176751589369720\n12788726 201 18192455123491597447\n13134695 92 17910958268454860383\n13140716 1 18270407199540391713\n13994607 96 13984672438307259902\n14790565 3 17977946778676375512\n15209289 33 18335138700204658123\n16752209 62 18115010996198655779\n16945 1 17970601121842186185\n1813 80 17130732615736636788\n19591789 44 17977381629619901859\n20600515 1 17245802107708838125\n23419403 2 12181851712265124355\n23493267 7 18271519780632109000\n23557571 272 18342181068117860550\n23559900 14 18340482280362331810\n23566358 2 18190732231868680212\n2748010 2 17248348632579344107\n394222 165 17464530897785531169\n404807 14 14179752979664780190\n4340502 62 17898588488039384441\n4921388 177 18336559226721274302\n59755656 520 18265614282431367421\n70251023 43 17913186926879825463\n81228 2 18337965566011099305\n\n> <PUBCHEM_SHAPE_MULTIPOLES>\n465.45\n6.47\n3.16\n1.54\n9.51\n0.28\n-0.12\n2.24\n2.34\n-3.41\n-0.85\n0.07\n0.13\n0.12\n\n> <PUBCHEM_SHAPE_SELFOVERLAP>\n1048.036\n\n> <PUBCHEM_SHAPE_VOLUME>\n242.1\n\n> <PUBCHEM_COORDINATE_TYPE>\n2\n5\n10\n\n$$$$\n"};
+
+    const MOLECULES_DATA = {
+      morphine: {
+        name: "Morphine (Chef de file du Palier 3)",
+        cid: 5288826,
+        formula: "C17H19NO3",
+        mw: "285.34 g/mol",
+        iupac: "(4R,4aR,7S,7aR,12bS)-3-méthyl-2,4,4a,7,7a,13-hexahydro-1H-4,12-méthanobenzofuro[3,2-e]isoquinoléine-7,9-diol",
+        pka: "8.0 (amine) / 9.9 (phénol)",
+        logp: "0.89 (faiblement lipophile)",
+        bio: "20 - 40% (effet de premier passage)",
+        thalf: "2 - 3 heures",
+        target: "Récepteur opioïde µ (Asp147 / His297)",
+        rsaText: `
+          <p><strong>1. Phénol libre en C3 (Indispensable) :</strong> Établit une liaison hydrogène clé avec le résidu <em>His297</em> dans le domaine transmembranaire TM6 du récepteur µ. Sa présence est requise pour une haute affinité sub-nanomolaire ($K_i pprox 1	ext{ nM}$). Son masquage par un méthyle (Codéine) divise l'affinité par 300.</p>
+          <p><strong>2. Azote tertiaire en C17 (Pont Salin Vital) :</strong> Protoné à plus de 80% au pH physiologique (pKa = 8.0). L'azote chargé positivement forme une liaison ionique d'airain (pont salin) avec l'anion carboxylate du résidu <strong>Asp147</strong> (TM3), point d'ancrage universel de tous les morphiniques.</p>
+          <p><strong>3. Alcool secondaire en C6 (Métabolisme de Glucuronoconjugaison) :</strong> Glucurono-conjugué dans le foie par l'<strong>UGT2B7</strong> en deux métabolites capitaux :
+            <br>• <strong>M6G (Morphine-6-Glucuronide, ~10%) :</strong> Analgésique 2 à 4 fois plus puissant que la morphine, traverse la BHE via des transporteurs GLUT1.
+            <br>• <strong>M3G (Morphine-3-Glucuronide, ~55%) :</strong> Sans affinité pour les récepteurs µ, mais puissamment neurotoxique (myoclonies, allodynie, hyperalgie paradoxale). Tous deux sont éliminés par filtration rénale.
+          </p>
+        `,
+        concoursKey: "La morphine possède deux métabolites rénaux cardinaux : le M6G (analgésique et dépresseur respiratoire puissant) et le M3G (neurotoxique excitateur sans effet antalgique). En insuffisance rénale (DFG < 30 mL/min), leur accumulation engendre un tableau trompeur d'hyperalgie myoclonique précédant le coma respiratoire !",
+        pharmacophores: [
+          {
+            name: "C3-Phénol (-OH) : Ancrage His297",
+            atoms: [2],
+            color: "#00d2ff",
+            desc: "Liaison hydrogène indispensable avec His297 du récepteur µ. Tout encombrement ou masquage de ce phénol diminue drastiquement l'affinité intrinsèque."
+          },
+          {
+            name: "C17-Amine protonée : Pont Salin Asp147",
+            atoms: [3],
+            color: "#a855f7",
+            desc: "L'azote tertiaire protoné à pH physiologique s'ancre électrostatiquement sur l'Asp147 du récepteur µ. La nature du substituant sur cet azote conditionne l'activité agoniste (méthyle) ou antagoniste (allyle)."
+          },
+          {
+            name: "C6-Alcool secondaire (-OH) : UGT2B7",
+            atoms: [1],
+            color: "#34d399",
+            desc: "Site de glucuronoconjugaison par UGT2B7 formant le M6G, métabolite hautement actif et dépresseur respiratoire dépendant de la fonction rénale."
+          }
+        ]
+      },
+      codeine: {
+        name: "Codéine (3-O-Méthylmorphine - Palier 2)",
+        cid: 5284371,
+        formula: "C18H21NO3",
+        mw: "299.36 g/mol",
+        iupac: "(4R,4aR,7S,7aR,12bS)-9-méthoxy-3-méthyl-2,4,4a,7,7a,13-hexahydro-1H-4,12-méthanobenzofuro[3,2-e]isoquinoléin-7-ol",
+        pka: "8.2",
+        logp: "1.19",
+        bio: "50 - 60%",
+        thalf: "3 - 4 heures",
+        target: "Prodrogue nécessitant bioactivation CYP2D6",
+        rsaText: `
+          <p><strong>1. Masquage du C3 par Éther Méthylique (-OCH3) :</strong> Le groupement méthoxy empêche la liaison hydrogène avec His297. L'affinité propre de la codéine pour le récepteur µ est <strong>200 à 300 fois plus faible</strong> que celle de la morphine. La codéine est une <em>prodrogue</em> essentiellement inactive par elle-même.</p>
+          <p><strong>2. Bioactivation par O-déméthylation (CYP2D6) :</strong> Seule une fraction mineure (~5-10%) est O-déméthylée dans le foie par le <strong>CYP2D6</strong> pour libérer la morphine active responsable de l'effet antalgique. 80% est glucurono-conjuguée directement en C6G (Codéine-6-Glucuronide).</p>
+          <p><strong>3. Conséquence Pharmacogénomique :</strong> L'efficacité antalgique et la sécurité de la codéine dépendent à 100% du génotype CYP2D6 du patient (inutile chez le métaboliseur lent, mortelle chez le métaboliseur ultra-rapide).</p>
+        `,
+        concoursKey: "La codéine est une PRODROGUE sans effet antalgique propre significatif. Elle est formellement contre-indiquée chez la femme qui allaite (risque de métabolisme ultra-rapide et décès du nourrisson par morphine lactée) et chez l'enfant de moins de 12 ans après amygdalectomie/adénoïdectomie pour SAS.",
+        pharmacophores: [
+          {
+            name: "C3-Méthoxy (-OCH3) : Prodrogue",
+            atoms: [2],
+            color: "#f59e0b",
+            desc: "L'éther méthylique bloque la liaison H sur His297. Doit impérativement être clivé par le CYP2D6 pour générer la morphine antalgique."
+          },
+          {
+            name: "C17-Amine basique",
+            atoms: [3],
+            color: "#a855f7",
+            desc: "Azote tertiaire basique identique à la morphine permettant l'ancrage sur Asp147 une fois déméthylée."
+          }
+        ]
+      },
+      tramadol: {
+        name: "Tramadol (Opioïde Atypique Bicéphale - Palier 2)",
+        cid: 33741,
+        formula: "C16H25NO2",
+        mw: "263.38 g/mol",
+        iupac: "(1R,2R)-2-[(diméthylamino)méthyl]-1-(3-méthoxyphényl)cyclohexan-1-ol",
+        pka: "9.41",
+        logp: "2.4",
+        bio: "70% (dose unique) à 90% (répétée)",
+        thalf: "6 heures",
+        target: "Double action : Récepteur µ (via M1) + IRSN (5-HT & NA)",
+        rsaText: `
+          <p><strong>1. Mécanisme d'Action Duopsonique Unique :</strong> Le tramadol est un mélange racémique d'énantiomères agissant par deux voies complémentaires :
+            <br>• <strong>(+)-Tramadol :</strong> Inhibe la recapture de la <em>Sérotonine (5-HT)</em>.
+            <br>• <strong>(-)-Tramadol :</strong> Inhibe la recapture de la <em>Noradrénaline (NA)</em>, stimulant les récepteurs α2-adrénergiques inhibiteurs spinaux.
+          </p>
+          <p><strong>2. Bioactivation en O-desméthyltramadol (M1) par CYP2D6 :</strong> Le métabolite (+)-M1 a une affinité pour les récepteurs µ <strong>300 fois supérieure</strong> à la molécule mère. Sans CYP2D6 fonctionnel, la composante morphinique s'éteint.</p>
+          <p><strong>3. Risques Toxiques Spécifiques :</strong> Abaissement du seuil épileptogène (convulsions dès les doses thérapeutiques chez le sujet prédisposé) et risque d'orage sérotoninergique mortel en coprescription avec les antidépresseurs (ISRS, IRSNA, Tricycliques, IMAO).</p>
+        `,
+        concoursKey: "Le Tramadol N'EST PAS un simple morphinique : c'est un inhibiteur de recapture de monoamines couplé à une prodrogue opioïde. Son association aux ISRS (Fluoxétine, Paroxétine) est une double faute : blocage du CYP2D6 (perte d'antalgie) + synergie sérotoninergique explosive (Syndrome sérotoninergique) !",
+        pharmacophores: [
+          {
+            name: "Noyau Aromatique 3-Méthoxy",
+            atoms: [1],
+            color: "#38bdf8",
+            desc: "Site de la O-déméthylation par CYP2D6 pour former le métabolite M1 hautement affin pour les récepteurs opioïdes µ."
+          },
+          {
+            name: "Chaîne Diméthylaminométhyle",
+            atoms: [2],
+            color: "#a855f7",
+            desc: "Participe à l'inhibition du transporteur de sérotonine SERT et du transporteur de noradrénaline NET."
+          },
+          {
+            name: "Cycle Cyclohexanol (-OH)",
+            atoms: [0],
+            color: "#34d399",
+            desc: "Orientation spatiale conformationnelle requise pour l'activité analgésique centrale synergique."
+          }
+        ]
+      },
+      fentanyl: {
+        name: "Fentanyl (Phénylpipéridine de Synthèse - Palier 3)",
+        cid: 3345,
+        formula: "C22H28N2O",
+        mw: "336.47 g/mol",
+        iupac: "N-phényl-N-[1-(2-phényléthyl)pipéridin-4-yl]propanamide",
+        pka: "8.4",
+        logp: "4.05 (Très lipophile)",
+        bio: "Transdermique 92%, Transmuqueux 65%, PO ~0%",
+        thalf: "3 - 7 h (IV), 17 - 24 h (Patch)",
+        target: "Agoniste pur µ hyper-puissant (x80 à x100 Morphine)",
+        rsaText: `
+          <p><strong>1. Lipophilie Exceptionnelle (LogP = 4.05) :</strong> Traverse la barrière hémato-encéphalique en quelques secondes. Délai d'action flash en IV (1 à 2 minutes). Cette haute lipophilie permet son administration transdermique en patch réservoir matriciel continu.</p>
+          <p><strong>2. Rôle du Cycle Phényléthyle :</strong> L'extension phényléthyle sur l'azote de la pipéridine s'insère dans une sous-poche hydrophobe profonde du récepteur µ, décuplant l'énergie de liaison et conférant une puissance <strong>80 à 100 fois supérieure à la morphine</strong>.</p>
+          <p><strong>3. Métabolisme par CYP3A4 Exclusif :</strong> Métabolisé par N-désalkylation hépatique par le CYP3A4 en <em>norfentanyl</em> <strong>inactif</strong>. Aucun métabolite actif ou neurotoxique, faisant du fentanyl le morphinique de choix chez l'insuffisant rénal sévère ou dialysé.</p>
+        `,
+        concoursKey: "Le Fentanyl est 80 à 100 fois plus puissant que la morphine. En cas de fièvre ou de canicule, le débit de libération du patch transdermique augmente massivement par vasodilatation cutanée → risque d'overdose accidentelle mortelle chez les personnes âgées !",
+        pharmacophores: [
+          {
+            name: "Cycle Pipéridine Azoté",
+            atoms: [1],
+            color: "#a855f7",
+            desc: "Centre basique se fixant sur Asp147 du récepteur µ, portant la chaîne 2-phényléthyle hautement lipophile."
+          },
+          {
+            name: "Groupement Propanamide & Phényle",
+            atoms: [0, 2],
+            color: "#ec4899",
+            desc: "Confère la géométrie tridimensionnelle permettant une activation maximale de la protéine Gi sans encombrement stérique."
+          }
+        ]
+      },
+      naloxone: {
+        name: "Naloxone (Antidote Antagoniste Compétitif Pur)",
+        cid: 5284596,
+        formula: "C19H21NO4",
+        mw: "327.37 g/mol",
+        iupac: "(4R,4aS,7aR,12bS)-4a,9-dihydroxy-3-prop-2-ényl-2,4,5,6,7a,13-hexahydro-1H-4,12-méthanobenzofuro[3,2-e]isoquinoléine-7-one",
+        pka: "7.9",
+        logp: "2.09",
+        bio: "< 2% per os (biodisponibilité nulle), 100% IV",
+        thalf: "45 à 60 minutes (COURTE)",
+        target: "Antagoniste compétitif universel des récepteurs µ, κ, δ",
+        rsaText: `
+          <p><strong>1. Groupement N-Allyle (-CH2-CH=CH2) en C17 (La Clé de l'Antagonisme) :</strong> En remplaçant le groupement N-méthyle de la morphine par une chaîne allyle volumineuse et flexible, la molécule conserve une affinité sub-nanomolaire pour la poche de liaison, mais <strong>bloque stériquement le basculement conformationnel de l'hélice TM6</strong> indispensable au couplage avec la protéine Gi. Résultat : Activité intrinsèque = 0 (Antagoniste pur).</p>
+          <p><strong>2. Biodisponibilité Orale Nulle (< 2%) :</strong> Métabolisée quasi intégralement au premier passage hépatique par glucuronoconjugaison en naloxone-3-glucuronide. Explique son utilisation per os conjointe à l'Oxycodone (Targinact) : neutralise les récepteurs µ intestinaux pour bloquer la constipation sans altérer l'analgésie systémique centrale.</p>
+          <p><strong>3. Piège Pharmacocinétique Ultime :</strong> Sa demi-vie plasmatique est de seulement <strong>45 à 60 minutes</strong>, exposant au rebond toxique létal après métabolisation.</p>
+        `,
+        concoursKey: "L'effet de la Naloxone disparaît bien plus vite que celui de la Morphine, de l'Oxycodone ou de la Méthadone. Si on laisse repartir un patient réveillé après un bolus unique de naloxone, il mourra asphyxié une heure plus tard dans la rue par réoccupation des récepteurs : c'est le syndrome de re-narcotisation !",
+        pharmacophores: [
+          {
+            name: "Chaîne N-Allyle : Déterminant Antagoniste",
+            atoms: [4],
+            color: "#ef4444",
+            desc: "La chaîne N-allyle empêche l'activation transmembranaire de la protéine Gi par encombrement stérique dans la poche du récepteur."
+          },
+          {
+            name: "C3-Phénol : Haute Affinité Compétitive",
+            atoms: [2],
+            color: "#00d2ff",
+            desc: "Liaison hydrogène à His297 permettant de déplacer avec une affinité supérieure les agonistes morphiniques fixés."
+          },
+          {
+            name: "C6-Cétone & C14-OH",
+            atoms: [1, 3],
+            color: "#f59e0b",
+            desc: "Optimisent le profil de sélectivité et la stabilité de l'antagonisme compétitif pur."
+          }
+        ]
+      }
+    };
+
+    /* 3Dmol Viewer Global State */
+    let glviewer = null;
+    let activeModel = null;
+    let currentMoleculeKey = 'morphine';
+    let currentViewerStyle = 'stick';
+    let isSpinning = false;
+
+    function init3DViewer() {
+      const container = document.getElementById('g3d-container');
+      if (!container) return;
+
+      glviewer = $3Dmol.createViewer(container, {
+        defaultcolors: $3Dmol.rasmolElementColors,
+        backgroundColor: '#070b14'
+      });
+
+      loadMoleculeStructure('morphine');
+    }
+
+    function loadMoleculeStructure(molKey) {
+      if (!glviewer) return;
+      currentMoleculeKey = molKey;
+
+      glviewer.clear();
+      glviewer.removeAllLabels();
+
+      const sdfData = EMBEDDED_SDF[molKey];
+      if (sdfData) {
+        activeModel = glviewer.addModel(sdfData, "sdf");
+        applyViewerStyle();
+        glviewer.zoomTo();
+        glviewer.render();
+      }
+
+      updateMoleculeInfo(molKey);
+    }
+
+    function applyViewerStyle() {
+      if (!glviewer) return;
+      glviewer.setStyle({}, {});
+
+      if (currentViewerStyle === 'stick') {
+        glviewer.setStyle({}, { stick: { radius: 0.16, colorscheme: 'Jmol' } });
+      } else if (currentViewerStyle === 'sphere') {
+        glviewer.setStyle({}, { sphere: { scale: 0.85, colorscheme: 'Jmol' } });
+      } else if (currentViewerStyle === 'ballAndStick') {
+        glviewer.setStyle({}, {
+          stick: { radius: 0.14, colorscheme: 'Jmol' },
+          sphere: { scale: 0.28, colorscheme: 'Jmol' }
+        });
+      } else if (currentViewerStyle === 'surface') {
+        glviewer.setStyle({}, { stick: { radius: 0.14, colorscheme: 'Jmol' } });
+        glviewer.addSurface($3Dmol.SurfaceType.VDW, {
+          opacity: 0.65,
+          color: '#8b5cf6'
+        });
+      }
+
+      glviewer.render();
+    }
+
+    function setViewerStyle(styleName) {
+      currentViewerStyle = styleName;
+      applyViewerStyle();
+    }
+
+    function toggleSpin() {
+      if (!glviewer) return;
+      isSpinning = !isSpinning;
+      const btn = document.getElementById('btn-spin');
+      if (isSpinning) {
+        glviewer.spin('y', 0.8);
+        if (btn) btn.classList.add('text-purple-400', 'border-purple-500');
+      } else {
+        glviewer.spin(false);
+        if (btn) btn.classList.remove('text-purple-400', 'border-purple-500');
+      }
+    }
+
+    function resetCamera() {
+      if (!glviewer) return;
+      glviewer.zoomTo();
+      glviewer.render();
+    }
+
+    function selectMolecule(molKey) {
+      ['morphine', 'codeine', 'tramadol', 'fentanyl', 'naloxone'].forEach(k => {
+        const btn = document.getElementById('molbtn-' + k);
+        if (btn) {
+          if (k === molKey) {
+            btn.className = "mol-selector-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-600 text-white shadow-md shadow-purple-600/30 border border-purple-400 transition-all flex items-center gap-1.5";
+          } else {
+            btn.className = "mol-selector-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition-all flex items-center gap-1.5";
+          }
+        }
+      });
+      loadMoleculeStructure(molKey);
+    }
+
+    function updateMoleculeInfo(molKey) {
+      const data = MOLECULES_DATA[molKey];
+      if (!data) return;
+
+      document.getElementById('view-mol-name').innerText = data.name;
+      document.getElementById('view-mol-cid').innerText = 'CID: ' + data.cid;
+      document.getElementById('view-mol-formula').innerText = data.formula + ' • ' + data.mw;
+
+      document.getElementById('prop-pka').innerText = data.pka;
+      document.getElementById('prop-logp').innerText = data.logp;
+      document.getElementById('prop-bio').innerText = data.bio;
+      document.getElementById('prop-thalf').innerText = data.thalf;
+      document.getElementById('rsa-target-badge').innerText = 'Cible: ' + data.target;
+
+      document.getElementById('rsa-analysis-text').innerHTML = data.rsaText;
+      document.getElementById('rsa-concours-key').innerText = data.concoursKey;
+
+      const btnContainer = document.getElementById('pharmacophore-buttons');
+      btnContainer.innerHTML = '';
+      data.pharmacophores.forEach((ph, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-purple-950 text-slate-200 hover:text-purple-300 border border-slate-700 hover:border-purple-600 transition-all flex items-center gap-1.5";
+        btn.innerHTML = `<span class="h-2 w-2 rounded-full" style="background-color: ${ph.color}"></span> ${ph.name}`;
+        btn.onclick = () => highlightPharmacophore(idx);
+        btnContainer.appendChild(btn);
+      });
+    }
+
+    function highlightPharmacophore(idx) {
+      if (!glviewer) return;
+      const data = MOLECULES_DATA[currentMoleculeKey];
+      if (!data || !data.pharmacophores[idx]) return;
+
+      const ph = data.pharmacophores[idx];
+
+      glviewer.setStyle({}, { stick: { radius: 0.10, opacity: 0.40, colorscheme: 'Jmol' } });
+      glviewer.setStyle({ index: ph.atoms }, {
+        stick: { radius: 0.28, color: ph.color, opacity: 1.0 },
+        sphere: { scale: 0.45, color: ph.color }
+      });
+
+      glviewer.removeAllLabels();
+      if (activeModel) {
+        const allAtoms = activeModel.selectedAtoms({ index: ph.atoms });
+        if (allAtoms && allAtoms.length > 0) {
+          let cx = 0, cy = 0, cz = 0;
+          allAtoms.forEach(a => { cx += a.x; cy += a.y; cz += a.z; });
+          cx /= allAtoms.length;
+          cy /= allAtoms.length;
+          cz /= allAtoms.length;
+
+          glviewer.addLabel(ph.name, {
+            position: { x: cx, y: cy + 0.5, z: cz },
+            backgroundColor: '#090d16',
+            backgroundOpacity: 0.9,
+            fontColor: ph.color,
+            fontSize: 12,
+            borderThickness: 1,
+            borderColor: ph.color
+          });
+        }
+      }
+
+      glviewer.render();
+
+      const detailCard = document.getElementById('highlight-detail-card');
+      const detailTitle = document.getElementById('highlight-title');
+      const detailDesc = document.getElementById('highlight-desc');
+      if (detailCard && detailTitle && detailDesc) {
+        detailCard.classList.remove('hidden');
+        detailTitle.innerText = "Pharmacophore : " + ph.name;
+        detailDesc.innerText = ph.desc;
+      }
+    }
+
+    function clearHighlights() {
+      if (!glviewer) return;
+      applyViewerStyle();
+      glviewer.removeAllLabels();
+      glviewer.render();
+      const detailCard = document.getElementById('highlight-detail-card');
+      if (detailCard) detailCard.classList.add('hidden');
+    }
+
+    /* ======================================================= */
+    /* CYP2D6 SIMULATOR LOGIC                                   */
+    /* ======================================================= */
+    let currentGenotype = 'NM';
+
+    function selectGenotype(genotype) {
+      currentGenotype = genotype;
+      ['PM', 'IM', 'NM', 'UM'].forEach(g => {
+        const btn = document.getElementById('cypbtn-' + g);
+        if (btn) {
+          if (g === genotype) {
+            btn.className = "cyp-btn p-3 rounded-xl bg-cyan-950/60 border border-cyan-500 text-left transition ring-1 ring-cyan-400";
+          } else {
+            btn.className = "cyp-btn p-3 rounded-xl bg-slate-900 border border-slate-800 text-left hover:border-slate-700 transition";
+          }
+        }
+      });
+      updateCYP2D6Simulation();
+    }
+
+    function updateCYP2D6Simulation() {
+      const selectedDrugInput = document.querySelector('input[name="cyp-drug"]:checked');
+      const drug = selectedDrugInput ? selectedDrugInput.value : 'codeine';
+
+      const statusPill = document.getElementById('cyp-status-pill');
+      const label = document.getElementById('active-metabolite-label');
+      const val = document.getElementById('active-metabolite-val');
+      const bar = document.getElementById('active-metabolite-bar');
+      const verdictTitle = document.getElementById('cyp-verdict-title');
+      const verdictDesc = document.getElementById('cyp-verdict-desc');
+      const verdictBox = document.getElementById('cyp-verdict-box');
+
+      let conversionRate = 0.10; // default NM
+      if (currentGenotype === 'PM') conversionRate = 0.0;
+      else if (currentGenotype === 'IM') conversionRate = 0.05;
+      else if (currentGenotype === 'NM') conversionRate = 0.10;
+      else if (currentGenotype === 'UM') conversionRate = 0.32;
+
+      let administeredDose = (drug === 'codeine') ? 60 : 100;
+      let metaboliteGrams = administeredDose * conversionRate;
+      let metaboliteName = (drug === 'codeine') ? "Morphine active libérée" : "(+)-O-Desméthyltramadol (M1) actif";
+
+      label.innerText = `${metaboliteName} :`;
+      val.innerText = `${metaboliteGrams.toFixed(1)} mg (${Math.round(conversionRate * 100)}%)`;
+
+      let barWidth = Math.min(100, Math.round((conversionRate / 0.35) * 100));
+      bar.style.width = barWidth + '%';
+
+      if (currentGenotype === 'PM') {
+        statusPill.className = "text-xs font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 font-bold";
+        statusPill.innerText = "Métaboliseur Lent (Activité 0%)";
+        bar.className = "h-full bg-slate-600 rounded-full transition-all duration-500";
+        verdictBox.className = "p-4 rounded-xl text-xs leading-relaxed space-y-2 bg-amber-950/40 border border-amber-800/80 text-amber-200";
+        verdictTitle.innerText = "Échec Analgésique Total (Résistance Pharmacologique)";
+        verdictDesc.innerHTML = `L'absence d'enzyme CYP2D6 fonctionnelle empêche toute bioactivation de la <strong>${drug}</strong>. Le patient ne ressent aucun soulagement et risque une escalade posologique inefficace. <em>Recommandation :</em> Passer directement à un agoniste actif par lui-même (Morphine ou Oxycodone).`;
+      } else if (currentGenotype === 'IM') {
+        statusPill.className = "text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-bold";
+        statusPill.innerText = "Métaboliseur Intermédiaire (Activité 50%)";
+        bar.className = "h-full bg-amber-500 rounded-full transition-all duration-500";
+        verdictBox.className = "p-4 rounded-xl text-xs leading-relaxed space-y-2 bg-slate-900 border border-slate-800 text-slate-300";
+        verdictTitle.innerText = "Analgésie Faible ou Inconstante";
+        verdictDesc.innerHTML = `Seulement 5% de la dose est convertie en métabolite analgésique. L'effet antalgique est médiocre, incitant souvent le patient à doubler les prises.`;
+      } else if (currentGenotype === 'NM') {
+        statusPill.className = "text-xs font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold";
+        statusPill.innerText = "Métaboliseur Normal (Activité 100%)";
+        bar.className = "h-full bg-gradient-to-r from-purple-500 to-cyan-400 rounded-full transition-all duration-500";
+        verdictBox.className = "p-4 rounded-xl text-xs leading-relaxed space-y-2 bg-emerald-950/40 border border-emerald-800/80 text-emerald-200";
+        verdictTitle.innerText = "Fenêtre Thérapeutique Optimale";
+        verdictDesc.innerHTML = `Cinétique standard et prévisible : 10% de la dose est O-déméthylée. Analgésie efficace et risque d'effets secondaires minime aux posologies recommandées.`;
+      } else if (currentGenotype === 'UM') {
+        statusPill.className = "text-xs font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold animate-pulse";
+        statusPill.innerText = "MÉTABOLISEUR ULTRA-RAPIDE (300%)";
+        bar.className = "h-full bg-gradient-to-r from-amber-500 to-rose-600 rounded-full transition-all duration-500";
+        verdictBox.className = "p-4 rounded-xl text-xs leading-relaxed space-y-2 bg-rose-950/60 border border-rose-800 text-rose-100";
+        verdictTitle.innerText = "ALERTE MAJEURE : RISQUE DE SURDOSAGE MORTEL";
+        verdictDesc.innerHTML = `La duplication génique du CYP2D6 transforme instantanément plus de 30% du médicament en métabolite opioïde puissant. <br><strong class='text-white'>Cas clinique mortel :</strong> Chez la mère allaitante ultra-rapide traitée par codéine, des quantités massives de morphine passent dans le lait → <strong>décès du nourrisson par apnée à J13</strong>. <em>Contre-indication absolue de la codéine pendant l'allaitement !</em>`;
+      }
+    }
+
+    /* ======================================================= */
+    /* SEDATION & NALOXONE RESCUE SIMULATOR                    */
+    /* ======================================================= */
+    let currentOpioidDose = 10;
+    let naloxoneDoseMg = 0.0;
+
+    function setOpioidDose(dose) {
+      currentOpioidDose = dose;
+      updateSedationUI();
+    }
+
+    function injectNaloxoneBolus() {
+      naloxoneDoseMg += 0.04;
+      updateSedationUI();
+    }
+
+    function updateSedationUI() {
+      document.getElementById('opioid-dose-display').innerText = currentOpioidDose + ' mg';
+      document.getElementById('vital-naloxone').innerText = naloxoneDoseMg.toFixed(2) + ' mg';
+      
+      const badge = document.getElementById('opioid-status-badge');
+      const frVal = document.getElementById('vital-fr');
+      const frSub = document.getElementById('vital-fr-sub');
+      const spo2Val = document.getElementById('vital-spo2');
+      const spo2Sub = document.getElementById('vital-spo2-sub');
+      const rudkinVal = document.getElementById('vital-rudkin');
+      const rudkinSub = document.getElementById('vital-rudkin-sub');
+      const pupilCircle = document.getElementById('pupil-circle');
+      const pupilDesc = document.getElementById('pupil-desc');
+      const pupilTag = document.getElementById('pupil-state-tag');
+
+      // Net opioid impact reduced by naloxone (0.04 mg naloxone neutralizes ~10 mg morphine)
+      let effectiveOpioid = Math.max(0, currentOpioidDose - (naloxoneDoseMg * 250));
+
+      let fr = 16;
+      let spo2 = 99;
+      let rudkin = 1;
+      let pupilRadius = 14; // mm * 3.5
+
+      if (effectiveOpioid <= 12) {
+        fr = 16 - Math.round(effectiveOpioid * 0.15);
+        spo2 = 99;
+        rudkin = 1;
+        pupilRadius = 14 - (effectiveOpioid * 0.2);
+        badge.className = "text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800";
+        badge.innerText = "Dose Thérapeutique";
+      } else if (effectiveOpioid <= 25) {
+        fr = 14 - Math.round((effectiveOpioid - 12) * 0.3);
+        spo2 = 96;
+        rudkin = 2;
+        pupilRadius = 11 - (effectiveOpioid - 12) * 0.25;
+        badge.className = "text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800";
+        badge.innerText = "Sédation Modérée";
+      } else if (effectiveOpioid <= 40) {
+        fr = 10 - Math.round((effectiveOpioid - 25) * 0.3);
+        spo2 = 88;
+        rudkin = 4;
+        pupilRadius = 7 - (effectiveOpioid - 25) * 0.15;
+        badge.className = "text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-800";
+        badge.innerText = "DÉPRESSION RESPIRATOIRE CRITIQUE";
+      } else {
+        fr = Math.max(3, 6 - Math.round((effectiveOpioid - 40) * 0.15));
+        spo2 = Math.max(62, 80 - Math.round((effectiveOpioid - 40) * 0.8));
+        rudkin = 5;
+        pupilRadius = 3.5; // 1 mm pinpoint
+        badge.className = "text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-800 animate-pulse";
+        badge.innerText = "COMA TOXIQUE / ARRÊT IMMINENT";
+      }
+
+      frVal.innerText = `${fr} / min`;
+      spo2Val.innerText = `${spo2} %`;
+      rudkinVal.innerText = `${rudkin} / 5`;
+
+      if (fr >= 12) {
+        frVal.className = "text-xl font-mono font-bold text-emerald-400";
+        frSub.innerText = "Eupnéique normal";
+        spo2Val.className = "text-xl font-mono font-bold text-emerald-400";
+        spo2Sub.innerText = "Oxygénation idéale";
+        rudkinVal.className = "text-xl font-mono font-bold text-emerald-400";
+        rudkinSub.innerText = "Patient réveillé";
+      } else if (fr >= 9) {
+        frVal.className = "text-xl font-mono font-bold text-amber-400";
+        frSub.innerText = "Bradypnée débutante";
+        spo2Val.className = "text-xl font-mono font-bold text-amber-400";
+        spo2Sub.innerText = "Hypoxémie modérée";
+        rudkinVal.className = "text-xl font-mono font-bold text-amber-400";
+        rudkinSub.innerText = "Somnolent réveillable";
+      } else {
+        frVal.className = "text-xl font-mono font-bold text-rose-500 animate-pulse";
+        frSub.innerText = "BRADYPNÉE GRAVE (<10/min)";
+        spo2Val.className = "text-xl font-mono font-bold text-rose-500 animate-pulse";
+        spo2Sub.innerText = "HYPOXIE TISSULAIRE";
+        rudkinVal.className = "text-xl font-mono font-bold text-rose-500 animate-pulse";
+        rudkinSub.innerText = "Coma aréactif";
+      }
+
+      pupilCircle.setAttribute('r', pupilRadius.toString());
+
+      if (pupilRadius <= 4.0) {
+        pupilDesc.innerHTML = "<strong>MYOSIS SERRÉ EN TÊTE D'ÉPINGLE :</strong> Signe pathognomonique de l'intoxication aiguë aux morphiniques par stimulation parasympathique du noyau d'Edinger-Westphal.";
+        pupilTag.innerText = "Myosis Extrême (1.0 mm)";
+        pupilTag.className = "text-[10px] font-mono text-rose-400 font-bold";
+      } else if (pupilRadius <= 9.0) {
+        pupilDesc.innerText = "Myosis modéré sous morphinique.";
+        pupilTag.innerText = "Myosis léger (2.5 mm)";
+        pupilTag.className = "text-[10px] font-mono text-amber-400 font-bold";
+      } else {
+        pupilDesc.innerText = "Pupilles normales isochores réactives.";
+        pupilTag.innerText = "Normale (4.0 mm)";
+        pupilTag.className = "text-[10px] font-mono text-emerald-400 font-bold";
+      }
+
+      if (naloxoneDoseMg > 0) {
+        document.getElementById('vital-naloxone-sub').innerText = `${(naloxoneDoseMg / 0.04).toFixed(0)} bolus perfusé(s)`;
+      }
+    }
+
+    /* ======================================================= */
+    /* EQUIANALGESIC ROTATION CALCULATOR                       */
+    /* ======================================================= */
+    function calculateRotation() {
+      const srcDrug = document.getElementById('rot-source-drug').value;
+      const srcDose = parseFloat(document.getElementById('rot-source-dose').value) || 0;
+      const tgtDrug = document.getElementById('rot-target-drug').value;
+
+      // Conversion factors to Morphine Oral Equivalent (EMO)
+      let emo = 0;
+      if (srcDrug === 'morphine_po') emo = srcDose * 1.0;
+      else if (srcDrug === 'morphine_sc') emo = srcDose * 3.0;
+      else if (srcDrug === 'oxycodone_po') emo = srcDose * 1.5;
+      else if (srcDrug === 'tramadol_po') emo = srcDose * 0.2;
+      else if (srcDrug === 'fentanyl_patch') emo = (srcDose / 25) * 60; // 25 ug/h ~ 60 mg PO
+
+      // Convert EMO to Target Drug
+      let rawTgt = 0;
+      let unit = "mg / 24h";
+
+      if (tgtDrug === 'morphine_po') rawTgt = emo / 1.0;
+      else if (tgtDrug === 'morphine_sc') rawTgt = emo / 3.0;
+      else if (tgtDrug === 'oxycodone_po') rawTgt = emo / 1.5;
+      else if (tgtDrug === 'tramadol_po') rawTgt = emo / 0.2;
+      else if (tgtDrug === 'fentanyl_patch') {
+        rawTgt = (emo / 60) * 25;
+        unit = "µg / h (Patch 72h)";
+      }
+
+      // Safe dose with 30% reduction for incomplete cross-tolerance
+      let safeTgt = rawTgt * 0.70;
+      // Rescue dose = 1/6 of daily base dose
+      let rescueDose = safeTgt / 6.0;
+
+      document.getElementById('rot-emo-val').innerText = `${Math.round(emo)} mg ÉMO / 24h`;
+      document.getElementById('rot-raw-val').innerText = `${Math.round(rawTgt)} ${unit}`;
+      document.getElementById('rot-safe-val').innerText = `${Math.round(safeTgt)} ${unit}`;
+
+      if (tgtDrug === 'fentanyl_patch') {
+        document.getElementById('rot-rescue-val').innerText = `Morphine PO immédiate : ${Math.round(emo * 0.70 / 6)} mg`;
+      } else {
+        document.getElementById('rot-rescue-val').innerText = `${Math.max(1, Math.round(rescueDose))} mg / prise`;
+      }
+    }
+
+    /* ======================================================= */
+    /* CLINICAL CRASH TEST SUITE                                */
+    /* ======================================================= */
+    const userAnswers = { 1: null, 2: null, 3: null, 4: null };
+    const examFeedback = {
+      1: {
+        correct: 'B',
+        title: "Dossier 1 : Allaitement Maternel & Métabolisme Ultra-Rapide (UM)",
+        explanation: `
+          <p class="text-emerald-300 font-bold mb-1">✓ Parfaitement diagnostiqué !</p>
+          <p>La mère possède une duplication du gène <strong>CYP2D6 (*1xN ou *2xN)</strong>, conférant un phénotype métaboliseur ultra-rapide (UM) présent chez 10% des Caucasiens et jusqu'à 30% des populations d'Afrique du Nord et du Moyen-Orient.</p>
+          <p class="mt-1"><strong>Mécanisme toxique :</strong></p>
+          <ul class="list-disc list-inside space-y-1 mt-1 text-slate-300">
+            <li>La codéine administrée à posologie usuelle est convertie massivement et instantanément en morphine dans le plasma maternel.</li>
+            <li>La morphine étant une base faible (pKa 8.0), elle diffuse facilement et subit un <strong>piégeage ionique dans le lait maternel</strong> plus acide que le plasma (pH 6.8 - 7.0).</li>
+            <li>Le nouveau-né aux capacités hépatiques d'élimination immatures ingère des doses létales de morphine → léthargie, bradypnée et arrêt respiratoire.</li>
+          </ul>
+          <p class="mt-1 text-rose-300"><strong>Décision réglementaire de l'ANSM / EMA :</strong> La Codéine est strictement <strong>CONTRE-INDIQUÉE pendant l'allaitement</strong> ! Le paracétamol reste le premier choix.</p>
+        `
+      },
+      2: {
+        correct: 'A',
+        title: "Dossier 2 : L'Association Explosive Tramadol + Fluoxétine (ISRS)",
+        explanation: `
+          <p class="text-emerald-300 font-bold mb-1">✓ Double mécanisme pharmacologique magistralement élucidé !</p>
+          <p>Cette coprescription déclenche un désastre à deux niveaux :</p>
+          <ol class="list-decimal list-inside space-y-1 mt-1 text-slate-300">
+            <li><strong>Synergie Pharmacodynamique (Syndrome Sérotoninergique) :</strong> Le tramadol inhibe la recapture de 5-HT, s'additionnant à l'effet de la fluoxétine. L'excès de sérotonine cérébrale stimule les récepteurs 5-HT2A et 5-HT1A, engendrant le tableau typique des critères de Hunter : <em>Hyperthermie, myoclonies, agitation motrice, sueurs et diarrhée</em> (urgence vitale).</li>
+            <li><strong>Interaction Pharmacocinétique (Perte d'analgésie) :</strong> La fluoxétine est un <strong>inhibiteur puissant du CYP2D6</strong>. Elle bloque l'O-déméthylation du tramadol en métabolite actif (+)-M1. Le patient n'a aucun soulagement de sa sciatique tout en subissant une toxicité centrale maximale !</li>
+          </ol>
+        `
+      },
+      3: {
+        correct: 'B',
+        title: "Dossier 3 : Morphine & Insuffisance Rénale Sévère (M6G vs M3G)",
+        explanation: `
+          <p class="text-emerald-300 font-bold mb-1">✓ Physiopathologie rénale et biochimie exactes !</p>
+          <p>La morphine est métabolisée par l'UGT2B7 hépatique en métabolites polaires éliminés exclusivement par filtration glomérulaire rénale :</p>
+          <ul class="list-disc list-inside space-y-1 mt-1 text-slate-300">
+            <li><strong>Morphine-6-Glucuronide (M6G) :</strong> Possède une affinité puissante pour le récepteur µ. En insuffisance rénale ($DFG < 30	ext{ mL/min}$), sa demi-vie est multipliée par 5 à 10 → <strong>dépression respiratoire retardée et coma</strong>.</li>
+            <li><strong>Morphine-3-Glucuronide (M3G) :</strong> Sans affinité µ mais neurotoxique par stimulation des récepteurs NMDA et GABA → <strong>myoclonies, tremblements, allodynie et hyperalgie paradoxale</strong>.</li>
+          </ul>
+          <p class="mt-1 text-cyan-300"><strong>Alternative de choix :</strong> L'<strong>Oxycodone</strong> à posologie réduite et espacée, ou mieux encore le <strong>Fentanyl</strong> (métabolisé par le CYP3A4 en norfentanyl inactif sans risque d'accumulation rénale).</p>
+        `
+      },
+      4: {
+        correct: 'B',
+        title: "Dossier 4 : Le Piège Mortel de la Re-Narcotisation par la Naloxone",
+        explanation: `
+          <p class="text-emerald-300 font-bold mb-1">✓ Réflexe de pharmacocinétique d'urgence médicale !</p>
+          <p>La règle d'or de la réanimation toxicologique morphinique repose sur la <strong>cinétique de clairance</strong> :</p>
+          <ul class="list-disc list-inside space-y-1 mt-1 text-slate-300">
+            <li>La <strong>Naloxone</strong> a une demi-vie très courte d'environ <strong>45 à 60 minutes</strong>.</li>
+            <li>La <strong>Méthadone</strong> a une demi-vie d'élimination terminale de <strong>24 à 36 heures</strong>, et les formes orales de Morphine LP libèrent le produit sur 12 à 24 heures !</li>
+            <li>L'antagonisme de la naloxone est purement <em>compétitif et réversible</em>. Quand sa concentration plasmatique chute sous le seuil d'efficacité, la méthadone toujours présente réoccupe les récepteurs µ → <strong>Rechute foudroyante en coma apnéique</strong> une à deux heures après le réveil initial.</li>
+          </ul>
+          <p class="mt-1 text-amber-200"><strong>Conduite à tenir :</strong> Surveillance hospitalière continue minimale de 24h, souvent sous perfusion continue de Naloxone au pousse-seringue électrique (PSE).</p>
+        `
+      }
+    };
+
+    function submitCase(caseNum, expectedAnswer) {
+      const selected = document.querySelector(`input[name="case-${caseNum}"]:checked`);
+      const feedbackBox = document.getElementById(`case-feedback-${caseNum}`);
+      const statusBadge = document.getElementById(`case-status-${caseNum}`);
+
+      if (!selected) {
+        alert("Veuillez cocher une option avant de valider.");
+        return;
+      }
+
+      userAnswers[caseNum] = selected.value;
+      const isCorrect = (selected.value === expectedAnswer);
+
+      feedbackBox.classList.remove('hidden');
+
+      if (isCorrect) {
+        feedbackBox.className = "p-4 rounded-xl text-xs leading-relaxed space-y-2 bg-emerald-950/60 border border-emerald-700/80 text-emerald-100";
+        statusBadge.className = "text-xs font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold";
+        statusBadge.innerText = "✓ Validé (1/1)";
+      } else {
+        feedbackBox.className = "p-4 rounded-xl text-xs leading-relaxed space-y-2 bg-rose-950/60 border border-rose-700/80 text-rose-100";
+        statusBadge.className = "text-xs font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-800 font-bold";
+        statusBadge.innerText = "✗ Erreur (0/1)";
+      }
+
+      feedbackBox.innerHTML = `
+        <h4 class="font-bold text-sm text-white">${examFeedback[caseNum].title}</h4>
+        ${examFeedback[caseNum].explanation}
+      `;
+
+      updateExamTotalScore();
+    }
+
+    function updateExamTotalScore() {
+      let score = 0;
+      let answered = 0;
+      for (let i = 1; i <= 4; i++) {
+        if (userAnswers[i] !== null) {
+          answered++;
+          if (userAnswers[i] === examFeedback[i].correct) score++;
+        }
+      }
+
+      document.getElementById('header-score-badge').innerText = `${score} / 4`;
+      document.getElementById('exam-score-total').innerText = `${score} / 4`;
+
+      if (answered === 4) {
+        const finalCard = document.getElementById('final-exam-card');
+        const verdictTitle = document.getElementById('final-verdict-title');
+        const verdictDesc = document.getElementById('final-verdict-desc');
+        const rankText = document.getElementById('exam-rank-text');
+        finalCard.classList.remove('hidden');
+
+        if (score === 4) {
+          rankText.innerText = "Major de Promotion Opioïdes (4/4)";
+          verdictTitle.innerText = "Félicitations : Mention Très Honorable – Rang 1 Concours !";
+          verdictDesc.innerHTML = "Vous maîtrisez avec une rigueur absolue la biochimie structurale du récepteur µ, la pharmacogénomique du CYP2D6, les règles de titration d'urgence de la naloxone et les pièges d'insuffisance rénale des morphiniques. Votre niveau en DFGSP2 est exceptionnel !";
+        } else if (score === 3) {
+          rankText.innerText = "Admissible à l'Internat (3/4)";
+          verdictTitle.innerText = "Très Bon Niveau Clinique (3/4)";
+          verdictDesc.innerHTML = "Très bonne maîtrise des concepts fondamentaux. Reprenez attentivement l'analyse du cas manqué pour verrouiller les 100% au concours.";
+        } else {
+          rankText.innerText = "Révisions Recommandées (" + score + "/4)";
+          verdictTitle.innerText = "Bilan : Points Critiques à Consolider (" + score + "/4)";
+          verdictDesc.innerHTML = "Reprenez le simulateur CYP2D6 et les notions de demi-vie de la naloxone vs méthadone pour maîtriser ces pièges sémiologiques majeurs.";
+        }
+      }
+    }
+
+    function resetExam() {
+      for (let i = 1; i <= 4; i++) {
+        userAnswers[i] = null;
+        const radios = document.getElementsByName('case-' + i);
+        radios.forEach(r => r.checked = false);
+        const fb = document.getElementById('case-feedback-' + i);
+        if (fb) fb.classList.add('hidden');
+        const st = document.getElementById('case-status-' + i);
+        if (st) {
+          st.className = "text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400";
+          st.innerText = "À résoudre";
+        }
+      }
+      document.getElementById('final-exam-card').classList.add('hidden');
+      updateExamTotalScore();
+    }
+
+    /* Tab Switcher Logic */
+    function switchTab(tabId) {
+      const tabs = ['tab-rsa', 'tab-pharmacogenomics', 'tab-sedation', 'tab-rotation', 'tab-crashtest'];
+      tabs.forEach(t => {
+        const el = document.getElementById(t);
+        const btn = document.getElementById('btn-' + t);
+        if (el && btn) {
+          if (t === tabId) {
+            el.classList.remove('hidden');
+            btn.className = "tab-btn flex items-center gap-2 px-3 py-2 rounded-lg text-purple-400 bg-purple-950/40 border border-purple-800/60 transition-all whitespace-nowrap";
+          } else {
+            el.classList.add('hidden');
+            btn.className = "tab-btn flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent transition-all whitespace-nowrap";
+          }
+        }
+      });
+
+      if (tabId === 'tab-rsa' && glviewer) {
+        setTimeout(() => {
+          glviewer.resize();
+          glviewer.render();
+        }, 50);
+      }
+    }
+
+    /* Lifecycle Event */
+    window.addEventListener('DOMContentLoaded', () => {
+      init3DViewer();
+      updateCYP2D6Simulation();
+      updateSedationUI();
+      calculateRotation();
+    });
+
+    window.addEventListener('resize', () => {
+      if (glviewer) glviewer.resize();
+    });
+  </script>
+</body>
+</html>

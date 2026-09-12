@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmaLab 360° • L'Univers Interactif des Antalgiques | DFGSP2</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 3Dmol.js (WebGL Molecular Viewer) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/3Dmol/2.0.4/3Dmol-min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* 3Dmol container */
+    #g3d-container {
+      width: 100%;
+      height: 380px;
+      position: relative;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-full flex flex-col antialiased selection:bg-teal-500 selection:text-white">
+
+  <!-- ========================================================================= -->
+  <!-- TOP NAVIGATION HEADER -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo & Title -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/25">
+          <i data-lucide="dna" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-teal-400 via-cyan-300 to-indigo-300 bg-clip-text text-transparent">
+              PharmaLab 360°
+            </span>
+            <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30">
+              DFGSP2 • Antalgiques
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">Plateforme Interactive Maîtresse • 3D, Cascades & Clinique</p>
+        </div>
+      </div>
+
+      <!-- DESKTOP NAVIGATION TABS -->
+      <nav class="hidden lg:flex space-x-1 p-1 bg-slate-800/80 rounded-xl border border-slate-700/80 text-xs font-semibold">
+        <button onclick="switchMasterTab('studio-3d')" id="nav-btn-studio-3d" class="master-tab-btn active px-3.5 py-2 rounded-lg transition-all flex items-center space-x-2 bg-teal-600 text-white shadow-md">
+          <i data-lucide="cuboid" class="w-4 h-4"></i>
+          <span>1. Studio 3D</span>
+        </button>
+        <button onclick="switchMasterTab('cascades')" id="nav-btn-cascades" class="master-tab-btn px-3.5 py-2 rounded-lg transition-all flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-700/60">
+          <i data-lucide="git-merge" class="w-4 h-4"></i>
+          <span>2. Cascades Moléculaires</span>
+        </button>
+        <button onclick="switchMasterTab('clinical-sim')" id="nav-btn-clinical-sim" class="master-tab-btn px-3.5 py-2 rounded-lg transition-all flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-700/60">
+          <i data-lucide="stethoscope" class="w-4 h-4"></i>
+          <span>3. Patients en Direct</span>
+        </button>
+        <button onclick="switchMasterTab('tactical-hub')" id="nav-btn-tactical-hub" class="master-tab-btn px-3.5 py-2 rounded-lg transition-all flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-700/60">
+          <i data-lucide="calculator" class="w-4 h-4"></i>
+          <span>4. Titration & Scanner</span>
+        </button>
+      </nav>
+
+      <!-- QUICK DRAWER TRIGGER -->
+      <button onclick="openDrawer(currentMoleculeKey)" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-300 text-xs font-bold transition shadow-sm">
+        <i data-lucide="microscope" class="w-4 h-4 text-indigo-400"></i>
+        <span class="hidden sm:inline">Dossier DFGSP2 à la demande</span>
+      </button>
+
+    </div>
+
+    <!-- MOBILE NAVIGATION -->
+    <div class="lg:hidden flex overflow-x-auto border-t border-slate-800 bg-slate-900 px-2 py-1.5 gap-1 text-xs">
+      <button onclick="switchMasterTab('studio-3d')" id="mob-nav-studio-3d" class="flex-1 py-1.5 px-2.5 rounded-lg font-bold bg-teal-600 text-white whitespace-nowrap text-center">1. Studio 3D</button>
+      <button onclick="switchMasterTab('cascades')" id="mob-nav-cascades" class="flex-1 py-1.5 px-2.5 rounded-lg font-medium text-slate-300 whitespace-nowrap text-center">2. Cascades</button>
+      <button onclick="switchMasterTab('clinical-sim')" id="mob-nav-clinical-sim" class="flex-1 py-1.5 px-2.5 rounded-lg font-medium text-slate-300 whitespace-nowrap text-center">3. Patients</button>
+      <button onclick="switchMasterTab('tactical-hub')" id="mob-nav-tactical-hub" class="flex-1 py-1.5 px-2.5 rounded-lg font-medium text-slate-300 whitespace-nowrap text-center">4. Titration</button>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN APP WRAPPER -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 1: STUDIO 3D & EXPLORATEUR DE MOLÉCULES -->
+    <!-- ========================================================================= -->
+    <section id="sec-studio-3d" class="space-y-6">
+      
+      <!-- Section Title Banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-teal-950/70 to-indigo-950/80 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-12 -top-12 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="max-w-2xl space-y-2">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold">
+              <i data-lucide="cuboid" class="w-3.5 h-3.5"></i>
+              <span>Visualisation Stérique 3D Interactive (WebGL)</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Studio 3D &amp; Pharmacodynamie Moléculaire
+            </h1>
+            <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              Fais pivoter la molécule à la souris, observe ses groupements chimiques clés et découvre comment sa conformation stérique conditionne son affinité réceptorielle (COX-1 vs COX-2, Récepteur &mu;).
+            </p>
+          </div>
+
+          <!-- Molecule Quick Switcher Badges -->
+          <div class="flex flex-wrap gap-2 text-xs">
+            <button onclick="selectMolecule('paracetamol')" id="btn-mol-paracetamol" class="mol-badge-btn px-3 py-1.5 rounded-xl border border-teal-500 bg-teal-500/20 text-teal-300 font-bold transition flex items-center space-x-1.5 shadow-md">
+              <span>Paracétamol</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-teal-500/40 text-teal-100">Palier I</span>
+            </button>
+            <button onclick="selectMolecule('ibuprofene')" id="btn-mol-ibuprofene" class="mol-badge-btn px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white font-medium transition flex items-center space-x-1.5">
+              <span>Ibuprofène</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-700 text-slate-300">AINS</span>
+            </button>
+            <button onclick="selectMolecule('celecoxib')" id="btn-mol-celecoxib" class="mol-badge-btn px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white font-medium transition flex items-center space-x-1.5">
+              <span>Célécoxib</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-purple-500/30 text-purple-300">COX-2</span>
+            </button>
+            <button onclick="selectMolecule('aspirine')" id="btn-mol-aspirine" class="mol-badge-btn px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white font-medium transition flex items-center space-x-1.5">
+              <span>Aspirine</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/30 text-amber-300">Salicylé</span>
+            </button>
+            <button onclick="selectMolecule('tramadol')" id="btn-mol-tramadol" class="mol-badge-btn px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white font-medium transition flex items-center space-x-1.5">
+              <span>Tramadol</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/40 text-amber-200">Palier II</span>
+            </button>
+            <button onclick="selectMolecule('morphine')" id="btn-mol-morphine" class="mol-badge-btn px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white font-medium transition flex items-center space-x-1.5">
+              <span>Morphine</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded bg-rose-500/40 text-rose-200">Palier III</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN 3D WORKBENCH GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT: 3D VIEWPORT CONTAINER (7 cols) -->
+        <div class="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-3xl p-5 flex flex-col justify-between shadow-2xl relative">
+          
+          <!-- Viewport Header Toolbar -->
+          <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-3">
+            <div class="flex items-center space-x-2">
+              <span id="g3d-mol-name" class="font-black text-lg text-white">Paracétamol (3D)</span>
+              <span id="g3d-mol-formula" class="text-xs font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded-md">C8H9NO2</span>
+            </div>
+
+            <!-- View Controls -->
+            <div class="flex items-center space-x-1.5 text-xs">
+              <button onclick="set3dStyle('stick')" id="btn-style-stick" class="px-2.5 py-1 rounded-lg bg-teal-600 text-white font-semibold">Bâtonnets</button>
+              <button onclick="set3dStyle('sphere')" id="btn-style-sphere" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold">Sphères</button>
+              <button onclick="set3dStyle('surface')" id="btn-style-surface" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold">Surface</button>
+              <button onclick="toggle3dSpin()" id="btn-spin" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold flex items-center space-x-1">
+                <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i>
+                <span id="spin-label">Auto-Rotation</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- WebGL 3D Container -->
+          <div class="rounded-2xl overflow-hidden border border-slate-800/80 bg-slate-950 relative">
+            <div id="g3d-container"></div>
+            <!-- Helpful user hint -->
+            <div class="absolute bottom-2 left-3 text-[11px] text-slate-400 bg-slate-900/80 backdrop-blur px-2.5 py-1 rounded-md border border-slate-800 flex items-center space-x-1.5 pointer-events-none">
+              <i data-lucide="hand" class="w-3 h-3 text-teal-400"></i>
+              <span>Clic gauche pour tourner • Clic droit pour glisser • Molette pour zoomer</span>
+            </div>
+          </div>
+
+          <!-- Chemical Group Insight Callout -->
+          <div class="mt-4 p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-start space-x-3 text-xs">
+            <div class="w-7 h-7 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0 mt-0.5">
+              <i data-lucide="atom" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <span class="font-bold text-teal-300 block mb-0.5" id="g3d-insight-title">Groupement Pharmacophorique Clé :</span>
+              <p class="text-slate-300 leading-relaxed text-[11px]" id="g3d-insight-text">
+                Fonction phénol (OH) et groupement acétamide. Absence d'acidité forte carboxylique, expliquant l'absence d'agression locale de la muqueuse gastrique comparativement aux AINS classiques.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: GAUGES & INTUITIVE PHARMACOLOGICAL RADAR (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <!-- Live Gauges Card -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="activity" class="w-5 h-5 text-teal-400"></i>
+                <h3 class="font-black text-white text-base">Profil Pharmacodynamique en Direct</h3>
+              </div>
+              <span id="gauge-class-badge" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-teal-500/20 text-teal-300 border border-teal-500/40 font-mono">
+                Palier I
+              </span>
+            </div>
+
+            <!-- Gauges Stack -->
+            <div class="space-y-3 text-xs">
+              
+              <!-- 1. Puissance Antalgique -->
+              <div class="space-y-1">
+                <div class="flex justify-between font-semibold">
+                  <span class="text-slate-300 flex items-center space-x-1.5">
+                    <i data-lucide="zap" class="w-3.5 h-3.5 text-teal-400"></i>
+                    <span>Puissance Antalgique</span>
+                  </span>
+                  <span id="val-antalgic" class="font-mono text-teal-300 font-bold">45 / 100</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                  <div id="bar-antalgic" class="bg-teal-500 h-full rounded-full transition-all duration-500" style="width: 45%;"></div>
+                </div>
+              </div>
+
+              <!-- 2. Effet Anti-inflammatoire -->
+              <div class="space-y-1">
+                <div class="flex justify-between font-semibold">
+                  <span class="text-slate-300 flex items-center space-x-1.5">
+                    <i data-lucide="flame" class="w-3.5 h-3.5 text-amber-400"></i>
+                    <span>Action Anti-Inflammatoire</span>
+                  </span>
+                  <span id="val-inflam" class="font-mono text-amber-300 font-bold">5 / 100</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                  <div id="bar-inflam" class="bg-amber-500 h-full rounded-full transition-all duration-500" style="width: 5%;"></div>
+                </div>
+              </div>
+
+              <!-- 3. Risque Ulcère Gastrique -->
+              <div class="space-y-1">
+                <div class="flex justify-between font-semibold">
+                  <span class="text-slate-300 flex items-center space-x-1.5">
+                    <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-400"></i>
+                    <span>Risque Ulcère &amp; Digestif</span>
+                  </span>
+                  <span id="val-gastric" class="font-mono text-emerald-400 font-bold">0 / 100 (Inoffensif)</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                  <div id="bar-gastric" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 2%;"></div>
+                </div>
+              </div>
+
+              <!-- 4. Risque Rénal -->
+              <div class="space-y-1">
+                <div class="flex justify-between font-semibold">
+                  <span class="text-slate-300 flex items-center space-x-1.5">
+                    <i data-lucide="droplet" class="w-3.5 h-3.5 text-indigo-400"></i>
+                    <span>Risque Rénal (DFG)</span>
+                  </span>
+                  <span id="val-renal" class="font-mono text-emerald-400 font-bold">5 / 100 (Sûr aux doses usuelles)</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                  <div id="bar-renal" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 5%;"></div>
+                </div>
+              </div>
+
+              <!-- 5. Risque Hépatique -->
+              <div class="space-y-1">
+                <div class="flex justify-between font-semibold">
+                  <span class="text-slate-300 flex items-center space-x-1.5">
+                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-orange-400"></i>
+                    <span>Risque Hépatotoxicité (NAPQI)</span>
+                  </span>
+                  <span id="val-hepatic" class="font-mono text-orange-400 font-bold">Élevé si &gt; 4g/j</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                  <div id="bar-hepatic" class="bg-orange-500 h-full rounded-full transition-all duration-500" style="width: 70%;"></div>
+                </div>
+              </div>
+
+              <!-- 6. Risque Dépendance / Sevrage -->
+              <div class="space-y-1">
+                <div class="flex justify-between font-semibold">
+                  <span class="text-slate-300 flex items-center space-x-1.5">
+                    <i data-lucide="lock" class="w-3.5 h-3.5 text-purple-400"></i>
+                    <span>Risque Dépendance / Addiction</span>
+                  </span>
+                  <span id="val-addiction" class="font-mono text-emerald-400 font-bold">0 / 100 (Nul)</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                  <div id="bar-addiction" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%;"></div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Quick Pharmacist Pearl Box -->
+            <div class="p-3.5 rounded-2xl bg-teal-950/40 border border-teal-800/60 text-xs space-y-1">
+              <span class="text-[11px] font-bold text-teal-300 flex items-center space-x-1">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                <span>Réflexe Clé Officinal (DFGSP2) :</span>
+              </span>
+              <p id="gauge-quick-pearl" class="text-slate-300 text-[11px] leading-relaxed">
+                Posologie adulte maximale : 1g par prise, espacée de 4 à 6h, max 3g/j en automédication (jusqu'à 4g/j sur avis médical). Antidote en cas d'intoxication aiguë : N-Acétylcystéine IV.
+              </p>
+            </div>
+
+            <!-- Big Action Button: Open Detail Drawer -->
+            <button onclick="openDrawer(currentMoleculeKey)" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-teal-500 to-indigo-600 hover:from-teal-400 hover:to-indigo-500 text-white font-bold text-xs flex items-center justify-center space-x-2 transition shadow-lg shadow-teal-500/20">
+              <i data-lucide="file-search" class="w-4 h-4"></i>
+              <span>🔬 Ouvrir le Dossier Pharmacologique Complet (DFGSP2)</span>
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 2: SIMULATEUR VISUEL DE CASCADES MOLÉCULAIRES -->
+    <!-- ========================================================================= -->
+    <section id="sec-cascades" class="space-y-6 hidden">
+      
+      <!-- Section Banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950/70 to-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="space-y-2 max-w-2xl">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold">
+            <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+            <span>Comprendre par l'Action • Zéro Texte Encombrant</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Le Simulateur Vivant des Cascades Biologiques
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+            Choisis une cascade, "injecte" virtuellement un médicament et observe en direct la fermeture des enzymes ou récepteurs et les répercussions sur les organes cibles.
+          </p>
+        </div>
+
+        <!-- Pathway Selector Buttons -->
+        <div class="flex bg-slate-800 p-1.5 rounded-2xl border border-slate-700 text-xs font-bold">
+          <button onclick="switchPathway('arachidonate')" id="btn-path-arachidonate" class="px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-md transition flex items-center space-x-2">
+            <i data-lucide="flame" class="w-4 h-4"></i>
+            <span>1. Cascade Arachidonate (AINS)</span>
+          </button>
+          <button onclick="switchPathway('opioid-synapse')" id="btn-path-opioid" class="px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center space-x-2">
+            <i data-lucide="network" class="w-4 h-4"></i>
+            <span>2. Synapse Opioïde (Morphine)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- CASCADE 1: ARACHIDONATE & COX-1 vs COX-2 -->
+      <!-- ========================================== -->
+      <div id="pathway-arachidonate" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Interactive Injection Controls (4 cols) -->
+        <div class="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+          <h3 class="font-bold text-white text-sm flex items-center space-x-2">
+            <i data-lucide="syringe" class="w-4 h-4 text-indigo-400"></i>
+            <span>Injecter une Molécule dans la Cascade :</span>
+          </h3>
+
+          <div class="space-y-2">
+            <button onclick="setCascadeState('basal')" id="btn-casc-basal" class="w-full p-3 rounded-2xl border-2 border-teal-500 bg-slate-700 text-left text-xs font-semibold text-white hover:bg-slate-700 transition flex items-center justify-between">
+              <div>
+                <span class="block font-bold">1. État Physiologique Basal</span>
+                <span class="text-[11px] text-slate-400">Pas de médicament • Inflammation active</span>
+              </div>
+              <i data-lucide="activity" class="w-4 h-4 text-slate-400"></i>
+            </button>
+
+            <button onclick="setCascadeState('ibuprofene')" id="btn-casc-ibu" class="w-full p-3 rounded-2xl border-2 border-transparent bg-slate-800/80 text-left text-xs font-semibold text-white hover:bg-slate-700 transition flex items-center justify-between">
+              <div>
+                <span class="block font-bold text-amber-300">2. Ibuprofène (AINS Non Sélectif)</span>
+                <span class="text-[11px] text-slate-400">Bloque COX-1 ET COX-2</span>
+              </div>
+              <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i>
+            </button>
+
+            <button onclick="setCascadeState('celecoxib')" id="btn-casc-cel" class="w-full p-3 rounded-2xl border-2 border-transparent bg-slate-800/80 text-left text-xs font-semibold text-white hover:bg-slate-700 transition flex items-center justify-between">
+              <div>
+                <span class="block font-bold text-purple-300">3. Célécoxib (COX-2 Sélectif - Coxib)</span>
+                <span class="text-[11px] text-slate-400">Bloque COX-2 • Épargne COX-1</span>
+              </div>
+              <i data-lucide="check-circle" class="w-4 h-4 text-purple-400"></i>
+            </button>
+
+            <button onclick="setCascadeState('aspirine')" id="btn-casc-asp" class="w-full p-3 rounded-2xl border-2 border-transparent bg-slate-800/80 text-left text-xs font-semibold text-white hover:bg-slate-700 transition flex items-center justify-between">
+              <div>
+                <span class="block font-bold text-cyan-300">4. Aspirine Faible Dose (75-160 mg)</span>
+                <span class="text-[11px] text-slate-400">Acétylation irréversible Sérine 529</span>
+              </div>
+              <i data-lucide="heart" class="w-4 h-4 text-cyan-400"></i>
+            </button>
+          </div>
+
+          <!-- Dynamic Physiological Status Summary -->
+          <div id="cascade-summary-box" class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
+            <span class="font-extrabold text-teal-400 uppercase tracking-wider text-[10px] block" id="casc-title">1. État Physiologique Basal (Non Traité)</span>
+            <p id="casc-desc" class="text-slate-300 text-[11px] leading-relaxed">
+              La phospholipase A2 libère l'acide arachidonique. COX-1 protège l'estomac et régule les plaquettes. COX-2 génère des prostaglandines inflammatoires provoquant douleur et hyperalgie.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Visual Diagram SVG (8 cols) -->
+        <div class="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col justify-between space-y-4">
+          
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 text-xs">
+            <span class="font-bold text-slate-300 flex items-center space-x-2">
+              <i data-lucide="git-commit" class="w-4 h-4 text-teal-400"></i>
+              <span>Schéma Dynamique de la Cascade</span>
+            </span>
+            <span id="casc-pill-tag" class="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono text-[11px]">
+              Statut : Basal
+            </span>
+          </div>
+
+          <!-- Visual Schematic Cards (Interactive Pathway Flow) -->
+          <div class="space-y-4">
+            
+            <!-- Top Step: Membrane Phospholipids -->
+            <div class="flex items-center justify-center">
+              <div class="px-6 py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-center">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Membrane Cellulaire</span>
+                <span class="font-extrabold text-white text-xs">Phospholipides Membranaires</span>
+              </div>
+            </div>
+
+            <div class="flex justify-center text-slate-600">
+              <i data-lucide="arrow-down" class="w-4 h-4"></i>
+            </div>
+
+            <!-- Middle Step: Arachidonic Acid -->
+            <div class="flex items-center justify-center">
+              <div class="px-6 py-2.5 rounded-2xl bg-indigo-950/60 border border-indigo-700/60 text-center">
+                <span class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider block">Action Phospholipase A2</span>
+                <span class="font-black text-indigo-200 text-sm">Acide Arachidonique</span>
+              </div>
+            </div>
+
+            <div class="flex justify-center text-slate-600">
+              <i data-lucide="split" class="w-5 h-5"></i>
+            </div>
+
+            <!-- Dual Branches: COX-1 vs COX-2 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <!-- Branch COX-1 -->
+              <div id="box-cox1" class="p-4 rounded-2xl bg-slate-800/80 border-2 border-teal-500/50 space-y-3 transition-all">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <span id="badge-cox1" class="w-7 h-7 rounded-lg bg-teal-500 text-slate-900 font-black text-xs flex items-center justify-center">1</span>
+                    <div>
+                      <span class="font-black text-white text-sm block">COX-1</span>
+                      <span class="text-[10px] text-slate-400 uppercase">Constitutive (Physiologique)</span>
+                    </div>
+                  </div>
+                  <span id="status-cox1" class="text-xs font-bold text-teal-400 px-2 py-0.5 rounded-md bg-teal-500/10">ACTIVE</span>
+                </div>
+
+                <!-- Organs affected by COX-1 -->
+                <div class="space-y-2 text-[11px] pt-2 border-t border-slate-700/60">
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-300">🛡️ Estomac (PGE2, PGI2) :</span>
+                    <span id="txt-stomach" class="font-bold text-teal-400">Protection muqueuse OK</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-300">🩸 Plaquettes (TXA2) :</span>
+                    <span id="txt-platelets" class="font-bold text-teal-400">Agrégation normale</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-300">💧 Rein (Vasodilatation) :</span>
+                    <span id="txt-kidney" class="font-bold text-teal-400">Flux rénal normal</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Branch COX-2 -->
+              <div id="box-cox2" class="p-4 rounded-2xl bg-slate-800/80 border-2 border-amber-500/50 space-y-3 transition-all">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-2">
+                    <span id="badge-cox2" class="w-7 h-7 rounded-lg bg-amber-500 text-slate-900 font-black text-xs flex items-center justify-center">2</span>
+                    <div>
+                      <span class="font-black text-white text-sm block">COX-2</span>
+                      <span class="text-[10px] text-slate-400 uppercase">Inductible (Inflammation)</span>
+                    </div>
+                  </div>
+                  <span id="status-cox2" class="text-xs font-bold text-amber-400 px-2 py-0.5 rounded-md bg-amber-500/10">ACTIVE</span>
+                </div>
+
+                <!-- Organs affected by COX-2 -->
+                <div class="space-y-2 text-[11px] pt-2 border-t border-slate-700/60">
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-300">🔥 Douleur &amp; Fièvre (PGE2) :</span>
+                    <span id="txt-pain" class="font-bold text-rose-400">Hyperalgie active</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-300">🩹 Œdème &amp; Vasodilatation :</span>
+                    <span id="txt-edema" class="font-bold text-rose-400">Inflammation vive</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-300">⚖️ Endothélium (PGI2) :</span>
+                    <span id="txt-endo" class="font-bold text-teal-400">Vasodilatation équilibrée</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Bottom Big Insight Flash -->
+          <div id="casc-alert-banner" class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700 text-xs flex items-center space-x-3">
+            <i data-lucide="info" class="w-5 h-5 text-teal-400 shrink-0"></i>
+            <span id="casc-alert-text" class="text-slate-300 text-[11px]">
+              Sélectionne un médicament à gauche pour visualiser la modulation pharmacodynamique en temps réel.
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================== -->
+      <!-- CASCADE 2: OPIOID SYNAPSE & RECEPTOR MU -->
+      <!-- ========================================== -->
+      <div id="pathway-opioid" class="grid grid-cols-1 lg:grid-cols-12 gap-6 hidden">
+        
+        <!-- Left Opioid Actions (4 cols) -->
+        <div class="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+          <h3 class="font-bold text-white text-sm flex items-center space-x-2">
+            <i data-lucide="zap" class="w-4 h-4 text-teal-400"></i>
+            <span>Action sur la Transmission Synaptique :</span>
+          </h3>
+
+          <div class="space-y-2">
+            <button onclick="setOpioidState('pain')" id="btn-op-pain" class="w-full p-3 rounded-2xl border-2 border-rose-500 bg-slate-700 text-left text-xs font-semibold text-white hover:bg-slate-700 transition flex items-center justify-between">
+              <div>
+                <span class="block font-bold text-rose-300">1. Influx Nociceptif Brut</span>
+                <span class="text-[11px] text-slate-400">Substance P &amp; Glutamate libérés</span>
+              </div>
+              <i data-lucide="flame" class="w-4 h-4 text-rose-400"></i>
+            </button>
+
+            <button onclick="setOpioidState('morphine')" id="btn-op-morphine" class="w-full p-3 rounded-2xl border-2 border-transparent bg-slate-800/80 text-left text-xs font-semibold text-white hover:bg-slate-700 transition flex items-center justify-between">
+              <div>
+                <span class="block font-bold text-teal-300">2. Morphine (Agoniste &mu; Pur)</span>
+                <span class="text-[11px] text-slate-400">Fermeture Ca2+ &amp; Ouverture K+</span>
+              </div>
+              <i data-lucide="shield-check" class="w-4 h-4 text-teal-400"></i>
+            </button>
+
+            <button onclick="setOpioidState('tramadol')" id="btn-op-tramadol" class="w-full p-3 rounded-2xl border-2 border-transparent bg-slate-800/80 text-left text-xs font-semibold text-white hover:bg-slate-700 transition flex items-center justify-between">
+              <div>
+                <span class="block font-bold text-amber-300">3. Tramadol (Double Mécanisme)</span>
+                <span class="text-[11px] text-slate-400">&mu; + Recapture Sérotonine / NA</span>
+              </div>
+              <i data-lucide="git-fork" class="w-4 h-4 text-amber-400"></i>
+            </button>
+
+            <button onclick="setOpioidState('naloxone')" id="btn-op-naloxone" class="w-full p-3 rounded-2xl border-2 border-transparent bg-slate-800/80 text-left text-xs font-semibold text-white hover:bg-slate-700 transition flex items-center justify-between">
+              <div>
+                <span class="block font-bold text-purple-300">4. Naloxone (Antidote Spécifique)</span>
+                <span class="text-[11px] text-slate-400">Antagoniste compétitif pur</span>
+              </div>
+              <i data-lucide="rotate-ccw" class="w-4 h-4 text-purple-400"></i>
+            </button>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
+            <span class="font-extrabold text-teal-400 uppercase tracking-wider text-[10px] block" id="op-state-title">1. Influx Nociceptif Brut</span>
+            <p id="op-state-desc" class="text-slate-300 text-[11px] leading-relaxed">
+              Le potentiel d'action arrive à la terminaison présynaptique de la corne dorsale de la moelle. L'ouverture des canaux Ca2+ déclenche l'exocytose des vésicules de Substance P et de glutamate vers le neurone spinothalamique.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Visual Synapse Representation (8 cols) -->
+        <div class="lg:col-span-8 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5">
+          
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 text-xs">
+            <span class="font-bold text-slate-300 flex items-center space-x-2">
+              <i data-lucide="network" class="w-4 h-4 text-teal-400"></i>
+              <span>Synapse Nociceptive (Corne Postérieure de la Moelle Épinière)</span>
+            </span>
+            <span id="op-pill-tag" class="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[11px]">
+              Douleur Maximale (EVA 9/10)
+            </span>
+          </div>
+
+          <!-- Synapse Visual Layout -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            
+            <!-- Presynaptic Neuron -->
+            <div id="synapse-pre" class="p-4 rounded-2xl bg-rose-950/30 border-2 border-rose-500/60 space-y-3">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Neurone Présynaptique (Fibres A&delta; / C)</span>
+              
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-700/80 space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-300">Récepteur Opioïde &mu; :</span>
+                  <span id="syn-mu-status" class="font-bold text-slate-400">LIBRE (Non occupé)</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-300">Canaux Ca2+ Voltage-Dépendants :</span>
+                  <span id="syn-ca-status" class="font-bold text-rose-400">OUVERTS (Entrée Ca2+ active)</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-300">Exocytose Substance P / Glutamate :</span>
+                  <span id="syn-subp-status" class="font-bold text-rose-400">LARGAGE MASSIF 🚨</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Postsynaptic Neuron -->
+            <div id="synapse-post" class="p-4 rounded-2xl bg-rose-950/30 border-2 border-rose-500/60 space-y-3">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Neurone Post-synaptique (Faisceau Spinothalamique)</span>
+
+              <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-700/80 space-y-2">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-300">Canaux K+ Rectifiants :</span>
+                  <span id="syn-k-status" class="font-bold text-slate-400">FERMÉS</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-300">Potentiel de Membrane :</span>
+                  <span id="syn-mem-status" class="font-bold text-rose-400">Dépolarisé (-40 mV)</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-300">Signal Douloureux vers le Cerveau :</span>
+                  <span id="syn-brain-status" class="font-bold text-rose-400">INFLUX TRANSMIS AU CORTEX 🚨</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Digestive Transit / Respiratory Alert for Opioids -->
+          <div id="op-side-effect-banner" class="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs space-y-2">
+            <span class="text-teal-400 font-bold flex items-center space-x-1.5">
+              <i data-lucide="alert-circle" class="w-4 h-4"></i>
+              <span>Impact Clinique &amp; Réflexes DFGSP2 :</span>
+            </span>
+            <p id="op-side-effect-text" class="text-slate-300 text-[11px] leading-relaxed">
+              Transit intestinal normal, respiration normale mais douleur aiguë insupportable.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 3: SIMULATEUR DE PATIENTS VIVANTS EN DIRECT -->
+    <!-- ========================================================================= -->
+    <section id="sec-clinical-sim" class="space-y-6 hidden">
+      
+      <div class="bg-gradient-to-r from-slate-900 via-teal-950/60 to-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="space-y-2 max-w-2xl">
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold">
+            <i data-lucide="stethoscope" class="w-3.5 h-3.5"></i>
+            <span>Mise en Situation d'Officine &amp; Urgences</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Le Simulateur de Patients en Temps Réel
+          </h2>
+          <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+            Chaque patient possède des antécédents et constantes en direct. Teste tes choix de dispensation et observe immédiatement les moniteurs réagir !
+          </p>
+        </div>
+
+        <!-- Patient Selector Carousel Buttons -->
+        <div class="flex flex-wrap gap-2 text-xs font-bold">
+          <button onclick="loadPatient(1)" id="btn-pat-1" class="patient-nav-btn px-3 py-2 rounded-xl bg-teal-600 text-white shadow-md">
+            1. Amina (Femme Enceinte)
+          </button>
+          <button onclick="loadPatient(2)" id="btn-pat-2" class="patient-nav-btn px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white">
+            2. Gérard (Insuffisant Rénal)
+          </button>
+          <button onclick="loadPatient(3)" id="btn-pat-3" class="patient-nav-btn px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white">
+            3. Thomas (Tramadol + ISRS)
+          </button>
+          <button onclick="loadPatient(4)" id="btn-pat-4" class="patient-nav-btn px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white">
+            4. Christian (Morphine &amp; Accès)
+          </button>
+        </div>
+      </div>
+
+      <!-- PATIENT DASHBOARD GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left: Patient File & Action Choices (6 cols) -->
+        <div class="lg:col-span-6 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5">
+          
+          <div class="flex items-center space-x-3 border-b border-slate-800 pb-4">
+            <div id="patient-avatar" class="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-xl border border-teal-500/40">
+              A
+            </div>
+            <div>
+              <h3 id="patient-name" class="font-extrabold text-lg text-white">Amina, 28 ans</h3>
+              <p id="patient-context" class="text-xs text-teal-300 font-medium">Enceinte de 7 mois (31 SA) • Douleur dentaire vive insomniante</p>
+            </div>
+          </div>
+
+          <!-- Dialog / Problem Statement -->
+          <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 text-xs space-y-2">
+            <div class="flex items-center space-x-1.5 text-slate-300 font-bold">
+              <i data-lucide="message-circle" class="w-4 h-4 text-teal-400"></i>
+              <span>Ce que demande le patient au comptoir :</span>
+            </div>
+            <p id="patient-speech" class="text-slate-300 text-xs italic leading-relaxed">
+              « Bonjour docteur, j'ai une rage de dents insupportable depuis hier soir, je n'ai pas fermé l'œil. Donnez-moi de l'ibuprofène ou de l'antadys, c'est ce qui marche d'habitude chez moi ! »
+            </p>
+          </div>
+
+          <!-- Action Decisions -->
+          <div class="space-y-3">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Quelle est votre décision pharmaceutique ?</span>
+            
+            <div id="patient-options-container" class="space-y-2 text-xs">
+              <!-- Dynamically populated options -->
+            </div>
+          </div>
+
+          <!-- Clinical Outcome / Debrief Box -->
+          <div id="patient-feedback-box" class="hidden p-4 rounded-2xl text-xs space-y-2 transition-all"></div>
+
+        </div>
+
+        <!-- Right: Live Vital Signs & Risk Monitor (6 cols) -->
+        <div class="lg:col-span-6 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5">
+          
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+              <h3 class="font-extrabold text-white text-base">Moniteur Biomédical en Direct</h3>
+            </div>
+            <span id="patient-condition-badge" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-slate-800 text-slate-300">
+              En Attente de Décision
+            </span>
+          </div>
+
+          <!-- Vital Sign Gauges Cards -->
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            
+            <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+              <span class="text-slate-400 font-medium block text-[11px]">Intensité Douleur (EVA)</span>
+              <div id="mon-eva" class="text-2xl font-black text-rose-400 font-mono">8 / 10</div>
+              <span id="mon-eva-sub" class="text-[10px] text-slate-500 block">Douleur sévère initiale</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+              <span class="text-slate-400 font-medium block text-[11px]">Fonction Rénale (DFG)</span>
+              <div id="mon-dfg" class="text-2xl font-black text-emerald-400 font-mono">110 mL/min</div>
+              <span id="mon-dfg-sub" class="text-[10px] text-slate-500 block">Filtration normale</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+              <span class="text-slate-400 font-medium block text-[11px]">Sécurité Fœtale / Spécifique</span>
+              <div id="mon-fetal" class="text-2xl font-black text-emerald-400 font-mono">VULNÉRABLE</div>
+              <span id="mon-fetal-sub" class="text-[10px] text-slate-500 block">Fœtus de 31 SA</span>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+              <span class="text-slate-400 font-medium block text-[11px]">Vigilance &amp; Transit</span>
+              <div id="mon-transit" class="text-2xl font-black text-emerald-400 font-mono">100%</div>
+              <span id="mon-transit-sub" class="text-[10px] text-slate-500 block">Péristaltisme conservé</span>
+            </div>
+
+          </div>
+
+          <!-- Academic Exam Trap Callout -->
+          <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/60 text-xs space-y-2">
+            <span class="text-indigo-300 font-bold flex items-center space-x-1.5">
+              <i data-lucide="award" class="w-4 h-4 text-indigo-400"></i>
+              <span>Le Piège Classique d'Examen DFGSP2 associé :</span>
+            </span>
+            <p id="patient-exam-trap" class="text-slate-300 text-[11px] leading-relaxed">
+              Même une prise unique d'AINS à partir du 6e mois (24 SA) peut causer une fermeture prématurée et irréversible du canal artériel fœtal et une anurie fœtale (oligoamnios). Contre-indication formelle et absolue !
+            </p>
+          </div>
+
+          <!-- Deep Drilldown Trigger -->
+          <button onclick="openDrawer(currentPatientDrugKey)" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center space-x-2 border border-slate-700 transition">
+            <i data-lucide="book-open" class="w-4 h-4 text-teal-400"></i>
+            <span>🔬 Voir la Fiche Détaillée de la Molécule en Cause</span>
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- SECTION 4: HUB TACTIQUE, TITRATION & SCANNER -->
+    <!-- ========================================================================= -->
+    <section id="sec-tactical-hub" class="space-y-6 hidden">
+      
+      <!-- Banner -->
+      <div class="bg-gradient-to-r from-slate-900 via-teal-950/70 to-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-bold mb-3">
+          <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+          <span>Outils Pratiques de Comptoir &amp; Clinique</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
+          Convertisseur Visuel d'Équi-analgésie &amp; Scanner de Paires
+        </h2>
+        <p class="text-slate-300 text-xs sm:text-sm max-w-3xl leading-relaxed">
+          Manipule les doses d'opioïdes pour observer instantanément les équivalences de biodisponibilité (PO vs SC vs IV vs TTS) et scanne n'importe quelle association médicamenteuse.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT: VISUAL TITRATION ENGINE (7 cols) -->
+        <div class="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5">
+          
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="font-bold text-white text-sm flex items-center space-x-2">
+              <i data-lucide="sliders" class="w-4 h-4 text-teal-400"></i>
+              <span>Titration &amp; Équivalences Morphine / Opioïdes</span>
+            </h3>
+            <span class="text-xs font-mono font-bold bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded">Ratios Officiels</span>
+          </div>
+
+          <!-- Dose Slider Control -->
+          <div class="space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold text-slate-300">Dose Totale de Morphine Orale reçue sur 24h :</span>
+              <span id="hub-dose-badge" class="font-mono text-base font-black text-teal-400 bg-slate-800 px-3 py-1 rounded-xl border border-slate-700">60 mg/24h</span>
+            </div>
+            <input type="range" id="hub-slider" min="10" max="300" step="10" value="60" oninput="updateHubTitration(this.value)"
+              class="w-full h-3 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-500">
+            <div class="flex justify-between text-[10px] text-slate-500 font-mono px-1">
+              <span>10 mg</span>
+              <span>60 mg (standard)</span>
+              <span>120 mg</span>
+              <span>180 mg</span>
+              <span>300 mg</span>
+            </div>
+          </div>
+
+          <!-- Visual Bar / Card Equivalences -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs">
+            
+            <!-- Morphine Orale (Per Os) -->
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase">Morphine Orale (PO)</span>
+                <div id="hub-res-po" class="text-2xl font-black text-white font-mono my-2">60 mg</div>
+              </div>
+              <span class="text-[11px] text-teal-400 font-semibold">Forme LP : 30 mg matin &amp; soir</span>
+            </div>
+
+            <!-- Morphine Sous-Cutanée (SC) -->
+            <div class="p-4 rounded-2xl bg-teal-950/40 border border-teal-800/60 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-teal-300 uppercase">Sous-Cutanée (SC)</span>
+                <div id="hub-res-sc" class="text-2xl font-black text-teal-300 font-mono my-2">30 mg</div>
+              </div>
+              <span class="text-[11px] text-teal-200">Diviser par 2 la dose orale</span>
+            </div>
+
+            <!-- Morphine Intraveineuse (IV) -->
+            <div class="p-4 rounded-2xl bg-indigo-950/40 border border-indigo-800/60 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] font-bold text-indigo-300 uppercase">Intraveineuse (IV)</span>
+                <div id="hub-res-iv" class="text-2xl font-black text-indigo-300 font-mono my-2">20 mg</div>
+              </div>
+              <span class="text-[11px] text-indigo-200">Diviser par 3 la dose orale</span>
+            </div>
+
+          </div>
+
+          <!-- ADP Interdose Box -->
+          <div class="p-4 rounded-2xl bg-amber-950/30 border border-amber-800/50 space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-amber-300 flex items-center space-x-1.5">
+                <i data-lucide="zap" class="w-4 h-4"></i>
+                <span>Accès Douloureux Paroxystique (ADP) • Règle du 1/6e</span>
+              </span>
+              <span id="hub-res-adp" class="font-mono font-black text-base text-amber-300 bg-amber-900/40 px-2.5 py-0.5 rounded-lg border border-amber-700/50">
+                10 mg LI / prise
+              </span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">
+              Dose de secours en libération immédiate (Morphine LI). Si le patient a besoin de plus de 4 interdoses par 24h, il faut augmenter la dose de fond LP !
+            </p>
+          </div>
+
+          <!-- Stupefiants Rules Box -->
+          <div class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-1">
+            <span class="text-teal-300 font-bold block">Réglementation Officinale (Code de la Santé Publique) :</span>
+            <ul class="list-disc list-inside space-y-0.5 text-slate-400">
+              <li>Ordonnance sécurisée, doses écrites en toutes lettres.</li>
+              <li>Prescription limitée à 28 jours maximum (formes orales).</li>
+              <li><strong class="text-teal-200">Co-prescription réflexe obligatoire :</strong> Laxatif osmotique dès J1.</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: INTERACTIVE PAIR CONFLICT SCANNER (5 cols) -->
+        <div class="lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-5">
+          
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="font-bold text-white text-sm flex items-center space-x-2">
+              <i data-lucide="shield-alert" class="w-4 h-4 text-rose-400"></i>
+              <span>Scanner d'Associations &amp; Paires</span>
+            </h3>
+            <span class="text-xs text-slate-400">Détecteur de Conflits</span>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="text-[11px] font-bold text-slate-400 block mb-1">Médicament 1 :</label>
+              <select id="hub-select-1" onchange="runHubScanner()" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-white focus:ring-2 focus:ring-teal-500">
+                <option value="paracetamol">Paracétamol (Palier I)</option>
+                <option value="ibuprofene">Ibuprofène (AINS)</option>
+                <option value="ketoprofene">Kétoprofène (AINS)</option>
+                <option value="tramadol">Tramadol (Palier II)</option>
+                <option value="codeine">Codéine (Palier II)</option>
+                <option value="morphine" selected>Morphine (Palier III)</option>
+                <option value="buprenorphine">Buprénorphine (Palier III Agoniste Partiel)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-[11px] font-bold text-slate-400 block mb-1">Médicament 2 :</label>
+              <select id="hub-select-2" onchange="runHubScanner()" class="w-full p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-white focus:ring-2 focus:ring-teal-500">
+                <option value="buprenorphine" selected>Buprénorphine (Palier III Agoniste Partiel)</option>
+                <option value="paracetamol">Paracétamol (Palier I)</option>
+                <option value="ibuprofene">Ibuprofène (AINS)</option>
+                <option value="ketoprofene">Kétoprofène (AINS)</option>
+                <option value="tramadol">Tramadol (Palier II)</option>
+                <option value="codeine">Codéine (Palier II)</option>
+                <option value="morphine">Morphine (Palier III)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Scanner Verdict Box -->
+          <div id="hub-scan-result" class="p-4 rounded-2xl bg-rose-950/40 border-2 border-rose-500/60 space-y-2 text-xs transition-all">
+            <div class="flex items-center justify-between">
+              <span id="hub-scan-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white">
+                CONTRE-INDICATION ABSOLUE
+              </span>
+              <i data-lucide="alert-octagon" class="w-5 h-5 text-rose-400"></i>
+            </div>
+            <h4 id="hub-scan-title" class="font-bold text-white text-sm">Morphine + Buprénorphine</h4>
+            <p id="hub-scan-text" class="text-slate-300 text-[11px] leading-relaxed">
+              La buprénorphine déplace la morphine de ses récepteurs &mu; par très haute affinité mais faible activité intrinsèque. Résultat : <strong>sevrage aigu immédiat</strong> et rupture violente de l'analgésie !
+            </p>
+          </div>
+
+          <!-- Quick Preset Buttons -->
+          <div class="space-y-2 pt-2 border-t border-slate-800 text-[11px]">
+            <span class="text-slate-400 font-bold block">Paires classiques à tester en 1 clic :</span>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="setHubPreset('morphine', 'buprenorphine')" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-left truncate">
+                ⚠️ Morphine + Buprénorphine
+              </button>
+              <button onclick="setHubPreset('ibuprofene', 'ketoprofene')" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-left truncate">
+                ⚠️ Deux AINS ensemble
+              </button>
+              <button onclick="setHubPreset('tramadol', 'codeine')" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-left truncate">
+                ⚠️ Deux Opioïdes Palier II
+              </button>
+              <button onclick="setHubPreset('paracetamol', 'tramadol')" class="p-2 rounded-xl bg-teal-950/60 hover:bg-teal-900/60 text-teal-300 font-medium text-left truncate border border-teal-800/40">
+                ✅ Paracétamol + Tramadol
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- SLIDE-OVER DRAWER : DOSSIER PHARMACOLOGIQUE APPROFONDI (DFGSP2) -->
+  <!-- ========================================================================= -->
+  <div id="drawer-backdrop" onclick="closeDrawer()" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+  
+  <aside id="pharma-drawer" class="fixed top-0 right-0 bottom-0 w-full max-w-2xl bg-slate-900 border-l border-slate-800 z-50 shadow-2xl p-6 overflow-y-auto transform translate-x-full transition-transform duration-300 ease-in-out text-xs space-y-6">
+    
+    <!-- Drawer Header -->
+    <div class="flex items-start justify-between border-b border-slate-800 pb-4 sticky top-0 bg-slate-900/95 backdrop-blur z-10">
+      <div class="space-y-1">
+        <div class="flex items-center space-x-2">
+          <span id="drawer-palier-tag" class="px-2 py-0.5 rounded-md text-[10px] font-black bg-teal-500/20 text-teal-300 border border-teal-500/40">
+            Palier I OMS
+          </span>
+          <span class="text-slate-500 text-[11px] font-mono">Dossier de Référence Officinale</span>
+        </div>
+        <h2 id="drawer-molecule-title" class="text-2xl font-black text-white">Paracétamol (DCI)</h2>
+        <p id="drawer-molecule-subtitle" class="text-slate-400 text-xs">Acétaminophène • Antalgique non opioïde, antipyrétique</p>
+      </div>
+      <button onclick="closeDrawer()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Drawer Content Sections -->
+    <div class="space-y-5">
+      
+      <!-- 1. Pharmacocinétique Chiffrée -->
+      <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
+        <div class="flex items-center space-x-2 text-teal-400 font-bold">
+          <i data-lucide="gauge" class="w-4 h-4"></i>
+          <span class="uppercase tracking-wider text-[11px]">Pharmacocinétique Chiffrée (DFGSP2)</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-[11px]">
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-slate-500 block text-[10px]">Biodisponibilité (F)</span>
+            <span id="drw-bio" class="font-bold text-white text-xs mt-0.5 block">80 - 90 %</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-slate-500 block text-[10px]">Tmax</span>
+            <span id="drw-tmax" class="font-bold text-white text-xs mt-0.5 block">30 - 60 min</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-slate-500 block text-[10px]">Demi-vie (t1/2)</span>
+            <span id="drw-halflife" class="font-bold text-white text-xs mt-0.5 block">2 - 3 heures</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-slate-500 block text-[10px]">Liaison Protéines</span>
+            <span id="drw-binding" class="font-bold text-white text-xs mt-0.5 block">&lt; 20 % (Faible)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Métabolisme Hépatique & Voies Enzymatiques -->
+      <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+        <div class="flex items-center space-x-2 text-indigo-400 font-bold">
+          <i data-lucide="git-branch" class="w-4 h-4"></i>
+          <span class="uppercase tracking-wider text-[11px]">Métabolisme Hépatique &amp; Cytochromes</span>
+        </div>
+        <p id="drw-metabolism" class="text-slate-300 text-xs leading-relaxed">
+          Glucuroconjugaison (60%) et sulfoconjugaison (30%). Voie mineure (5-10%) via CYP2E1 produisant le métabolite réactif toxique <strong>N-acétyl-p-benzoquinone imine (NAPQI)</strong>. Neutralisé à dose thérapeutique par le glutathion. En cas de surdosage : déplétion en glutathion et cytolyse hépatique centrolobulaire fulminante.
+        </p>
+      </div>
+
+      <!-- 3. Mécanisme Moléculaire Fin & Transduction -->
+      <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+        <div class="flex items-center space-x-2 text-cyan-400 font-bold">
+          <i data-lucide="dna" class="w-4 h-4"></i>
+          <span class="uppercase tracking-wider text-[11px]">Mécanisme Moléculaire Fin &amp; Cibles</span>
+        </div>
+        <p id="drw-mechanism" class="text-slate-300 text-xs leading-relaxed">
+          Action centrale prédominante : conversion en AM404 par la FAAH au niveau cérébral, stimulant les récepteurs cannabinoïdes CB1 et les canaux TRPV1, renforçant les voies sérotoninergiques descendantes inhibitrices de la douleur. Inhibition peroxydase de la COX centrale en milieu pauvre en peroxydes.
+        </p>
+      </div>
+
+      <!-- 4. Contre-indications Absolues & Terrains Sensibles -->
+      <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+        <div class="flex items-center space-x-2 text-rose-400 font-bold">
+          <i data-lucide="shield-x" class="w-4 h-4"></i>
+          <span class="uppercase tracking-wider text-[11px]">Contre-indications Majeures &amp; Terrains</span>
+        </div>
+        <ul id="drw-ci-list" class="list-disc list-inside space-y-1 text-slate-300 text-xs">
+          <li>Insuffisance hépatocellulaire sévère.</li>
+          <li>Allergie connue au principe actif ou excipients.</li>
+          <li>Prudence chez l'éthylique chronique, le sujet dénutri ou le patient &lt; 50 kg (adapter posologie à 2-3 g/j max).</li>
+        </ul>
+      </div>
+
+      <!-- 5. Antidote Spécifique & Protocole d'Urgence -->
+      <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+        <div class="flex items-center space-x-2 text-amber-400 font-bold">
+          <i data-lucide="life-buoy" class="w-4 h-4"></i>
+          <span class="uppercase tracking-wider text-[11px]">Antidote &amp; Conduite à Tenir d'Urgence</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1">
+          <span class="font-bold text-amber-300 block" id="drw-antidote-name">N-Acétylcystéine (NAC)</span>
+          <p id="drw-antidote-text" class="text-slate-300 text-[11px] leading-relaxed">
+            Fournit de la cystéine pour régénérer les stocks hépatiques de glutathion et piéger le NAPQI. Efficacité optimale si administré dans les 8 à 10 premières heures suivant l'ingestion toxique.
+          </p>
+        </div>
+      </div>
+
+      <!-- 6. Piège d'Officine & Internat -->
+      <div class="p-4 rounded-2xl bg-teal-950/40 border border-teal-800/60 space-y-2">
+        <div class="flex items-center space-x-2 text-teal-300 font-bold">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span class="uppercase tracking-wider text-[11px]">Le Réflexe Clé d'Examen DFGSP2</span>
+        </div>
+        <p id="drw-exam-trap" class="text-slate-200 text-xs leading-relaxed">
+          Toujours traquer les associations cachées en automédication (Fervex®, Actifed®, Dolirhume® contiennent tous 500mg de paracétamol !). Un surdosage toxique peut survenir sans même que le patient s'en rende compte.
+        </p>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- FOOTER -->
+  <!-- ========================================================================= -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-6 mt-12 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="graduation-cap" class="w-4 h-4 text-teal-400"></i>
+        <span class="font-bold text-slate-300">PharmaLab 360°</span>
+        <span>• Conçu pour la 2e année de Pharmacie (DFGSP2)</span>
+      </div>
+      <div>
+        <span class="text-slate-400">Fichier autonome 100% interactif • Aucun serveur requis</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT MASTER APPLICATION LOGIC & DATABASE -->
+  <!-- ========================================================================= -->
+  <script>
+    // Embedded SDF database from files in workspace
+    const SDF_DATABASE = __SDF_DATABASE_JSON__;
+
+    // Complete Drug Database with Pharmacological Metrics
+    const DRUG_DB = {
+      paracetamol: {
+        name: "Paracétamol (DCI)",
+        sub: "Acétaminophène • Palier I OMS",
+        palier: "Palier I",
+        formula: "C8H9NO2",
+        classBadge: "bg-teal-500/20 text-teal-300 border-teal-500/40",
+        gauges: {
+          antalgic: 45,
+          inflam: 5,
+          gastric: 0,
+          renal: 5,
+          hepatic: 70,
+          addiction: 0
+        },
+        values: {
+          antalgic: "45 / 100 (Modérée)",
+          inflam: "5 / 100 (Nulle en périphérie)",
+          gastric: "0 / 100 (Inoffensif)",
+          renal: "5 / 100 (Sûr aux doses usuelles)",
+          hepatic: "Élevé si surdosage (>4g/j)",
+          addiction: "0 / 100 (Nul)"
+        },
+        insightTitle: "Groupement Pharmacophorique Clé :",
+        insightText: "Fonction phénol (OH) et groupement acétamide. Absence d'acidité carboxylique forte : ne provoque pas d'agression locale de la muqueuse gastrique.",
+        quickPearl: "Posologie adulte : 500mg à 1g par prise, espacée de 4 à 6h. Max 3g/j en automédication (jusqu'à 4g/j sur avis médical). Antidote : N-Acétylcystéine.",
+        details: {
+          bio: "80 - 90 %",
+          tmax: "30 - 60 min",
+          halflife: "2 - 3 heures",
+          binding: "< 20 % (Faible)",
+          metabolism: "Glucuroconjugaison (60%) et sulfoconjugaison (30%). Voie mineure (5-10%) via CYP2E1 produisant le métabolite réactif toxique NAPQI. Neutralisé par le glutathion.",
+          mechanism: "Action centrale prédominante via formation d'AM404 par la FAAH cérébrale, stimulant CB1 et TRPV1, et renforçant les voies sérotoninergiques descendantes.",
+          ci: [
+            "Insuffisance hépatocellulaire sévère.",
+            "Allergie connue au paracétamol.",
+            "Prudence et posologie réduite à 2-3g/j chez le sujet âgé, dénutri ou < 50 kg."
+          ],
+          antidoteName: "N-Acétylcystéine (NAC)",
+          antidoteText: "Fournit de la cystéine précurseur du glutathion pour neutraliser le NAPQI. Idéalement dans les 8-10h.",
+          examTrap: "Traquer les spécialités du rhume (Fervex, Humex, Dolirhume) contenant toutes du paracétamol caché pour prévenir l'hépatite toxique aiguë."
+        }
+      },
+
+      ibuprofene: {
+        name: "Ibuprofène (DCI)",
+        sub: "Dérivé de l'acide propionique • AINS Palier I",
+        palier: "Palier I (AINS)",
+        formula: "C13H18O2",
+        classBadge: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+        gauges: {
+          antalgic: 60,
+          inflam: 75,
+          gastric: 65,
+          renal: 70,
+          hepatic: 20,
+          addiction: 0
+        },
+        values: {
+          antalgic: "60 / 100 (Bonne)",
+          inflam: "75 / 100 (Puissant)",
+          gastric: "65 / 100 (Risque ulcérogène)",
+          renal: "70 / 100 (Baisse du DFG)",
+          hepatic: "20 / 100 (Faible)",
+          addiction: "0 / 100 (Nul)"
+        },
+        insightTitle: "Structure Stérique & Chiralité :",
+        insightText: "Acide 2-(4-isobutylphényl)propionique. Carbone asymétrique : l'énantiomère S(+) est l'eutomer actif (inversion métabolique in vivo de R vers S). Fonction carboxyle -COOH responsable de l'agression acide locale.",
+        quickPearl: "À prendre impérativement au milieu des repas. Durée minimale nécessaire. Contre-indication absolue à partir du 6e mois de grossesse (24 SA) !",
+        details: {
+          bio: "80 - 100 %",
+          tmax: "1 - 2 heures",
+          halflife: "2 heures (Court)",
+          binding: "> 99 % (Très forte à l'albumine)",
+          metabolism: "Oxydation hépatique par le CYP2C9 en métabolites inactifs (hydroxy et carboxy-ibuprofène).",
+          mechanism: "Inhibition compétitive réversible des cyclo-oxygénases COX-1 et COX-2. Baisse périphérique de PGE2 et PGI2.",
+          ci: [
+            "Grossesse dès le début du 6e mois (24 SA) : CONTRE-INDICATION ABSOLUE.",
+            "Ulcère gastroduodénal évolutif ou antécédent d'hémorragie digestive sous AINS.",
+            "Insuffisance rénale sévère, cardiaque ou hépatique sévère.",
+            "Asthme déclenché par l'aspirine ou les AINS (Syndrome de Widal)."
+          ],
+          antidoteName: "Pas d'antidote spécifique (Traitement symptomatique)",
+          antidoteText: "Protection gastrique par IPP, réhydratation, surveillance du DFG et hémodialyse si intoxication massive.",
+          examTrap: "L'interaction 'Triple Whammy' : AINS + IEC/Sartan + Diurétique provoque une chute cataclysmique de la filtration glomérulaire par perte conjointe des régulations de l'artériole afférente et efférente."
+        }
+      },
+
+      celecoxib: {
+        name: "Célécoxib (DCI)",
+        sub: "AINS Coxib • Inhibiteur Sélectif de COX-2",
+        palier: "Palier I (Coxib)",
+        formula: "C17H14F3N3O2S",
+        classBadge: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+        gauges: {
+          antalgic: 60,
+          inflam: 80,
+          gastric: 20,
+          renal: 65,
+          hepatic: 25,
+          addiction: 0
+        },
+        values: {
+          antalgic: "60 / 100",
+          inflam: "80 / 100 (Ciblé)",
+          gastric: "20 / 100 (Épargne gastrique)",
+          renal: "65 / 100 (COX-2 rénale bloquée)",
+          hepatic: "25 / 100 (Modéré)",
+          addiction: "0 / 100 (Nul)"
+        },
+        insightTitle: "Encombrement Stérique Sélectif :",
+        insightText: "Présence d'un volumineux groupement sulfonamide (-SO2NH2). La poche catalytique de COX-2 possède une poche latérale volumineuse (résidu Valine 523 à la place de l'Isoleucine 523 de COX-1), accueillant le célécoxib sans pouvoir entrer dans COX-1 !",
+        quickPearl: "Épargne la muqueuse gastrique en préservant COX-1, mais augmente le risque thromboembolique cardiovasculaire par suppression de PGI2 sans toucher au thromboxane TXA2 plaquettaire.",
+        details: {
+          bio: "20 - 40 %",
+          tmax: "2 - 3 heures",
+          halflife: "8 - 12 heures",
+          binding: "97 %",
+          metabolism: "Métabolisme hépatique quasi exclusif par le CYP2C9.",
+          mechanism: "Inhibition sélective de COX-2 (ratio sélectivité COX-2/COX-1 > 30). Supprime les prostaglandines inflammatoires.",
+          ci: [
+            "Antécédent d'infarctus du myocarde, AVC, cardiopathie ischémique avérée.",
+            "Allergie connue aux sulfamides (réaction croisée).",
+            "Grossesse T2/T3."
+          ],
+          antidoteName: "Pas d'antidote spécifique",
+          antidoteText: "Surveillance de la tension artérielle, de la fonction rénale et de la tolérance cardiovasculaire.",
+          examTrap: "Les coxibs n'ont AUCUN effet antiagrégant plaquettaire car les plaquettes matures n'expriment que COX-1 !"
+        }
+      },
+
+      aspirine: {
+        name: "Acide Acétylsalicylique (DCI)",
+        sub: "Aspirine • AINS Salicylé Irréversible",
+        palier: "Palier I (Salicylé)",
+        formula: "C9H8O4",
+        classBadge: "bg-cyan-500/20 text-cyan-300 border-cyan-500/40",
+        gauges: {
+          antalgic: 50,
+          inflam: 70,
+          gastric: 80,
+          renal: 60,
+          hepatic: 20,
+          addiction: 0
+        },
+        values: {
+          antalgic: "50 / 100",
+          inflam: "70 / 100 (à forte dose > 1g)",
+          gastric: "80 / 100 (Très ulcérogène)",
+          renal: "60 / 100",
+          hepatic: "20 / 100",
+          addiction: "0 / 100"
+        },
+        insightTitle: "Acétylation Covalente Irréversible :",
+        insightText: "L'aspirine transfère son groupement acétyle (-COCH3) de façon irréversible sur la Sérine 529 de COX-1 (et Sérine 516 de COX-2), bouchant définitivement le canal d'accès de l'acide arachidonique !",
+        quickPearl: "À faible dose (75 à 160 mg/j) : antiagrégant plaquettaire pendant 7 à 10 jours (les plaquettes anucléées ne peuvent pas resynthétiser l'enzyme). À forte dose (1 à 3 g/j) : antalgique et anti-inflammatoire.",
+        details: {
+          bio: "Rapide (hydrolyse en acide salicylique)",
+          tmax: "15 - 30 min (Aspirine) / 1-2h (Salicylate)",
+          halflife: "15 min (Aspirine) / 2 à 30h selon saturation dose-dépendante",
+          binding: "80 - 90 %",
+          metabolism: "Conjugaison hépatique avec la glycine (acide salicylurique) et glucuroconjugaison.",
+          mechanism: "Inactivation irréversible de COX-1 et COX-2 par acétylation covalente.",
+          ci: [
+            "Grossesse dès 24 SA (formelle).",
+            "Ulcère actif, risque hémorragique constitutionnel ou acquis.",
+            "Enfant < 16 ans en cas d'épisode viral (Risque de Syndrome de Reye mortel)."
+          ],
+          antidoteName: "Alcalinisation des urines au bicarbonate de sodium",
+          antidoteText: "Augmente la fraction ionisée de l'acide salicylique dans les tubules et accélère l'excrétion urinaire.",
+          examTrap: "Le syndrome de Reye : proscription stricte de l'aspirine chez l'enfant fébrile (grippe, varicelle) au profit du paracétamol !"
+        }
+      },
+
+      tramadol: {
+        name: "Tramadol (DCI)",
+        sub: "Opioïde Faible Central • Palier II OMS",
+        palier: "Palier II",
+        formula: "C16H25NO2",
+        classBadge: "bg-amber-500/30 text-amber-200 border-amber-500/50",
+        gauges: {
+          antalgic: 70,
+          inflam: 0,
+          gastric: 10,
+          renal: 30,
+          hepatic: 40,
+          addiction: 50
+        },
+        values: {
+          antalgic: "70 / 100 (Puissant Palier II)",
+          inflam: "0 / 100 (Inexistant)",
+          gastric: "10 / 100 (Nausées fréquentes)",
+          renal: "30 / 100",
+          hepatic: "40 / 100 (Métabolisme 2D6)",
+          addiction: "50 / 100 (Dépendance démontrée)"
+        },
+        insightTitle: "Double Mécanisme Synergique Central :",
+        insightText: "Molécule chirale : l'énantiomère (+) stimule les récepteurs opioïdes mu et bloque la recapture de la sérotonine ; l'énantiomère (-) bloque la recapture de la noradrénaline. Synergie antalgique mais risque de syndrome sérotoninergique !",
+        quickPearl: "Dose max : 400 mg/j (souvent 300 mg/j chez la personne âgée). Risque de convulsions (abaisse le seuil épileptogène) et de nausées/vomissements au début. Ordonnance limitée à 3 mois en France !",
+        details: {
+          bio: "70 - 75 %",
+          tmax: "1.5 - 2 heures (formes immédiates)",
+          halflife: "6 heures",
+          binding: "20 %",
+          metabolism: "O-déméthylation par le CYP2D6 en O-desméthyltramadol (M1), métabolite 200x plus affin pour le récepteur mu que la molécule mère. Attention aux métaboliseurs lents et ultra-rapides !",
+          mechanism: "Agoniste des récepteurs mu-opioïdes + inhibiteur de la recapture synaptique de la sérotonine (5-HT) et noradrénaline (NA).",
+          ci: [
+            "Épilepsie non contrôlée par un traitement.",
+            "Association aux IMAO (risque de syndrome sérotoninergique mortel).",
+            "Insuffisance respiratoire sévère."
+          ],
+          antidoteName: "Naloxone (Incomplètement efficace)",
+          antidoteText: "La naloxone lève la dépression respiratoire opioïde, mais NE lève PAS le risque de convulsions ni l'excès sérotoninergique induit !",
+          examTrap: "Polymorphisme du CYP2D6 : chez les métaboliseurs lents (7% de la population caucasienne), le tramadol est inefficace car non converti en M1 !"
+        }
+      },
+
+      morphine: {
+        name: "Sulfate de Morphine (DCI)",
+        sub: "Opioïde Fort Naturel • Palier III OMS",
+        palier: "Palier III",
+        formula: "C17H19NO3",
+        classBadge: "bg-rose-500/30 text-rose-200 border-rose-500/50",
+        gauges: {
+          antalgic: 95,
+          inflam: 0,
+          gastric: 15,
+          renal: 45,
+          hepatic: 50,
+          addiction: 90
+        },
+        values: {
+          antalgic: "95 / 100 (Référence antalgique)",
+          inflam: "0 / 100 (Inexistant)",
+          gastric: "15 / 100 (Constipation quasi 100%)",
+          renal: "45 / 100 (Accumulation M6G/M3G)",
+          hepatic: "50 / 100 (Glucuroconjugaison)",
+          addiction: "90 / 100 (Pharmacodépendance)"
+        },
+        insightTitle: "Noyau Morphinane & Agonisme Puissant :",
+        insightText: "Alcaloïde phénanthrénique de l'opium. Agoniste pur et sélectif des récepteurs mu (μ). Pas d'effet plafond : l'efficacité progresse avec la dose, seule la tolérance (dépression respiratoire, sédation) limite la titration.",
+        quickPearl: "Prescription sur ordonnance sécurisée pour 28 jours maximum. CO-PRESCRIPTION SYSTÉMATIQUE OBLIGATOIRE d'un laxatif osmotique (Macrogol) dès l'initiation en raison de l'absence totale de tolérance digestive !",
+        details: {
+          bio: "30 - 33 % (Effet de premier passage hépatique majeur)",
+          tmax: "15 - 30 min (LI) / 2 - 4h (LP)",
+          halflife: "2 - 3 heures",
+          binding: "30 - 35 %",
+          metabolism: "Glucuroconjugaison hépatique via UGT2B7 en Morphine-6-glucuronide (M6G, antalgique puissant accumulé si insuffisance rénale) et Morphine-3-glucuronide (M3G, neurotoxique, hyperalgie/myoclonies).",
+          mechanism: "Agonisme pur des récepteurs mu couplés aux protéines Gi. Fermeture des canaux calciques présynaptiques et ouverture des canaux potassiques postsynaptiques.",
+          ci: [
+            "Insuffisance respiratoire décompensée (en l'absence de ventilation assistée).",
+            "Traumatisme crânien aigu non stabilisé (majoration de la pression intracrânienne par hypercapnie).",
+            "Iléus paralytique.",
+            "Allaitement."
+          ],
+          antidoteName: "Naloxone IV (Narcan®)",
+          antidoteText: "Titration prudente par bolus de 0.1 mg toutes les 2-3 min pour lever la bradypnée sans réveiller brutalement une douleur aiguë intolérable.",
+          examTrap: "Équivalence des voies : 60 mg PO = 30 mg SC = 20 mg IV (Ratio PO : SC : IV = 3 : 1.5 : 1 soit SC = PO/2 et IV = PO/3)."
+        }
+      }
+    };
+
+    // State Variables
+    let currentMoleculeKey = 'paracetamol';
+    let currentStyle = 'stick';
+    let isSpinning = false;
+    let viewer = null;
+
+    // Initialize on Load
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      init3DViewer();
+      selectMolecule('paracetamol');
+      loadPatient(1);
+      updateHubTitration(60);
+      runHubScanner();
+    });
+
+    // Master Tab Switching
+    function switchMasterTab(tabId) {
+      const tabs = ['studio-3d', 'cascades', 'clinical-sim', 'tactical-hub'];
+      tabs.forEach(t => {
+        const sec = document.getElementById(`sec-${t}`);
+        const btn = document.getElementById(`nav-btn-${t}`);
+        const mob = document.getElementById(`mob-nav-${t}`);
+
+        if (t === tabId) {
+          sec.classList.remove('hidden');
+          if (btn) btn.className = 'master-tab-btn active px-3.5 py-2 rounded-lg transition-all flex items-center space-x-2 bg-teal-600 text-white shadow-md font-bold';
+          if (mob) mob.className = 'flex-1 py-1.5 px-2.5 rounded-lg font-bold bg-teal-600 text-white whitespace-nowrap text-center';
+        } else {
+          sec.classList.add('hidden');
+          if (btn) btn.className = 'master-tab-btn px-3.5 py-2 rounded-lg transition-all flex items-center space-x-2 text-slate-300 hover:text-white hover:bg-slate-700/60 font-semibold';
+          if (mob) mob.className = 'flex-1 py-1.5 px-2.5 rounded-lg font-medium text-slate-300 whitespace-nowrap text-center';
+        }
+      });
+
+      lucide.createIcons();
+      if (tabId === 'studio-3d' && viewer) {
+        setTimeout(() => { viewer.resize(); viewer.render(); }, 100);
+      }
+    }
+
+    // =========================================================================
+    // 3D MOLECULAR VIEWER CONTROLLER
+    // =========================================================================
+    function init3DViewer() {
+      const container = document.getElementById('g3d-container');
+      if (!container) return;
+      viewer = $3Dmol.createViewer(container, { backgroundColor: '#020617' });
+    }
+
+    function selectMolecule(molKey) {
+      currentMoleculeKey = molKey;
+      const data = DRUG_DB[molKey];
+      if (!data) return;
+
+      // Update badge tabs
+      document.querySelectorAll('.mol-badge-btn').forEach(b => {
+        b.className = 'mol-badge-btn px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 text-slate-300 hover:text-white font-medium transition flex items-center space-x-1.5';
+      });
+      const activeBtn = document.getElementById(`btn-mol-${molKey}`);
+      if (activeBtn) {
+        activeBtn.className = 'mol-badge-btn px-3 py-1.5 rounded-xl border border-teal-500 bg-teal-500/20 text-teal-300 font-bold transition flex items-center space-x-1.5 shadow-md shadow-teal-500/20';
+      }
+
+      // Update 3D Viewer title & model
+      document.getElementById('g3d-mol-name').textContent = `${data.name} (3D)`;
+      document.getElementById('g3d-mol-formula').textContent = data.formula;
+      document.getElementById('g3d-insight-title').textContent = data.insightTitle;
+      document.getElementById('g3d-insight-text').textContent = data.insightText;
+
+      // Update Gauges
+      document.getElementById('gauge-class-badge').textContent = data.palier;
+      document.getElementById('gauge-quick-pearl').textContent = data.quickPearl;
+
+      updateGauge('antalgic', data.gauges.antalgic, data.values.antalgic, 'teal');
+      updateGauge('inflam', data.gauges.inflam, data.values.inflam, 'amber');
+      updateGauge('gastric', data.gauges.gastric, data.values.gastric, data.gauges.gastric > 50 ? 'rose' : 'emerald');
+      updateGauge('renal', data.gauges.renal, data.values.renal, data.gauges.renal > 50 ? 'rose' : 'emerald');
+      updateGauge('hepatic', data.gauges.hepatic, data.values.hepatic, 'orange');
+      updateGauge('addiction', data.gauges.addiction, data.values.addiction, data.gauges.addiction > 50 ? 'purple' : 'emerald');
+
+      // Load 3D Coordinates
+      if (viewer && SDF_DATABASE[molKey]) {
+        viewer.clear();
+        viewer.addModel(SDF_DATABASE[molKey], 'sdf');
+        apply3DStyle(currentStyle);
+        viewer.zoomTo();
+        viewer.render();
+      }
+      lucide.createIcons();
+    }
+
+    function updateGauge(gaugeId, percent, textVal, color) {
+      const bar = document.getElementById(`bar-${gaugeId}`);
+      const val = document.getElementById(`val-${gaugeId}`);
+      if (bar) {
+        bar.style.width = `${percent}%`;
+        bar.className = `h-full rounded-full transition-all duration-500 bg-${color}-500`;
+      }
+      if (val) {
+        val.textContent = textVal;
+        val.className = `font-mono text-${color}-400 font-bold`;
+      }
+    }
+
+    function set3dStyle(style) {
+      currentStyle = style;
+      ['stick', 'sphere', 'surface'].forEach(s => {
+        const b = document.getElementById(`btn-style-${s}`);
+        if (b) {
+          b.className = (s === style) 
+            ? 'px-2.5 py-1 rounded-lg bg-teal-600 text-white font-semibold' 
+            : 'px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold';
+        }
+      });
+      apply3DStyle(style);
+    }
+
+    function apply3DStyle(style) {
+      if (!viewer) return;
+      viewer.removeAllSurfaces();
+      if (style === 'stick') {
+        viewer.setStyle({}, { stick: { radius: 0.18, colorscheme: 'Jmol' } });
+      } else if (style === 'sphere') {
+        viewer.setStyle({}, { sphere: { scale: 0.35, colorscheme: 'Jmol' } });
+      } else if (style === 'surface') {
+        viewer.setStyle({}, { stick: { radius: 0.15 } });
+        viewer.addSurface($3Dmol.SurfaceType.VDW, { opacity: 0.7, color: 'white' });
+      }
+      viewer.render();
+    }
+
+    function toggle3dSpin() {
+      if (!viewer) return;
+      isSpinning = !isSpinning;
+      viewer.spin(isSpinning ? 'y' : false, 1.0);
+      const label = document.getElementById('spin-label');
+      label.textContent = isSpinning ? "Arrêter Rotation" : "Auto-Rotation";
+    }
+
+    // =========================================================================
+    // SECTION 2 : CASCADES BIOCHIMIQUES DYNAMIQUES
+    // =========================================================================
+    function switchPathway(pathId) {
+      const bArach = document.getElementById('btn-path-arachidonate');
+      const bOp = document.getElementById('btn-path-opioid');
+      const pArach = document.getElementById('pathway-arachidonate');
+      const pOp = document.getElementById('pathway-opioid');
+
+      if (pathId === 'arachidonate') {
+        pArach.classList.remove('hidden');
+        pOp.classList.add('hidden');
+        bArach.className = 'px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-md transition flex items-center space-x-2 font-bold';
+        bOp.className = 'px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center space-x-2 font-medium';
+      } else {
+        pArach.classList.add('hidden');
+        pOp.classList.remove('hidden');
+        bArach.className = 'px-4 py-2 rounded-xl text-slate-300 hover:text-white transition flex items-center space-x-2 font-medium';
+        bOp.className = 'px-4 py-2 rounded-xl bg-indigo-600 text-white shadow-md transition flex items-center space-x-2 font-bold';
+      }
+      lucide.createIcons();
+    }
+
+    function setCascadeState(state) {
+      const bBasal = document.getElementById('btn-casc-basal');
+      const bIbu = document.getElementById('btn-casc-ibu');
+      const bCel = document.getElementById('btn-casc-cel');
+      const bAsp = document.getElementById('btn-casc-asp');
+
+      [bBasal, bIbu, bCel, bAsp].forEach(b => b.classList.remove('border-teal-500', 'border-amber-500', 'border-purple-500', 'border-cyan-500', 'bg-slate-700'));
+
+      const title = document.getElementById('casc-title');
+      const desc = document.getElementById('casc-desc');
+      const pill = document.getElementById('casc-pill-tag');
+      const alertBanner = document.getElementById('casc-alert-banner');
+      const alertText = document.getElementById('casc-alert-text');
+
+      const boxCox1 = document.getElementById('box-cox1');
+      const badgeCox1 = document.getElementById('badge-cox1');
+      const statusCox1 = document.getElementById('status-cox1');
+      const txtStomach = document.getElementById('txt-stomach');
+      const txtPlatelets = document.getElementById('txt-platelets');
+      const txtKidney = document.getElementById('txt-kidney');
+
+      const boxCox2 = document.getElementById('box-cox2');
+      const badgeCox2 = document.getElementById('badge-cox2');
+      const statusCox2 = document.getElementById('status-cox2');
+      const txtPain = document.getElementById('txt-pain');
+      const txtEdema = document.getElementById('txt-edema');
+      const txtEndo = document.getElementById('txt-endo');
+
+      if (state === 'basal') {
+        bBasal.classList.add('border-teal-500', 'bg-slate-700');
+        title.textContent = "1. État Physiologique Basal (Non Traité)";
+        desc.textContent = "Sans inhibiteur : COX-1 synthétise les prostaglandines protectrices de l'estomac et le thromboxane hémostatique. COX-2 est induite par les cytokines au site lésionnel, générant douleur vive et vasodilatation.";
+        pill.textContent = "Statut : Non Traité";
+        pill.className = "px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono text-[11px]";
+
+        // COX-1 Active
+        boxCox1.className = "p-4 rounded-2xl bg-slate-800/80 border-2 border-teal-500/50 space-y-3";
+        badgeCox1.className = "w-7 h-7 rounded-lg bg-teal-500 text-slate-900 font-black text-xs flex items-center justify-center";
+        statusCox1.textContent = "ACTIVE";
+        statusCox1.className = "text-xs font-bold text-teal-400 px-2 py-0.5 rounded-md bg-teal-500/10";
+        txtStomach.textContent = "Protection muqueuse OK (PGE2)";
+        txtStomach.className = "font-bold text-teal-400";
+        txtPlatelets.textContent = "Agrégation normale (TXA2)";
+        txtPlatelets.className = "font-bold text-teal-400";
+        txtKidney.textContent = "Flux rénal normal (Vasodilatation)";
+        txtKidney.className = "font-bold text-teal-400";
+
+        // COX-2 Active
+        boxCox2.className = "p-4 rounded-2xl bg-slate-800/80 border-2 border-amber-500/50 space-y-3";
+        badgeCox2.className = "w-7 h-7 rounded-lg bg-amber-500 text-slate-900 font-black text-xs flex items-center justify-center";
+        statusCox2.textContent = "ACTIVE";
+        statusCox2.className = "text-xs font-bold text-amber-400 px-2 py-0.5 rounded-md bg-amber-500/10";
+        txtPain.textContent = "Hyperalgie vive 🚨";
+        txtPain.className = "font-bold text-rose-400";
+        txtEdema.textContent = "Œdème & Gonflement";
+        txtEdema.className = "font-bold text-rose-400";
+        txtEndo.textContent = "PGI2 normale";
+        txtEndo.className = "font-bold text-teal-400";
+
+        alertText.textContent = "En l'absence de médicament, l'estomac est protégé mais le patient souffre.";
+      }
+      else if (state === 'ibuprofene') {
+        bIbu.classList.add('border-amber-500', 'bg-slate-700');
+        title.textContent = "2. Ibuprofène Injecté (AINS Non Sélectif)";
+        desc.textContent = "L'ibuprofène pénètre dans le canal catalytique de COX-1 et COX-2. L'inflammation et la douleur sont puissamment supprimées, mais la barrière de mucus gastrique s'effondre et l'artériole afférente du rein se contracte.";
+        pill.textContent = "Inhibition COX-1 + COX-2";
+        pill.className = "px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono text-[11px]";
+
+        // COX-1 Blocked
+        boxCox1.className = "p-4 rounded-2xl bg-rose-950/40 border-2 border-rose-500/60 space-y-3";
+        badgeCox1.className = "w-7 h-7 rounded-lg bg-rose-600 text-white font-black text-xs flex items-center justify-center";
+        statusCox1.textContent = "BLOQUÉE 🚫";
+        statusCox1.className = "text-xs font-bold text-rose-400 px-2 py-0.5 rounded-md bg-rose-500/20";
+        txtStomach.textContent = "CHUTE MUCUS : Risque Ulcère 🚨";
+        txtStomach.className = "font-bold text-rose-400";
+        txtPlatelets.textContent = "Inhibition réversible agrégation";
+        txtPlatelets.className = "font-bold text-amber-400";
+        txtKidney.textContent = "Vasoconstriction artériole afférente ⚠️";
+        txtKidney.className = "font-bold text-rose-400";
+
+        // COX-2 Blocked
+        boxCox2.className = "p-4 rounded-2xl bg-teal-950/40 border-2 border-teal-500/60 space-y-3";
+        badgeCox2.className = "w-7 h-7 rounded-lg bg-teal-600 text-white font-black text-xs flex items-center justify-center";
+        statusCox2.textContent = "BLOQUÉE (Objectif Atteint)";
+        statusCox2.className = "text-xs font-bold text-teal-400 px-2 py-0.5 rounded-md bg-teal-500/20";
+        txtPain.textContent = "Douleur Apaisée ✅";
+        txtPain.className = "font-bold text-teal-400";
+        txtEdema.textContent = "Anti-inflammatoire puissant";
+        txtEdema.className = "font-bold text-teal-400";
+        txtEndo.textContent = "PGI2 diminuée";
+        txtEndo.className = "font-bold text-slate-400";
+
+        alertText.innerHTML = "<strong class='text-amber-300'>Point Clé :</strong> Efficacité antalgique obtenue au détriment de la protection gastrique et rénale.";
+      }
+      else if (state === 'celecoxib') {
+        bCel.classList.add('border-purple-500', 'bg-slate-700');
+        title.textContent = "3. Célécoxib Injecté (Coxib Sélectif COX-2)";
+        desc.textContent = "Le volumineux groupement sulfamide se loge dans la poche latérale de COX-2 sans pouvoir bloquer COX-1. L'estomac garde sa protection de mucus intacte, mais le déséquilibre thromboxane/prostacycline majore le risque cardiovasculaire thromboembolique.";
+        pill.textContent = "Inhibition Sélective COX-2";
+        pill.className = "px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[11px]";
+
+        // COX-1 Preserved
+        boxCox1.className = "p-4 rounded-2xl bg-teal-950/40 border-2 border-teal-500/60 space-y-3";
+        badgeCox1.className = "w-7 h-7 rounded-lg bg-teal-500 text-slate-900 font-black text-xs flex items-center justify-center";
+        statusCox1.textContent = "ÉPARGNÉE (Intacte) 🛡️";
+        statusCox1.className = "text-xs font-bold text-teal-400 px-2 py-0.5 rounded-md bg-teal-500/20";
+        txtStomach.textContent = "Muqueuse Gastrique Protégée ✅";
+        txtStomach.className = "font-bold text-teal-400";
+        txtPlatelets.textContent = "TXA2 intact (Agrégation conservée)";
+        txtPlatelets.className = "font-bold text-teal-400";
+        txtKidney.textContent = "Attention : COX-2 rénale bloquée";
+        txtKidney.className = "font-bold text-amber-400";
+
+        // COX-2 Blocked
+        boxCox2.className = "p-4 rounded-2xl bg-slate-800/80 border-2 border-purple-500/60 space-y-3";
+        badgeCox2.className = "w-7 h-7 rounded-lg bg-purple-600 text-white font-black text-xs flex items-center justify-center";
+        statusCox2.textContent = "BLOQUÉE SPÉCIFIQUEMENT";
+        statusCox2.className = "text-xs font-bold text-purple-300 px-2 py-0.5 rounded-md bg-purple-500/20";
+        txtPain.textContent = "Douleur Apaisée ✅";
+        txtPain.className = "font-bold text-teal-400";
+        txtEdema.textContent = "Inflammation éteinte";
+        txtEdema.className = "font-bold text-teal-400";
+        txtEndo.textContent = "PGI2 bloquée -> RISQUE THROMBOSE 🚨";
+        txtEndo.className = "font-bold text-rose-400";
+
+        alertText.innerHTML = "<strong class='text-purple-300'>Équilibre Thrombotique Rompu :</strong> Moins d'ulcères mais risque majoré d'accident cardiovasculaire ischémique !";
+      }
+      else if (state === 'aspirine') {
+        bAsp.classList.add('border-cyan-500', 'bg-slate-700');
+        title.textContent = "4. Aspirine Faible Dose (75-160 mg)";
+        desc.textContent = "Acétylation covalente irréversible de la Sérine 529 de COX-1 plaquettaire. Comme les plaquettes n'ont pas de noyau pour resynthétiser l'enzyme, l'effet antiagrégant persiste 7 à 10 jours jusqu'au renouvellement complet des plaquettes.";
+        pill.textContent = "Acétylation Covalente Irréversible";
+        pill.className = "px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono text-[11px]";
+
+        boxCox1.className = "p-4 rounded-2xl bg-cyan-950/40 border-2 border-cyan-500/60 space-y-3";
+        badgeCox1.className = "w-7 h-7 rounded-lg bg-cyan-500 text-slate-900 font-black text-xs flex items-center justify-center";
+        statusCox1.textContent = "ACÉTYLÉE DÉFINITIVEMENT 🔒";
+        statusCox1.className = "text-xs font-bold text-cyan-300 px-2 py-0.5 rounded-md bg-cyan-500/20";
+        txtStomach.textContent = "Protection diminuée";
+        txtStomach.className = "font-bold text-amber-400";
+        txtPlatelets.textContent = "TXA2 À ZÉRO : ANTIAGRÉGANT PUR 🩸";
+        txtPlatelets.className = "font-bold text-cyan-300";
+        txtKidney.textContent = "Impact rénal minime à faible dose";
+        txtKidney.className = "font-bold text-teal-400";
+
+        boxCox2.className = "p-4 rounded-2xl bg-slate-800/80 border-2 border-slate-700 space-y-3";
+        badgeCox2.className = "w-7 h-7 rounded-lg bg-slate-700 text-slate-300 font-black text-xs flex items-center justify-center";
+        statusCox2.textContent = "Peu touchée à 100mg";
+        statusCox2.className = "text-xs font-bold text-slate-400 px-2 py-0.5 rounded-md bg-slate-700";
+        txtPain.textContent = "Effet antalgique faible à 100mg";
+        txtPain.className = "font-bold text-slate-400";
+        txtEdema.textContent = "Non anti-inflammatoire à dose cardio";
+        txtEdema.className = "font-bold text-slate-400";
+        txtEndo.textContent = "PGI2 endothéliale régénérée";
+        txtEndo.className = "font-bold text-teal-400";
+
+        alertText.innerHTML = "<strong class='text-cyan-300'>Notion Concours :</strong> L'aspirine 100 mg est un traitement préventif vasculaire et non un antalgique.";
+      }
+    }
+
+    function setOpioidState(state) {
+      const bPain = document.getElementById('btn-op-pain');
+      const bMorph = document.getElementById('btn-op-morphine');
+      const bTram = document.getElementById('btn-op-tramadol');
+      const bNal = document.getElementById('btn-op-naloxone');
+      [bPain, bMorph, bTram, bNal].forEach(b => b.classList.remove('border-teal-500', 'border-rose-500', 'border-amber-500', 'border-purple-500', 'bg-slate-700'));
+
+      const title = document.getElementById('op-state-title');
+      const desc = document.getElementById('op-state-desc');
+      const pill = document.getElementById('op-pill-tag');
+      const alertBox = document.getElementById('op-side-effect-text');
+
+      const synPre = document.getElementById('synapse-pre');
+      const synPost = document.getElementById('synapse-post');
+      const muStatus = document.getElementById('syn-mu-status');
+      const caStatus = document.getElementById('syn-ca-status');
+      const subpStatus = document.getElementById('syn-subp-status');
+      const kStatus = document.getElementById('syn-k-status');
+      const memStatus = document.getElementById('syn-mem-status');
+      const brainStatus = document.getElementById('syn-brain-status');
+
+      if (state === 'pain') {
+        bPain.classList.add('border-rose-500', 'bg-slate-700');
+        title.textContent = "1. Influx Nociceptif Non Soulagé";
+        desc.textContent = "Les potentiels d'action ouvrent les canaux calciques présynaptiques. L'afflux d'ions Ca2+ provoque la fusion vésiculaire et la libération massive de glutamate et Substance P. Le neurone de transmission est dépolarisé, le message de douleur monte au cerveau.";
+        pill.textContent = "Douleur Maximale (EVA 9/10)";
+        pill.className = "px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-[11px]";
+
+        synPre.className = "p-4 rounded-2xl bg-rose-950/30 border-2 border-rose-500/60 space-y-3";
+        synPost.className = "p-4 rounded-2xl bg-rose-950/30 border-2 border-rose-500/60 space-y-3";
+        muStatus.textContent = "LIBRE (Non occupé)";
+        muStatus.className = "font-bold text-slate-400";
+        caStatus.textContent = "OUVERTS (Entrée Ca2+ active)";
+        caStatus.className = "font-bold text-rose-400";
+        subpStatus.textContent = "LARGAGE MASSIF 🚨";
+        subpStatus.className = "font-bold text-rose-400";
+        kStatus.textContent = "FERMÉS";
+        kStatus.className = "font-bold text-slate-400";
+        memStatus.textContent = "Dépolarisé (-40 mV)";
+        memStatus.className = "font-bold text-rose-400";
+        brainStatus.textContent = "INFLUX TRANSMIS AU CORTEX 🚨";
+        brainStatus.className = "font-bold text-rose-400";
+
+        alertBox.textContent = "Transit intestinal normal, respiration normale mais douleur aiguë insupportable.";
+      }
+      else if (state === 'morphine') {
+        bMorph.classList.add('border-teal-500', 'bg-slate-700');
+        title.textContent = "2. Morphine Injectée (Agoniste μ Puissant)";
+        desc.textContent = "La morphine active le récepteur mu couplé à la protéine Gi : l'adénylate cyclase est inhibée (chute d'AMPc). Les canaux Ca2+ présynaptiques sont fermés (arrêt de libération de Substance P) et les canaux K+ postsynaptiques s'ouvrent, provoquant une hyperpolarisation qui éteint l'influx douloureux.";
+        pill.textContent = "Signal Douloureux Éteint (EVA 1/10)";
+        pill.className = "px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-mono text-[11px]";
+
+        synPre.className = "p-4 rounded-2xl bg-teal-950/30 border-2 border-teal-500/60 space-y-3";
+        synPost.className = "p-4 rounded-2xl bg-teal-950/30 border-2 border-teal-500/60 space-y-3";
+        muStatus.textContent = "OCCUPÉ & ACTIVÉ (Protéine Gi) ✅";
+        muStatus.className = "font-bold text-teal-400";
+        caStatus.textContent = "CANAUX FERMÉS (Plus d'entrée Ca2+)";
+        caStatus.className = "font-bold text-teal-400";
+        subpStatus.textContent = "EXOCYTOSE BLOQUÉE À 100% 🛡️";
+        subpStatus.className = "font-bold text-teal-400";
+        kStatus.textContent = "OUVERTS (Sortie de K+)";
+        kStatus.className = "font-bold text-teal-400";
+        memStatus.textContent = "Hyperpolarisé (-85 mV)";
+        memStatus.className = "font-bold text-teal-400";
+        brainStatus.textContent = "TRANSMISSION COUPÉE (Analgésie) ✅";
+        brainStatus.className = "font-bold text-teal-400";
+
+        alertBox.innerHTML = "<strong class='text-amber-400'>Alerte de Comptoir :</strong> La morphine stimule aussi les récepteurs μ des plexus myentériques de l'intestin : arrêt du péristaltisme digestif -> <strong>Constipation rebelle sans accoutumance</strong> (laxatif obligatoire dès J1).";
+      }
+      else if (state === 'tramadol') {
+        bTram.classList.add('border-amber-500', 'bg-slate-700');
+        title.textContent = "3. Tramadol Injecté (Double Action : μ + Recapture 5-HT/NA)";
+        desc.textContent = "Le métabolite M1 active modérément les récepteurs mu. Simultanément, le tramadol inhibe les transporteurs SERT et NET : la sérotonine et la noradrénaline s'accumulent dans la fente synaptique et stimulent les voies descendantes inhibitrices endogènes.";
+        pill.textContent = "Analgésie Synergique Mixte";
+        pill.className = "px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono text-[11px]";
+
+        synPre.className = "p-4 rounded-2xl bg-amber-950/30 border-2 border-amber-500/60 space-y-3";
+        synPost.className = "p-4 rounded-2xl bg-amber-950/30 border-2 border-amber-500/60 space-y-3";
+        muStatus.textContent = "Activation Modérée (μ)";
+        muStatus.className = "font-bold text-amber-300";
+        caStatus.textContent = "Entrée Ca2+ ralentie";
+        caStatus.className = "font-bold text-amber-300";
+        subpStatus.textContent = "Substance P diminuée";
+        subpStatus.className = "font-bold text-amber-300";
+        kStatus.textContent = "Ouverts partiellement";
+        kStatus.className = "font-bold text-amber-300";
+        memStatus.textContent = "Voies descendantes NA/5HT renforcées";
+        memStatus.className = "font-bold text-amber-300";
+        brainStatus.textContent = "Analgésie Palier II efficace ✅";
+        brainStatus.className = "font-bold text-teal-400";
+
+        alertBox.innerHTML = "<strong class='text-rose-400'>Vigilance Particulière :</strong> Risque d'interaction grave en cas d'association aux antidépresseurs ISRS (syndrome sérotoninergique) et baisse du seuil épileptogène.";
+      }
+      else if (state === 'naloxone') {
+        bNal.classList.add('border-purple-500', 'bg-slate-700');
+        title.textContent = "4. Naloxone Administrée (Antagoniste Compétitif Pur)";
+        desc.textContent = "La naloxone possède une affinité pour le récepteur mu supérieure à celle de la morphine, mais une activité intrinsèque rigoureusement nulle. Elle déplace instantanément la morphine de ses récepteurs et lève la dépression respiratoire en moins de 2 minutes.";
+        pill.textContent = "Réveil Respiratoire d'Urgence";
+        pill.className = "px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[11px]";
+
+        synPre.className = "p-4 rounded-2xl bg-purple-950/30 border-2 border-purple-500/60 space-y-3";
+        synPost.className = "p-4 rounded-2xl bg-purple-950/30 border-2 border-purple-500/60 space-y-3";
+        muStatus.textContent = "ANTAGONISÉ PAR NALOXONE 🛑";
+        muStatus.className = "font-bold text-purple-300";
+        caStatus.textContent = "Réouverture immédiate";
+        caStatus.className = "font-bold text-rose-400";
+        subpStatus.textContent = "Reprise de libération";
+        subpStatus.className = "font-bold text-rose-400";
+        kStatus.textContent = "Canaux K+ refermés";
+        kStatus.className = "font-bold text-slate-400";
+        memStatus.textContent = "Dépolarisation restored";
+        memStatus.className = "font-bold text-rose-400";
+        brainStatus.textContent = "RÉVEIL DE LA DOULEUR & VENTILATION";
+        brainStatus.className = "font-bold text-purple-300";
+
+        alertBox.innerHTML = "<strong class='text-purple-300'>Protocole Hospitalier :</strong> Titration par bolus IV lents pour restaurer une fréquence respiratoire ≥ 10/min sans réveiller un sevrage hyperalgique explosif.";
+      }
+    }
+
+    // =========================================================================
+    // SECTION 3 : SIMULATEUR CLINIQUE DE PATIENTS VIVANTS
+    // =========================================================================
+    const PATIENT_CASES = {
+      1: {
+        name: "Amina, 28 ans",
+        context: "Grossesse T3 (31 SA) • Rage de dents violente",
+        avatar: "A",
+        drugKey: "ibuprofene",
+        speech: "« Bonjour docteur, j'ai une rage de dents insupportable depuis hier soir, je n'ai pas fermé l'œil. Donnez-moi de l'ibuprofène ou de l'antadys, c'est ce qui marche d'habitude chez moi ! »",
+        examTrap: "Même une prise unique d'AINS à partir du 6e mois (24 SA) peut causer une fermeture prématurée et irréversible du canal artériel fœtal et une anurie fœtale (oligoamnios). Contre-indication formelle et absolue !",
+        options: [
+          {
+            label: "Option A : Délivrer Ibuprofène 400 mg (Prendre 1 cp tout de suite)",
+            isCorrect: false,
+            feedback: "🚨 ERREUR GRAVE (FAUTE PROFESSIONNELLE) : Les AINS sont formellement contre-indiqués dès le début du 6e mois de grossesse (24 SA). Risque immédiat de fermeture prématurée in utero du canal artériel fœtal (insuffisance cardiaque droite, mort fœtale in utero) et toxicité rénale fœtale entraînant une anurie et un oligoamnios.",
+            monitor: { eva: "1 / 10", dfg: "110 mL/min", fetal: "DANGER 🚨", fetalSub: "Canal artériel fermé !", transit: "100%", status: "DANGER FŒTAL CRITIQUE" }
+          },
+          {
+            label: "Option B : Refuser l'AINS, délivrer Paracétamol 1g et conseiller une consultation dentaire urgente",
+            isCorrect: true,
+            feedback: "✅ EXCELLENTE DÉCISION OFFICINALE : Le paracétamol est l'antalgique de choix de référence à tous les stades de la grossesse. Explication rassurante à la patiente sur la dangerosité mortelle des AINS pour le cœur fœtal et orientation vers le chirurgien-dentiste.",
+            monitor: { eva: "3 / 10", dfg: "110 mL/min", fetal: "SÉCURISÉ ✅", fetalSub: "Canal artériel ouvert", transit: "100%", status: "PATIENTE & FŒTUS EN SÉCURITÉ" }
+          }
+        ]
+      },
+
+      2: {
+        name: "Gérard, 74 ans",
+        context: "Insuffisant Rénal Modéré (DFG 45) • Traité par Ramipril (IEC) + Furosémide (Diurétique)",
+        avatar: "G",
+        drugKey: "ibuprofene",
+        speech: "« Mon genou me fait horriblement souffrir à cause d'une poussée d'arthrose. Mon voisin m'a dit que le kétoprofène faisait des miracles, vous pouvez m'en donner une boîte ? »",
+        examTrap: "Le redoutable 'Triple Whammy' : Diurétique (baisse volémie) + IEC (dilatation artériole efférente) + AINS (constriction artériole afférente) effondre la pression intra-glomérulaire et cause une insuffisance rénale aiguë fonctionnelle anurique !",
+        options: [
+          {
+            label: "Option A : Délivrer Kétoprofène 100 mg pour calmer rapidement sa crise",
+            isCorrect: false,
+            feedback: "🚨 ALERTE 'TRIPLE WHAMMY' : L'association Diurétique + IEC + AINS supprime tous les mécanismes d'autorégulation de la filtration rénale. Le débit de filtration glomérulaire s'effondre brutalement, provoquant une insuffisance rénale aiguë oligurique avec risque d'hyperkaliémie mortelle !",
+            monitor: { eva: "2 / 10", dfg: "14 mL/min 🚨", dfgSub: "Insuffisance rénale aiguë !", fetal: "N/A", fetalSub: "Patient âgé", transit: "90%", status: "DÉCOMPENSATION RÉNALE AIGUË" }
+          },
+          {
+            label: "Option B : Refuser les AINS oraux, délivrer Paracétamol 1g (max 3g/j) et orienter vers son médecin",
+            isCorrect: true,
+            feedback: "✅ RÉFLEXE DE SÉCURITÉ PARFAIT : Pas d'AINS systémique sur ce terrain à haut risque cardiorénal. Posologie de paracétamol limitée à 3g/j en raison de l'âge. Proposition éventuelle d'un AINS en gel topique localisé ou adaptation du traitement par son médecin.",
+            monitor: { eva: "4 / 10", dfg: "45 mL/min", dfgSub: "DFG stable conservé", fetal: "N/A", fetalSub: "Patient âgé", transit: "95%", status: "FONCTION RÉNALE PRÉSERVÉE" }
+          }
+        ]
+      },
+
+      3: {
+        name: "Thomas, 35 ans",
+        context: "Lombalgie chronique sous Tramadol 200 mg/j • Prescription de Paroxétine (ISRS)",
+        avatar: "T",
+        drugKey: "tramadol",
+        speech: "« J'ai vu mon psychiatre qui m'a prescrit du Deroxat (paroxétine) pour un passage à vide. Je continue bien mon tramadol pour le dos en même temps ? »",
+        examTrap: "Deux pièges en un : 1) La paroxétine est un puissant inhibiteur du CYP2D6 (le tramadol perd son efficacité antalgique car non converti en M1). 2) Sommation sérotoninergique majeure entraînant un syndrome sérotoninergique !",
+        options: [
+          {
+            label: "Option A : Valider l'ordonnance sans réserve",
+            isCorrect: false,
+            feedback: "🚨 DOUBLE PIÈGE PHARMACOLOGIQUE : 1. Risque grave de SYNDROME SÉROTONINERGIQUE (hyperthermie, agitation, tremblements, myoclonies, sueurs profuses). 2. Perte d'efficacité du tramadol car la paroxétine bloque le CYP2D6 indispensable à l'activation du tramadol en M1.",
+            monitor: { eva: "7 / 10 ⚠️", dfg: "95 mL/min", fetal: "N/A", fetalSub: "Patient masculin", transit: "Constipé", status: "SYNDROME SÉROTONINERGIQUE 🚨" }
+          },
+          {
+            label: "Option B : Intervenir auprès du médecin pour changer l'antalgique ou l'antidépresseur",
+            isCorrect: true,
+            feedback: "✅ INTERVENTION PHARMACEUTIQUE INDISPENSABLE : Contacter le prescripteur pour lui signaler l'interaction sérotoninergique et l'inhibition du CYP2D6. Proposer un basculement vers un antalgique sans composante sérotoninergique ou un antidépresseur sans inhibition 2D6.",
+            monitor: { eva: "3 / 10", dfg: "95 mL/min", fetal: "N/A", fetalSub: "Patient masculin", transit: "Normal", status: "SÉLECTION THÉRAPEUTIQUE SÉCURISÉE" }
+          }
+        ]
+      },
+
+      4: {
+        name: "Christian, 62 ans",
+        context: "Douleurs osseuses cancéreuses • Sous Morphine LP 60 mg matin et soir",
+        avatar: "C",
+        drugKey: "morphine",
+        speech: "« Bonjour, j'ai toujours 2 à 3 crises de douleurs intolérables la nuit malgré mes gélules matin et soir, et je suis constipé depuis une semaine, je n'en peux plus ! »",
+        examTrap: "Pour les accès douloureux paroxystiques (ADP), calculer la dose d'interdose en Morphine LI selon la règle du 1/6e de la dose totale journalière. Et corriger immédiatement l'absence de laxatif !",
+        options: [
+          {
+            label: "Option A : Conseiller de doubler la dose de Morphine LP le soir à 120 mg",
+            isCorrect: false,
+            feedback: "❌ ERREUR DE TITRATION : On n'augmente pas la dose de fond LP à l'aveugle sans intégrer des interdoses de morphine à libération immédiate (LI) pour gérer les pics algiques. De plus, aucune prise en charge de l'iléus/constipation n'est proposée !",
+            monitor: { eva: "6 / 10", dfg: "80 mL/min", fetal: "N/A", fetalSub: "Cancérologie", transit: "0% (Iléus) 🚨", status: "SÉDATION & CONSTIPATION ACCRUE" }
+          },
+          {
+            label: "Option B : Proposer Morphine LI 20 mg pour les accès (1/6e de 120 mg) + Laxatif osmotique (Macrogol)",
+            isCorrect: true,
+            feedback: "✅ CONFORME AUX RECOMMANDATIONS ONCOLOGIQUES : 1. Dose journalière de fond = 60 + 60 = 120 mg. L'interdose est de 1/6e = 20 mg en Morphine LI (Actiskénan® ou Oramorph®). 2. Délivrance systématique d'un laxatif osmotique pour lever la constipation opioïde.",
+            monitor: { eva: "1 / 10 ✅", dfg: "80 mL/min", fetal: "N/A", fetalSub: "Cancérologie", transit: "Transit rétabli ✅", status: "DOULEUR CONTRÔLÉE & TRANSIT AIDÉ" }
+          }
+        ]
+      }
+    };
+
+    let currentPatientId = 1;
+    let currentPatientDrugKey = 'ibuprofene';
+
+    function loadPatient(pId) {
+      currentPatientId = pId;
+      const data = PATIENT_CASES[pId];
+      if (!data) return;
+
+      currentPatientDrugKey = data.drugKey;
+
+      // Update buttons
+      [1, 2, 3, 4].forEach(i => {
+        const b = document.getElementById(`btn-pat-${i}`);
+        if (b) {
+          b.className = (i === pId) 
+            ? 'patient-nav-btn px-3 py-2 rounded-xl bg-teal-600 text-white shadow-md font-bold' 
+            : 'patient-nav-btn px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-medium';
+        }
+      });
+
+      document.getElementById('patient-avatar').textContent = data.avatar;
+      document.getElementById('patient-name').textContent = data.name;
+      document.getElementById('patient-context').textContent = data.context;
+      document.getElementById('patient-speech').textContent = data.speech;
+      document.getElementById('patient-exam-trap').textContent = data.examTrap;
+
+      // Reset monitor to initial
+      document.getElementById('mon-eva').textContent = "8 / 10";
+      document.getElementById('mon-eva-sub').textContent = "Douleur sévère initiale";
+      document.getElementById('mon-dfg').textContent = pId === 2 ? "45 mL/min" : "110 mL/min";
+      document.getElementById('mon-dfg-sub').textContent = pId === 2 ? "Insuffisance rénale modérée" : "Filtration normale";
+      document.getElementById('mon-fetal').textContent = pId === 1 ? "VULNÉRABLE" : "N/A";
+      document.getElementById('mon-fetal-sub').textContent = pId === 1 ? "Fœtus de 31 SA" : "Terrain adulte";
+      document.getElementById('mon-transit').textContent = "100%";
+      document.getElementById('patient-condition-badge').textContent = "En Attente de Décision";
+      document.getElementById('patient-condition-badge').className = "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-slate-800 text-slate-300";
+
+      // Render Options
+      const optContainer = document.getElementById('patient-options-container');
+      optContainer.innerHTML = '';
+
+      data.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'w-full p-3 rounded-2xl border border-slate-700 bg-slate-800/90 hover:bg-slate-700 text-left font-semibold text-slate-200 transition';
+        btn.textContent = opt.label;
+        btn.onclick = () => selectPatientOption(pId, idx);
+        optContainer.appendChild(btn);
+      });
+
+      const fbBox = document.getElementById('patient-feedback-box');
+      fbBox.className = 'hidden';
+      fbBox.innerHTML = '';
+      lucide.createIcons();
+    }
+
+    function selectPatientOption(pId, optIdx) {
+      const data = PATIENT_CASES[pId];
+      const opt = data.options[optIdx];
+      const fbBox = document.getElementById('patient-feedback-box');
+
+      fbBox.classList.remove('hidden');
+      if (opt.isCorrect) {
+        fbBox.className = "p-4 rounded-2xl bg-emerald-950/40 border-2 border-emerald-500/60 text-xs text-emerald-200 leading-relaxed space-y-1.5 shadow-lg";
+        document.getElementById('patient-condition-badge').textContent = opt.monitor.status;
+        document.getElementById('patient-condition-badge').className = "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+      } else {
+        fbBox.className = "p-4 rounded-2xl bg-rose-950/40 border-2 border-rose-500/60 text-xs text-rose-200 leading-relaxed space-y-1.5 shadow-lg";
+        document.getElementById('patient-condition-badge').textContent = opt.monitor.status;
+        document.getElementById('patient-condition-badge').className = "px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40";
+      }
+      fbBox.innerHTML = `<strong>Diagnostic Officinal :</strong><br>${opt.feedback}`;
+
+      // Update Live Monitors
+      document.getElementById('mon-eva').textContent = opt.monitor.eva;
+      document.getElementById('mon-dfg').textContent = opt.monitor.dfg;
+      if (opt.monitor.dfgSub) document.getElementById('mon-dfg-sub').textContent = opt.monitor.dfgSub;
+      document.getElementById('mon-fetal').textContent = opt.monitor.fetal;
+      if (opt.monitor.fetalSub) document.getElementById('mon-fetal-sub').textContent = opt.monitor.fetalSub;
+      document.getElementById('mon-transit').textContent = opt.monitor.transit;
+    }
+
+    // =========================================================================
+    // SECTION 4 : TITRATION & SCANNER
+    // =========================================================================
+    function updateHubTitration(val) {
+      const po = parseFloat(val);
+      document.getElementById('hub-dose-badge').textContent = `${po} mg/24h`;
+      document.getElementById('hub-res-po').textContent = `${po} mg`;
+      document.getElementById('hub-res-sc').textContent = `${Math.round((po / 2) * 10) / 10} mg`;
+      document.getElementById('hub-res-iv').textContent = `${Math.round((po / 3) * 10) / 10} mg`;
+      
+      const adp = Math.round((po / 6) * 10) / 10;
+      document.getElementById('hub-res-adp').textContent = `${adp} mg LI / prise`;
+    }
+
+    const HUB_PAIRS_DB = {
+      "buprenorphine+morphine": {
+        status: "CONTRE-INDICATION ABSOLUE",
+        badgeClass: "bg-rose-600 text-white",
+        boxClass: "p-4 rounded-2xl bg-rose-950/40 border-2 border-rose-500/60 space-y-2 text-xs",
+        title: "DANGER : Agoniste Pur + Agoniste Partiel",
+        text: "La buprénorphine déplace la morphine de ses récepteurs μ par très haute affinité mais faible activité intrinsèque. Résultat : <strong>syndrome de sevrage aigu immédiat</strong> et rupture de l'analgésie !"
+      },
+      "ibuprofene+ketoprofene": {
+        status: "ASSOCIATION PROSCRITE",
+        badgeClass: "bg-rose-600 text-white",
+        boxClass: "p-4 rounded-2xl bg-rose-950/40 border-2 border-rose-500/60 space-y-2 text-xs",
+        title: "DANGER : Deux AINS associés simultanément",
+        text: "Effet plafond strict sur la douleur mais multiplication exponentielle de la toxicité rénale et du risque d'hémorragie digestive haute par perforation d'ulcère."
+      },
+      "codeine+tramadol": {
+        status: "NON CONFORME",
+        badgeClass: "bg-rose-600 text-white",
+        boxClass: "p-4 rounded-2xl bg-rose-950/40 border-2 border-rose-500/60 space-y-2 text-xs",
+        title: "ERREUR : Deux Opioïdes Faibles (Palier II)",
+        text: "Cumul des effets secondaires (vertiges, nausées, risque de convulsions) sans surcroît d'efficacité. En cas d'échec du Palier II, on passe au Palier III !"
+      },
+      "morphine+paracetamol": {
+        status: "SYNERGIE RECOMMANDÉE",
+        badgeClass: "bg-teal-600 text-white",
+        boxClass: "p-4 rounded-2xl bg-teal-950/40 border-2 border-teal-500/60 space-y-2 text-xs",
+        title: "Synergie d'Épargne Opioïde Recommandée",
+        text: "L'association permet une réduction de 20 à 30% des doses nécessaires de morphine, diminuant drastiquement la constipation, la somnolence et les nausées."
+      },
+      "paracetamol+tramadol": {
+        status: "ASSOCIATION FIXE COURANTE",
+        badgeClass: "bg-teal-600 text-white",
+        boxClass: "p-4 rounded-2xl bg-teal-950/40 border-2 border-teal-500/60 space-y-2 text-xs",
+        title: "Synergie Palier I + Palier II Validée",
+        text: "Spécialité courante (Ixprim®, Zaldiar®). Attention à bien comptabiliser le paracétamol dans la dose totale journalière maximale (3-4g/j)."
+      }
+    };
+
+    function runHubScanner() {
+      const m1 = document.getElementById('hub-select-1').value;
+      const m2 = document.getElementById('hub-select-2').value;
+
+      const badge = document.getElementById('hub-scan-badge');
+      const box = document.getElementById('hub-scan-result');
+      const title = document.getElementById('hub-scan-title');
+      const text = document.getElementById('hub-scan-text');
+
+      if (m1 === m2) {
+        badge.textContent = "REDONDANCE";
+        badge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-600 text-white";
+        box.className = "p-4 rounded-2xl bg-rose-950/40 border-2 border-rose-500/60 space-y-2 text-xs";
+        title.textContent = `Double prise de ${m1.toUpperCase()}`;
+        text.innerHTML = "Prescription redondante entraînant un surdosage toxique immédiat. Intervention pharmaceutique nécessaire.";
+        return;
+      }
+
+      const key = [m1, m2].sort().join('+');
+      const found = HUB_PAIRS_DB[key];
+
+      if (found) {
+        badge.textContent = found.status;
+        badge.className = `px-2.5 py-0.5 rounded-full text-[10px] font-black ${found.badgeClass}`;
+        box.className = found.boxClass;
+        title.textContent = found.title;
+        text.innerHTML = found.text;
+      } else {
+        // Fallback generic
+        badge.textContent = "ASSOCIATION SOUS CONTRÔLE";
+        badge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-black bg-teal-600 text-white";
+        box.className = "p-4 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-2 text-xs";
+        title.textContent = `${m1.toUpperCase()} + ${m2.toUpperCase()}`;
+        text.textContent = "Pas d'interaction d'exclusion absolue directe listée. Respecter les doses maximales individuelles et surveiller la tolérance.";
+      }
+    }
+
+    function setHubPreset(m1, m2) {
+      document.getElementById('hub-select-1').value = m1;
+      document.getElementById('hub-select-2').value = m2;
+      runHubScanner();
+    }
+
+    // =========================================================================
+    // SLIDE-OVER DRAWER CONTROLLER
+    // =========================================================================
+    function openDrawer(molKey) {
+      const key = molKey || currentMoleculeKey;
+      const data = DRUG_DB[key];
+      if (!data) return;
+
+      document.getElementById('drawer-palier-tag').textContent = data.palier;
+      document.getElementById('drawer-molecule-title').textContent = data.name;
+      document.getElementById('drawer-molecule-subtitle').textContent = data.sub;
+
+      // Fill PK
+      document.getElementById('drw-bio').textContent = data.details.bio;
+      document.getElementById('drw-tmax').textContent = data.details.tmax;
+      document.getElementById('drw-halflife').textContent = data.details.halflife;
+      document.getElementById('drw-binding').textContent = data.details.binding;
+
+      // Fill texts
+      document.getElementById('drw-metabolism').innerHTML = data.details.metabolism;
+      document.getElementById('drw-mechanism').innerHTML = data.details.mechanism;
+
+      // Fill CI
+      const ciList = document.getElementById('drw-ci-list');
+      ciList.innerHTML = '';
+      data.details.ci.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        ciList.appendChild(li);
+      });
+
+      // Fill Antidote
+      document.getElementById('drw-antidote-name').textContent = data.details.antidoteName;
+      document.getElementById('drw-antidote-text').textContent = data.details.antidoteText;
+
+      // Fill Exam Trap
+      document.getElementById('drw-exam-trap').textContent = data.details.examTrap;
+
+      // Open UI
+      document.getElementById('drawer-backdrop').classList.remove('hidden');
+      const drawer = document.getElementById('pharma-drawer');
+      drawer.classList.remove('translate-x-full');
+      lucide.createIcons();
+    }
+
+    function closeDrawer() {
+      const drawer = document.getElementById('pharma-drawer');
+      drawer.classList.add('translate-x-full');
+      document.getElementById('drawer-backdrop').classList.add('hidden');
+    }
+
+    // Escape key closes drawer
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDrawer();
+    });
+  </script>
+</body>
+</html>
