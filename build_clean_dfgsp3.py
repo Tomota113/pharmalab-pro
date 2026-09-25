@@ -18,6 +18,173 @@ with open(SDF2_FILE, 'r', encoding='utf-8') as f:
 
 all_sdfs = {**sdf1, **sdf2}
 
+# MALI AVAILABILITY MAPPING (LNME Mali, DPM & PPM)
+MALI_STATUS = {
+    'paracetamol': {
+        'status': 'disponible',
+        'badge': '🇲🇱 Disponible au Mali (LNME)',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'LNME Mali • Très large disponibilité à tous les échelons sanitaires (CSCOM, CSRéf, Hôpitaux). Comprimés 500mg/1g, sirops pédiatriques avec pipette kilo, formes injectables PPM (Perfalgan et génériques).'
+    },
+    'aspirine': {
+        'status': 'disponible',
+        'badge': '🇲🇱 Disponible au Mali (LNME)',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'LNME Mali • Disponible sous forme d\'Aspégic®, Catalgine® et génériques PPM (500mg, 1000mg et formes injectables).'
+    },
+    'ibuprofene': {
+        'status': 'disponible',
+        'badge': '🇲🇱 Disponible au Mali (LNME)',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'LNME Mali • Largement prescrit et disponible en officine et centres de santé (comprimés 200mg/400mg et suspensions buvables).'
+    },
+    'diclofenac': {
+        'status': 'disponible',
+        'badge': '🇲🇱 N°1 au Mali (LNME)',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'LNME Mali • L\'AINS le plus prescrit au Mali (Voltène®, Diclo PPM). Disponible en comprimés 50mg/100mg, ampoules injectables IM 75mg et gels locaux.'
+    },
+    'ketoprofene': {
+        'status': 'disponible',
+        'badge': '🇲🇱 Disponible au Mali',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'Disponible en officine de ville (Profenid®, Bi-Profenid® 150mg LP, ampoules injectables 100mg).'
+    },
+    'naproxene': {
+        'status': 'disponible',
+        'badge': '🇲🇱 Disponible au Mali',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'Disponible en officine privée à Bamako (Naprosyne®, génériques 250/500mg).'
+    },
+    'nefopam': {
+        'status': 'disponible',
+        'badge': '🇲🇱 Clé Hôpital (LNME)',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'LNME Mali • Acupan® injectable très utilisé en post-opératoire hospitalier (Gabriel Touré, Point G, Hôpital du Mali) et délivré sur sucre per os.'
+    },
+    'phloroglucinol': {
+        'status': 'disponible',
+        'badge': '🇲🇱 Disponible au Mali',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'Très largement prescrit et disponible en officine et structures sanitaires (Spasfon®, génériques PPM) pour spasmes viscéraux et gynécologiques.'
+    },
+    'amitriptyline': {
+        'status': 'disponible',
+        'badge': '🇲🇱 Référence Neuropathique',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'LNME Mali • Laroxyl® 25mg/50mg très accessible, traitement de première intention des douleurs neuropathiques au Mali en raison de son faible coût.'
+    },
+    'carbamazepine': {
+        'status': 'disponible',
+        'badge': '🇲🇱 Disponible au Mali (LNME)',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'LNME Mali • Tégrétol® 200mg/400mg disponible, médicament de référence dans la névralgie essentielle du trijumeau.'
+    },
+    'gabapentine': {
+        'status': 'disponible',
+        'badge': '🇲🇱 Disponible en Officine',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'Disponible en officine de ville à Bamako (Neurontin® et génériques), coût plus élevé que l\'amitriptyline.'
+    },
+    'tramadol': {
+        'status': 'restreint',
+        'badge': '🇲🇱 Surveillance DPM / PPM',
+        'class': 'bg-blue-50 text-blue-800 border-blue-200',
+        'note': 'LNME Mali • Opioïde sous surveillance stricte de la DPM et de la PPM contre le trafic illicite. Seules les formes médicales (50mg, 100mg gélules et ampoules injectables) sont autorisées sur ordonnance. Les comprimés de contrebande de rue (120mg, 225mg) sont formellement illégaux.'
+    },
+    'codeine': {
+        'status': 'restreint',
+        'badge': '🇲🇱 Réglementé au Mali',
+        'class': 'bg-blue-50 text-blue-800 border-blue-200',
+        'note': 'Réglementation stricte • Vente des sirops codéinés strictement prohibée pour lutter contre la toxicomanie. Seules les associations antalgiques (ex: Paracétamol + Codéine) restent autorisées sur ordonnance médicale non renouvelable.'
+    },
+    'morphine': {
+        'status': 'hospitalier',
+        'badge': '🇲🇱 Stupéfiant • Carnet à souches (7j)',
+        'class': 'bg-blue-50 text-blue-800 border-blue-200',
+        'note': 'LNME Hôpital • Réglementation malienne stricte (Loi 01-078) : prescription réservée aux médecins sur carnet à souches officiel (Ordre des Médecins), durée maximale limitée à 7 jours au Mali (conservé 3 ans). Approvisionnement centralisé par la PPM. Disponible surtout en ampoules injectables et solution buvable préparée (CHU Point G, Gabriel Touré). Formes orales LP (Skenan) très rares en officine de quartier.'
+    },
+    'fentanyl': {
+        'status': 'hospitalier',
+        'badge': '🇲🇱 Usage Hospitalier CHU',
+        'class': 'bg-blue-50 text-blue-800 border-blue-200',
+        'note': 'Usage hospitalier spécialisé (bloc opératoire et réanimation CHU). Les dispositifs transdermiques (patchs Durogesic) ne sont pas disponibles en officine standard au Mali.'
+    },
+    'naloxone': {
+        'status': 'hospitalier',
+        'badge': '🇲🇱 Urgences / Réanimation',
+        'class': 'bg-blue-50 text-blue-800 border-blue-200',
+        'note': 'LNME Hôpital • Antidote de l\'overdose aux opioïdes présent dans les chariots d\'urgence et blocs des hôpitaux de Bamako (Gabriel Touré, Point G).'
+    },
+    'celecoxib': {
+        'status': 'rare',
+        'badge': '⚠️ Rare / Coûteux à Bamako',
+        'class': 'bg-amber-50 text-amber-800 border-amber-200',
+        'note': 'Rarement retrouvé • Présent dans quelques grandes officines privées de Bamako (Celebrex®), coût très élevé, non retenu dans la LNME publique.'
+    },
+    'pregabaline': {
+        'status': 'rare',
+        'badge': '⚠️ Rare / Surveillance',
+        'class': 'bg-amber-50 text-amber-800 border-amber-200',
+        'note': 'Coûteux et sous surveillance de la DPM (Lyrica® et génériques), peu prescrit en première ligne par rapport à Laroxyl.'
+    },
+    'duloxetine': {
+        'status': 'rare',
+        'badge': '⚠️ Rare en Officine',
+        'class': 'bg-amber-50 text-amber-800 border-amber-200',
+        'note': 'Très rare et onéreux en pharmacie au Mali (Cymbalta®), quasiment jamais prescrit pour la simple antalgie.'
+    },
+    'methadone': {
+        'status': 'rare',
+        'badge': '⚠️ Programmes Hospitaliers',
+        'class': 'bg-amber-50 text-amber-800 border-amber-200',
+        'note': 'Strictement réservée à des protocoles de substitution spécialisés sous l\'égide du Ministère de la Santé / DPM.'
+    },
+    'dihydrocodeine': {
+        'status': 'non_dispo',
+        'badge': '🌍 Non commercialisé au Mali',
+        'class': 'bg-slate-100 text-slate-600 border-slate-200',
+        'note': 'NON DISPONIBLE AU MALI • Absent de la Liste Nationale des Médicaments Essentiels (LNME). Le Dicodin® est une spécialité française, étudiée en théorie de concours mais absente des officines maliennes.'
+    },
+    'poudre_opium': {
+        'status': 'non_dispo',
+        'badge': '🌍 Non disponible au Mali',
+        'class': 'bg-slate-100 text-slate-600 border-slate-200',
+        'note': 'NON DISPONIBLE AU MALI • Les associations à base de poudre d\'opium (Lamaline®, Izalgi®) sont des spécialités du marché français, introuvables au Mali.'
+    },
+    'hydromorphone': {
+        'status': 'non_dispo',
+        'badge': '🌍 Non commercialisé au Mali',
+        'class': 'bg-slate-100 text-slate-600 border-slate-200',
+        'note': 'NON COMMERCIALISÉ AU MALI • Absent de la LNME. La Sophidone® LP est une spécialité européenne, étudiée pour les équivalences théoriques mais non disponible au Mali.'
+    },
+    'oxycodone': {
+        'status': 'non_dispo',
+        'badge': '🌍 Quasi inexistant au Mali',
+        'class': 'bg-slate-100 text-slate-600 border-slate-200',
+        'note': 'QUASI INEXISTANT AU MALI • Absent de la LNME standard. L\'opioïde fort de référence utilisé au Mali reste la Morphine. L\'Oxycodone (OxyContin®) n\'est pas distribué en officine de ville standard.'
+    },
+    'buprenorphine': {
+        'status': 'non_dispo',
+        'badge': '🌍 Non disponible en antalgie',
+        'class': 'bg-slate-100 text-slate-600 border-slate-200',
+        'note': 'Non disponible pour la prise en charge de la douleur en pratique courante au Mali.'
+    }
+}
+
+# Attach Mali status to each molecule in pharma_db
+for m in pharma_db['molecules']:
+    m_info = MALI_STATUS.get(m['id'], {
+        'status': 'disponible',
+        'badge': '🇲🇱 Disponible au Mali',
+        'class': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+        'note': 'Disponible en pratique pharmaceutique.'
+    })
+    m['mali_status'] = m_info['status']
+    m['mali_badge'] = m_info['badge']
+    m['mali_class'] = m_info['class']
+    m['mali_note'] = m_info['note']
+
 # 8 Clinical Cases
 CLINICAL_CASES = [
     {
@@ -93,19 +260,19 @@ CLINICAL_CASES = [
         "id": 4,
         "title": "Christian, 62 ans",
         "badge": "Morphine & Interdoses",
-        "context": "Cancer avec métastases osseuses • Sous Morphine LP 60 mg matin et soir (120 mg/j)",
+        "context": "Cancer avec métastases osseuses • Sous Morphine injectable/buvable 120 mg/j",
         "rx_patient": "Patient : Christian V. (62 ans, Suivi Oncologique)",
-        "rx_lines": "• Skenan LP 60 mg : 1 gélule matin et soir.\n• Plainte : 3 crises de douleurs intolérables par nuit et constipation sévère depuis 6 jours.",
+        "rx_lines": "• Morphine 60 mg matin et soir.\n• Plainte : 3 crises de douleurs intolérables par nuit et constipation sévère depuis 6 jours.",
         "pearl": "Pour les accès douloureux paroxystiques (ADP), calculer l'interdose en Morphine LI selon la règle du 1/6e de la dose totale journalière (120 mg / 6 = 20 mg LI). Et coprescrire d'urgence un laxatif osmotique !",
         "options": [
             {
-                "text": "A. Conseiller d'augmenter le Skenan LP à 120 mg le soir sans rien d'autre",
+                "text": "A. Conseiller de doubler la dose du soir sans rien d'autre",
                 "correct": False,
-                "feedback": "❌ MAUVAISE PRATIQUE : On n'augmente pas la dose de fond LP sans avoir d'abord couvert les accès paroxystiques par des interdoses LI, et l'absence de laxatif expose au fécalome et à l'occlusion intestinale.",
+                "feedback": "❌ MAUVAISE PRATIQUE : On n'augmente pas la dose de fond sans avoir d'abord couvert les accès paroxystiques par des interdoses LI, et l'absence de laxatif expose au fécalome et à l'occlusion intestinale.",
                 "status": "RISQUE D'OCCLUSION SUR FÉCALOME 🚨"
             },
             {
-                "text": "B. Délivrer Actiskenan (Morphine LI) 20 mg pour les accès + Macrogol (laxatif osmotique systématique)",
+                "text": "B. Délivrer Morphine LI 20 mg pour les accès + Macrogol (laxatif osmotique systématique)",
                 "correct": True,
                 "feedback": "✅ PROTOCOLE ONCOLOGIQUE CONFORME : 1) Interdose de 20 mg LI (1/6e de 120 mg/j). 2) Traitement réflexe de la constipation induite par les opioïdes (aucun phénomène de tolérance sur le récepteur µ intestinal).",
                 "status": "ANALGÉSIE COMPLÈTE & TRANSIT SÉCURISÉ ✅"
@@ -145,9 +312,9 @@ CLINICAL_CASES = [
         "pearl": "1) Risque mortel de Syndrome de Reye sous aspirine lors d'épisodes viraux. 2) Risque de fasciite nécrosante et surinfections bactériennes cutanées graves sous AINS en cas de varicelle.",
         "options": [
             {
-                "text": "A. Conseiller un sirop d'ibuprofène (Advil pédiatrique) à la pipette kilo",
+                "text": "A. Conseiller un sirop d'ibuprofène pédiatrique à la pipette kilo",
                 "correct": False,
-                "feedback": "🚨 ALERTE COMPLICATIONS BACTÉRIENNES NÉCROSANTES : En cas de varicelle, les AINS sont formellement contre-indiqués par l'ANSM en raison du risque de surinfections cutanées graves à streptocoque (fasciite nécrosante).",
+                "feedback": "🚨 ALERTE COMPLICATIONS BACTÉRIENNES NÉCROSANTES : En cas de varicelle, les AINS sont formellement contre-indiqués par l'ANSM/DPM en raison du risque de surinfections cutanées graves à streptocoque (fasciite nécrosante).",
                 "status": "RISQUE DE FASCIITE NÉCROSANTE 🚨"
             },
             {
@@ -164,8 +331,8 @@ CLINICAL_CASES = [
         "badge": "Douleur Neuropathique",
         "context": "Douleur neuropathique post-zostérienne (brûlures thoraciques, score DN4 = 6/10)",
         "rx_patient": "Patient : Patrick G. (68 ans, Névralgie post-zona)",
-        "rx_lines": "• Doliprane 1000 mg 3x/j + Tramadol 50 mg 3x/j.\n• Patient : « Ça ne me soulage absolument rien du tout ! »",
-        "pearl": "Les antalgiques conventionnels purs sont inefficaces sur les douleurs neuropathiques. L'introduction titrée d'un co-analgésique (Prégabaline, Gabapentine, Amitriptyline ou emplâtre de Lidocaïne) est indispensable.",
+        "rx_lines": "• Paracétamol 1000 mg 3x/j + Tramadol 50 mg 3x/j.\n• Patient : « Ça ne me soulage absolument rien du tout ! »",
+        "pearl": "Les antalgiques conventionnels purs sont inefficaces sur les douleurs neuropathiques. L'introduction titrée d'un co-analgésique (Amitriptyline / Laroxyl®, Gabapentine ou Prégabaline) est indispensable.",
         "options": [
             {
                 "text": "A. Proposer de doubler la dose de Tramadol à 100 mg 3 fois par jour",
@@ -174,9 +341,9 @@ CLINICAL_CASES = [
                 "status": "ÉCHEC ANALGÉSIQUE & EFFETS INDÉSIRABLES ❌"
             },
             {
-                "text": "B. Alerter le médecin sur la nature neuropathique (score DN4 ≥ 4) et proposer l'instauration de Prégabaline ou Gabapentine",
+                "text": "B. Alerter le médecin sur la nature neuropathique (score DN4 ≥ 4) et proposer l'instauration d'Amitriptyline (Laroxyl) ou Gabapentine",
                 "correct": True,
-                "feedback": "✅ DIAGNOSTIC ET PRISE EN CHARGE ADAPTÉE : Les gabapentinoïdes bloquent la sous-unité alpha-2-delta des canaux calciques présynaptiques et calment l'hyperexcitabilité neuronale.",
+                "feedback": "✅ DIAGNOSTIC ET PRISE EN CHARGE ADAPTÉE AU MALI : L'Amitriptyline (Laroxyl) ou la Gabapentine calment l'hyperexcitabilité neuronale et traitent la cause neurogène.",
                 "status": "SOULAGEMENT NEUROPATHIQUE PROGRESSIF ✅"
             }
         ]
@@ -187,7 +354,7 @@ CLINICAL_CASES = [
         "badge": "Intoxication Paracétamol",
         "context": "Intoxication aiguë volontaire au Paracétamol (15 grammes ingérés il y a 6 heures)",
         "rx_patient": "Patiente : Marie S. (22 ans, Admission Urgences)",
-        "rx_lines": "• Bilan : Prise de 15g de Doliprane à 14h00. Arrivée aux urgences à 20h00.\n• La patiente dit : « Je me sens bien, j'ai juste un peu mal au ventre ».",
+        "rx_lines": "• Bilan : Prise de 15g de Paracétamol à 14h00. Arrivée aux urgences hospitalières à 20h00.\n• La patiente dit : « Je me sens bien, j'ai juste un peu mal au ventre ».",
         "pearl": "Le piège de la phase quiescente (H0-H24) : Le patient intoxiqué se sent faussement bien alors que le NAPQI détruit insidieusement les hépatocytes. Mise en route immédiate du protocole de Prescott à la N-acétylcystéine (NAC) !",
         "options": [
             {
@@ -206,7 +373,7 @@ CLINICAL_CASES = [
     }
 ]
 
-# 15 High-Yield Flashcards
+# 15 High-Yield Flashcards (with Mali Context)
 SRS_CARDS = [
     {
         "id": 1,
@@ -224,7 +391,7 @@ SRS_CARDS = [
         "q": "Quelle est la posologie pédiatrique stricte du paracétamol et quel est le risque en cas d'erreur de calcul ?",
         "hint": "Dose en mg/kg/jour et fractionnement des prises.",
         "a": "Strictement 60 mg/kg/jour répartis en 4 à 6 prises, soit 15 mg/kg toutes les 6 heures (ou 10 mg/kg toutes les 4h). Ne jamais dépasser 15 mg/kg par prise ni 4 g/jour. Risque majeur d'hépatite fulminante par accumulation de NAPQI.",
-        "pearl": "Toujours utiliser la pipette doseuse graduée en kg fournie avec le flacon."
+        "pearl": "Toujours utiliser la pipette doseuse graduée en kg fournie avec le sirop pour éviter les erreurs de cuillère."
     },
     {
         "id": 3,
@@ -242,7 +409,7 @@ SRS_CARDS = [
         "q": "À partir de quel terme de la grossesse les AINS sont-ils formellement et absolument contre-indiqués et pourquoi ?",
         "hint": "Semaines d'aménorrhée (SA) et répercussions cardiorespiratoires et rénales fœtales.",
         "a": "Contre-indication FORMELLE et ABSOLUE dès le début du 6e mois de grossesse (24 semaines d'aménorrhée - SA). Risques pour le fœtus : 1) Fermeture prématurée in utero du canal artériel (insuffisance cardiaque droite fœtale). 2) Insuffisance rénale fœtale avec anamnios.",
-        "pearl": "Cette contre-indication s'applique à TOUS les AINS, y compris en prise unique et y compris par voie cutanée ou collyre."
+        "pearl": "Cette contre-indication s'applique à TOUS les AINS (Ibuprofène, Diclofénac, Kétoprofène), y compris en prise unique et y compris par voie cutanée ou collyre."
     },
     {
         "id": 5,
@@ -265,11 +432,11 @@ SRS_CARDS = [
     {
         "id": 7,
         "cat": "opioides",
-        "tag": "Palier II • Tramadol",
-        "q": "Quels sont les deux mécanismes d'action distincts du tramadol et quelle interaction redoutable en découle ?",
-        "hint": "Récepteur opioïde + recapture des monoamines.",
-        "a": "Mécanisme dual : 1) Agoniste faible des récepteurs opioïdes µ (via le métabolite M1). 2) Inhibiteur de la recapture de la Sérotonine et de la Noradrénaline. Interaction majeure : avec les antidépresseurs ISRS/IRSNA ou triptans, risque de Syndrome Sérotoninergique potentiellement létal.",
-        "pearl": "Le tramadol abaisse également le seuil épileptogène : grande prudence chez le patient épileptique."
+        "tag": "Palier II • Tramadol & Contexte Mali",
+        "q": "Quels sont les mécanismes du tramadol et pourquoi fait-il l'objet d'une surveillance stricte par la DPM au Mali ?",
+        "hint": "Récepteur opioïde + monoamines et problématique du trafic illicite.",
+        "a": "Mécanisme dual : agoniste µ + inhibiteur de la recapture de sérotonine/noradrénaline. Au Mali, le tramadol fait l'objet d'un arrêté ministériel et d'un contrôle renforcé de la DPM et de la PPM pour contrer le trafic illicite de rue (comprimés à 120mg/225mg détournés). Seules les formes médicales (50mg, 100mg) sont légales sur ordonnance.",
+        "pearl": "Le tramadol abaisse également le seuil épileptogène et expose au syndrome sérotoninergique en association avec les antidépresseurs."
     },
     {
         "id": 8,
@@ -278,16 +445,16 @@ SRS_CARDS = [
         "q": "Quels sont les deux métabolites glucuroconjugués de la morphine et pourquoi posent-ils problème chez l'insuffisant rénal ?",
         "hint": "M6G vs M3G et élimination glomérulaire.",
         "a": "1) Morphine-6-Glucuronide (M6G) : actif, puissant analgésique et dépresseur respiratoire. 2) Morphine-3-Glucuronide (M3G) : dépourvu d'action analgésique, neurotoxique (hyperalgésie, myoclonies, convulsions). Tous deux sont éliminés par le rein et s'accumulent dangereusement si DFG < 30 mL/min.",
-        "pearl": "Chez l'insuffisant rénal sévère, on privilégie l'Oxycodone (à dose réduite) ou le Fentanyl dont les métabolites sont inactifs."
+        "pearl": "Chez l'insuffisant rénal sévère, espacer les prises et privilégier des alternatives métaboliques si disponibles."
     },
     {
         "id": 9,
         "cat": "opioides",
         "tag": "Palier III • Règle de Titration",
-        "q": "Comment calcule-t-on la dose d'une interdose pour Accès Douloureux Paroxystique (ADP) chez un patient sous morphine LP ?",
+        "q": "Comment calcule-t-on la dose d'une interdose pour Accès Douloureux Paroxystique (ADP) chez un patient sous morphine de fond ?",
         "hint": "Règle mathématique du 1/6e.",
-        "a": "La dose d'interdose en Libération Immédiate (LI, ex: Actiskénan®) est égale à 1/6e (ou 10-15%) de la dose totale quotidienne de morphine orale. Exemple : sous Skenan® 60 mg matin et soir (total 120 mg/24h), chaque interdose d'ADP sera de 120 / 6 = 20 mg LI.",
-        "pearl": "Si le patient prend plus de 4 interdoses par 24h, il faut réévaluer et augmenter la dose de fond LP."
+        "a": "La dose d'interdose en Libération Immédiate (LI) est égale à 1/6e (ou 10-15%) de la dose totale quotidienne de morphine orale. Exemple : pour une dose de fond de 120 mg/24h, chaque interdose d'ADP sera de 120 / 6 = 20 mg LI si besoin.",
+        "pearl": "Si le patient prend plus de 4 interdoses par 24h, il faut réévaluer et augmenter la dose de fond."
     },
     {
         "id": 10,
@@ -296,16 +463,16 @@ SRS_CARDS = [
         "q": "Lors d'une rotation d'un opioïde fort vers un autre, pourquoi applique-t-on un abattement de 25% à 50% de la dose équianalgésique calculée ?",
         "hint": "Tolérance croisée incomplète.",
         "a": "En raison du phénomène de 'Tolérance Croisée Incomplète'. Les différents opioïdes n'activent pas les sous-populations de récepteurs µ avec la même affinité. Le patient n'étant pas pleinement tolérant à la nouvelle molécule, lui administrer 100% de la dose équivalente théorique provoquerait un surdosage aigu et une dépression respiratoire.",
-        "pearl": "La règle SFAP recommande de calculer la dose théorique, puis d'appliquer une réduction systématique de 25 à 30% (voire 50% pour la méthadone)."
+        "pearl": "La règle SFAP recommande de calculer la dose théorique, puis d'appliquer une réduction systématique de 25 à 30%."
     },
     {
         "id": 11,
         "cat": "reglementation",
-        "tag": "Réglementation • Stupéfiants",
-        "q": "Quelles sont les règles de prescription et délivrance des morphiniques en France (Ordonnance Sécurisée) ?",
-        "hint": "Durée maximale, rédaction des doses, chevauchement.",
-        "a": "Prescription sur Ordonnance Sécurisée. Durée maximale de prescription : 28 jours (ou 14 jours pour certaines formes injectables). Posologies et doses rédigées EN TOUTES LETTRES. Règle du non-chevauchement : délivrance interdite pour une période déjà couverte sauf mention expresse du médecin 'en complément de'.",
-        "pearl": "Le fentanyl transdermique (Durogesic®) est limité à 28 jours avec fractionnement de délivrance de 14 jours par défaut."
+        "tag": "Réglementation • Stupéfiants au Mali",
+        "q": "Quelles sont les règles de prescription des stupéfiants (Morphine) au Mali (Loi 01-078) par rapport à la France ?",
+        "hint": "Carnet à souches vs ordonnance sécurisée, durée max 7 jours au Mali.",
+        "a": "Au Mali (Loi 01-078 / DPM) : 1) Prescription obligatoire sur CARNET À SOUCHES officiel délivré par le Conseil National de l'Ordre des Médecins (CNOM). 2) Durée maximale strictement limitée à 7 JOURS de traitement (contre 28 jours en France). 3) Conservation de la souche pendant 3 ANS par le pharmacien d'officine. 4) Approvisionnement exclusif via la PPM.",
+        "pearl": "Question classique de législation pharmaceutique à la Faculté de Pharmacie de Bamako (FAPH/USTTB) !"
     },
     {
         "id": 12,
@@ -313,7 +480,7 @@ SRS_CARDS = [
         "tag": "Antidote • Opioïdes",
         "q": "Quel est l'antidote spécifique de l'overdose aux morphiniques, sa voie d'administration et la précaution capitale de sa durée d'action ?",
         "hint": "Naloxone et risque de rebond de dépression respiratoire.",
-        "a": "La Naloxone (Narcan®). Antagoniste pur compétitif des récepteurs µ. Titration IV : ampoule de 0.4 mg diluée dans 9 mL de sérum physiologique, injecter 1 à 2 mL (0.04 à 0.08 mg) toutes les 2 min jusqu'à FR > 10. Précaution capitale : demi-vie très courte (30 à 60 min), inférieure à celle de la morphine (2-3h) ou de la méthadone (24-36h). Risque de rechute en coma apnéique imposant une surveillance continue.",
+        "a": "La Naloxone (Narcan®). Antagoniste pur compétitif des récepteurs µ. Titration IV : ampoule de 0.4 mg diluée dans 9 mL de sérum physiologique, injecter 1 à 2 mL (0.04 à 0.08 mg) toutes les 2 min jusqu'à FR > 10. Précaution capitale : demi-vie très courte (30 à 60 min), inférieure à celle de la morphine (2-3h). Risque de rechute en coma apnéique imposant une surveillance continue.",
         "pearl": "Une titration trop rapide peut déclencher un syndrome de sevrage aigu violent avec œdème pulmonaire catécholaminergique."
     },
     {
@@ -350,7 +517,7 @@ html_template = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PharmaLab Pro • Pharmacologie Clinique des Antalgiques | 3e Année DFGSP3</title>
+  <title>PharmaLab Pro • Pharmacologie Clinique des Antalgiques | 3e Année DFGSP3 (Mali &amp; UEMOA)</title>
   
   <!-- PWA Manifest & App Icons -->
   <link rel="manifest" href="manifest.json">
@@ -462,10 +629,10 @@ html_template = """<!DOCTYPE html>
               PharmaLab
             </span>
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
-              DFGSP3
+              DFGSP3 • Mali
             </span>
           </div>
-          <p class="text-[10px] text-slate-500 hidden sm:block">Pharmacologie Clinique des Antalgiques</p>
+          <p class="text-[10px] text-slate-500 hidden sm:block">Faculté de Pharmacie de Bamako (USTTB) • LNME Mali</p>
         </div>
       </div>
 
@@ -476,7 +643,7 @@ html_template = """<!DOCTYPE html>
         </button>
         <button onclick="switchMasterTab('rules')" id="desk-btn-rules" class="desk-tab-btn px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-          <span>Pièges d'Examen</span>
+          <span>Pièges d'Examen &amp; Mali</span>
         </button>
         <button onclick="switchMasterTab('cases')" id="desk-btn-cases" class="desk-tab-btn px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="stethoscope" class="w-4 h-4"></i>
@@ -511,16 +678,22 @@ html_template = """<!DOCTYPE html>
       <div class="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm space-y-3">
         <div class="relative">
           <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-          <input type="text" id="drug-search" oninput="filterDrugs()" placeholder="Rechercher une DCI ou marque (Doliprane, Advil, Tramadol, Skénan...)"
+          <input type="text" id="drug-search" oninput="filterDrugs()" placeholder="Rechercher une DCI ou marque (Doliprane, Advil, Voltène, Tramal, Spasfon...)"
             class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition">
         </div>
 
+        <!-- Filter Buttons with Mali Specific Toggle -->
         <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 text-xs font-medium no-scrollbar">
-          <button onclick="filterCategory('all')" id="cat-all" class="cat-pill active px-3 py-1.5 rounded-lg bg-blue-800 text-white font-bold whitespace-nowrap shadow-sm">Toutes (24)</button>
+          <button onclick="filterCategory('mali')" id="cat-mali" class="cat-pill active px-3 py-1.5 rounded-lg bg-emerald-700 text-white font-bold whitespace-nowrap shadow-sm flex items-center space-x-1">
+            <span>🇲🇱</span>
+            <span>Disponibles au Mali (16)</span>
+          </button>
+          <button onclick="filterCategory('all')" id="cat-all" class="cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">Toutes (24)</button>
           <button onclick="filterCategory('palier1')" id="cat-palier1" class="cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">Palier I (Non Opioïdes)</button>
           <button onclick="filterCategory('palier2')" id="cat-palier2" class="cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">Palier II (Opioïdes Faibles)</button>
           <button onclick="filterCategory('palier3')" id="cat-palier3" class="cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">Palier III (Opioïdes Forts)</button>
           <button onclick="filterCategory('adjuvants')" id="cat-adjuvants" class="cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">Adjuvants &amp; Antidotes</button>
+          <button onclick="filterCategory('non_mali')" id="cat-non_mali" class="cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap">🌍 Non dispo Mali (Théorie)</button>
         </div>
       </div>
 
@@ -534,11 +707,11 @@ html_template = """<!DOCTYPE html>
       
       <div class="bg-blue-900 text-white rounded-2xl p-5 sm:p-6 shadow-sm space-y-1.5">
         <span class="px-2.5 py-0.5 rounded-md bg-blue-800 text-blue-200 text-[10px] font-bold uppercase tracking-wider">
-          Fiches Réflexe 3e Année
+          Fiches Réflexe 3e Année • Spécial Mali (FAPH / USTTB)
         </span>
-        <h1 class="text-xl sm:text-2xl font-black">Les 7 Règles d'Or &amp; Pièges d'Examen</h1>
+        <h1 class="text-xl sm:text-2xl font-black">Les 8 Règles d'Or &amp; Pièges d'Examen au Mali</h1>
         <p class="text-xs sm:text-sm text-blue-100 leading-relaxed">
-          Les points indispensables pour réussir vos partiels de pharmacologie et sécuriser la dispensation en stage officinal ou hospitalier.
+          Les points indispensables pour réussir vos examens de pharmacologie et sécuriser la pratique officinale et hospitalière à Bamako.
         </p>
       </div>
 
@@ -554,9 +727,9 @@ html_template = """<!DOCTYPE html>
             La prise en charge de la douleur aiguë s'adapte à l'évaluation sur l'échelle visuelle analogique (EVA) :
           </p>
           <ul class="text-xs text-slate-700 space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
-            <li>• <strong class="text-blue-900">EVA 1 à 3 (Légère) :</strong> Palier I (Paracétamol, AINS si composante inflammatoire).</li>
-            <li>• <strong class="text-blue-900">EVA 4 à 6 (Modérée) :</strong> Palier II (Tramadol, Codéine, Poudre d'opium).</li>
-            <li>• <strong class="text-blue-900">EVA &ge; 7 (Sévère) :</strong> Palier III direct (Morphine, Oxycodone, Fentanyl). <em>Règle de l'ascenseur : ne jamais attendre pour introduire le palier III si la douleur est d'emblée aiguë et intolérable !</em></li>
+            <li>• <strong class="text-blue-900">EVA 1 à 3 (Légère) :</strong> Palier I (Paracétamol, Diclofénac/Ibuprofène si composante inflammatoire).</li>
+            <li>• <strong class="text-blue-900">EVA 4 à 6 (Modérée) :</strong> Palier II (Tramadol 50-100mg, Codéine).</li>
+            <li>• <strong class="text-blue-900">EVA &ge; 7 (Sévère) :</strong> Palier III direct (Morphine injectable ou buvable). <em>Règle de l'ascenseur : ne jamais attendre pour introduire le palier III si la douleur est d'emblée aiguë et intolérable !</em></li>
           </ul>
           <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-[11px] text-rose-800">
             <strong>🚫 Interdiction absolue :</strong> Ne JAMAIS associer deux opioïdes de même palier, ni un palier II avec un palier III (sommation des toxicités sans gain d'analgésie).
@@ -574,7 +747,7 @@ html_template = """<!DOCTYPE html>
           </p>
           <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-bold">
             <div class="p-2 bg-slate-100 rounded-lg border border-slate-200">
-              <span class="text-blue-900 block">AINS</span>
+              <span class="text-blue-900 block">AINS (ex: Diclo)</span>
               <span class="font-normal text-slate-600">Constriction afférente</span>
             </div>
             <div class="p-2 bg-slate-100 rounded-lg border border-slate-200">
@@ -629,59 +802,73 @@ html_template = """<!DOCTYPE html>
           </div>
         </div>
 
-        <!-- Rule 5: Opioïdes Stupéfiants -->
+        <!-- Rule 5: Législation Stupéfiants au Mali -->
         <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
           <div class="flex items-center space-x-2">
             <span class="w-7 h-7 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center text-xs font-black">5</span>
-            <h3 class="font-bold text-slate-900 text-sm">Réglementation des Morphiniques (Stupéfiants)</h3>
+            <h3 class="font-bold text-slate-900 text-sm">🇲🇱 Réglementation des Stupéfiants au Mali (Loi 01-078)</h3>
           </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Au Mali, la législation pharmaceutique des stupéfiants (Morphine) diffère des normes européennes :
+          </p>
           <ul class="text-xs text-slate-700 space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
-            <li>• <strong>Ordonnance sécurisée :</strong> Papier filigrané, identification du prescripteur, carré de sécurité.</li>
-            <li>• <strong>Durée maximale :</strong> 28 jours (ou 14 jours pour certaines formes injectables).</li>
-            <li>• <strong>Rédaction en toutes lettres :</strong> Nombre d'unités thérapeutiques par prise, nombre de prises et dosage.</li>
-            <li>• <strong>Chevauchement interdit :</strong> Délivrance interdite pour une période déjà couverte, sauf mention expresse « en complément de ».</li>
+            <li>• <strong>Carnet à souches obligatoire :</strong> Délivré par le Conseil National de l'Ordre des Médecins (CNOM).</li>
+            <li>• <strong class="text-purple-900">Durée maximale stricte : 7 JOURS</strong> au Mali (interdiction de prescrire au-delà de 7 jours sur une ordonnance stupéfiant).</li>
+            <li>• <strong>Conservation de la souche :</strong> Pendant <strong>3 ANS</strong> par le pharmacien d'officine.</li>
+            <li>• <strong>Approvisionnement exclusif :</strong> Centralisé par la <strong>Pharmacie Populaire du Mali (PPM)</strong>.</li>
           </ul>
           <div class="p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-[11px] text-purple-800">
-            <strong>💊 Règle clinique d'or :</strong> Toujours prescrire et délivrer systématiquement un <strong>laxatif osmotique</strong> (Macrogol) dès l'initiation d'un opioïde au long cours (pas d'accoutumance sur la constipation).
+            <strong>💊 Règle clinique d'or :</strong> Toujours prescrire et délivrer systématiquement un <strong>laxatif osmotique</strong> dès l'initiation d'un opioïde au long cours (pas d'accoutumance sur la constipation).
           </div>
         </div>
 
-        <!-- Rule 6: Titration Morphine -->
+        <!-- Rule 6: Surveillance Tramadol au Mali -->
         <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
           <div class="flex items-center space-x-2">
             <span class="w-7 h-7 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center text-xs font-black">6</span>
-            <h3 class="font-bold text-slate-900 text-sm">Titration de la Morphine &amp; Règle du 1/6e</h3>
+            <h3 class="font-bold text-slate-900 text-sm">🇲🇱 Le Cas du Tramadol &amp; Arrêté DPM au Mali</h3>
           </div>
           <p class="text-xs text-slate-600 leading-relaxed">
-            Pour les Accès Douloureux Paroxystiques (ADP) chez un patient sous morphine LP de fond :
+            Face à la crise du détournement d'usage des opioïdes en Afrique de l'Ouest :
           </p>
-          <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 text-xs text-blue-900 space-y-1">
-            <p class="font-bold">Dose d'interdose (LI) = Dose quotidienne totale / 6</p>
-            <p class="text-slate-600">Exemple : Skenan® LP 60 mg matin et soir (120 mg/j). L'interdose d'Actiskénan® LI sera de : <strong>120 / 6 = 20 mg</strong> par prise si besoin.</p>
-          </div>
-          <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-800">
-            <strong>⚠️ Alerte clinique :</strong> Si le patient consomme plus de 4 interdoses par 24 heures, la dose de fond LP est insuffisante et doit être réévaluée à la hausse.
+          <ul class="text-xs text-slate-700 space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <li>• <strong>Dosages médicaux autorisés :</strong> Uniquement 50 mg et 100 mg (gélules ou ampoules injectables) sur ordonnance médicale stricte non renouvelable.</li>
+            <li>• <strong class="text-rose-700">Trafic de rue prohibé :</strong> Les comprimés de contrebande surdosés (120 mg, 200 mg, 225 mg) sont formellement illégaux au Mali.</li>
+            <li>• <strong>Risques majeurs :</strong> Dépendance physique fulgurante, crises convulsives comitiales et dépressions respiratoires mortelles lors de sevrage ou mésusage.</li>
+          </ul>
+          <div class="p-2.5 rounded-xl bg-blue-50 border border-blue-200 text-[11px] text-blue-800">
+            <strong>💡 Conseil au comptoir :</strong> Vigilance maximale lors de toute demande de tramadol en automédication : refus formel et sensibilisation du patient.
           </div>
         </div>
 
-        <!-- Rule 7: Rotation des Opioïdes -->
-        <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3 md:col-span-2">
+        <!-- Rule 7: Titration Morphine -->
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
           <div class="flex items-center space-x-2">
             <span class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs font-black">7</span>
+            <h3 class="font-bold text-slate-900 text-sm">Titration de la Morphine &amp; Règle du 1/6e</h3>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Pour les Accès Douloureux Paroxystiques (ADP) chez un patient sous morphine de fond :
+          </p>
+          <div class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200 text-xs text-emerald-900 space-y-1">
+            <p class="font-bold">Dose d'interdose (LI) = Dose quotidienne totale / 6</p>
+            <p class="text-slate-600">Exemple : 120 mg/24h de fond &rarr; L'interdose de secours sera de : <strong>120 / 6 = 20 mg</strong> par prise si besoin.</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-800">
+            <strong>⚠️ Alerte clinique :</strong> Si le patient consomme plus de 4 interdoses par 24 heures, la dose de fond est insuffisante et doit être réévaluée à la hausse.
+          </div>
+        </div>
+
+        <!-- Rule 8: Rotation des Opioïdes -->
+        <div class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
+          <div class="flex items-center space-x-2">
+            <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center text-xs font-black">8</span>
             <h3 class="font-bold text-slate-900 text-sm">Rotation des Opioïdes &amp; Tolérance Croisée Incomplète</h3>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-700">
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
-              <span class="font-bold text-slate-900 block">Équivalences orales (SFAP) :</span>
-              <p>• 10 mg Morphine PO = 5 mg Oxycodone PO (ratio 1:2)</p>
-              <p>• 100 mg Tramadol PO = 20 mg Morphine PO (ratio 1:5)</p>
-              <p>• 100 mg Codéine PO = 15 mg Morphine PO (ratio 1:6.6)</p>
-            </div>
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
-              <span class="font-bold text-slate-900 block">La Règle de l'Abattement :</span>
-              <p>En raison du phénomène de <strong>Tolérance Croisée Incomplète</strong>, les récepteurs µ ne réagissent pas identiquement à la nouvelle molécule.</p>
-              <p class="font-bold text-emerald-800">Réduire obligatoirement la dose théorique calculée de 25% à 30% pour éviter un surdosage aigu mortel.</p>
-            </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-700 space-y-1.5">
+            <span class="font-bold text-slate-900 block">La Règle de l'Abattement :</span>
+            <p>En raison du phénomène de <strong>Tolérance Croisée Incomplète</strong>, les récepteurs µ ne réagissent pas identiquement à la nouvelle molécule.</p>
+            <p class="font-bold text-emerald-800">Réduire obligatoirement la dose théorique calculée de 25% à 30% pour éviter un surdosage aigu mortel.</p>
           </div>
         </div>
 
@@ -695,7 +882,7 @@ html_template = """<!DOCTYPE html>
       <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <span class="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[10px] font-bold uppercase border border-emerald-200">
-            Entraînement Officinal &amp; Hospitalier
+            Entraînement Officinal &amp; Hospitalier • Contexte Mali
           </span>
           <h2 class="text-lg sm:text-xl font-black text-slate-900 mt-1">8 Cas Cliniques d'Audit d'Ordonnances</h2>
           <p class="text-xs text-slate-500">Mettez-vous en situation de validation pharmaceutique au comptoir.</p>
@@ -796,8 +983,8 @@ html_template = """<!DOCTYPE html>
         <button onclick="filterSrs('all')" id="srs-btn-all" class="srs-cat active px-3 py-1.5 rounded-lg bg-blue-800 text-white font-bold whitespace-nowrap shadow-sm">Toutes (15)</button>
         <button onclick="filterSrs('palier1')" id="srs-btn-palier1" class="srs-cat px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 whitespace-nowrap">Palier I &amp; AINS</button>
         <button onclick="filterSrs('opioides')" id="srs-btn-opioides" class="srs-cat px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 whitespace-nowrap">Opioïdes (II &amp; III)</button>
+        <button onclick="filterSrs('reglementation')" id="srs-btn-reglementation" class="srs-cat px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 whitespace-nowrap">🇲🇱 Réglementation Mali</button>
         <button onclick="filterSrs('tox')" id="srs-btn-tox" class="srs-cat px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 whitespace-nowrap">Toxicologie &amp; Antidotes</button>
-        <button onclick="filterSrs('reglementation')" id="srs-btn-reglementation" class="srs-cat px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 whitespace-nowrap">Réglementation</button>
       </div>
 
       <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 shadow-sm min-h-[300px] flex flex-col justify-between space-y-4">
@@ -824,7 +1011,7 @@ html_template = """<!DOCTYPE html>
             </p>
           </div>
           <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-800">
-            <strong>💡 Perle d'examen :</strong>
+            <strong>💡 Perle d'examen &amp; Contexte Mali :</strong>
             <span id="srs-pearl">L'arrêt préopératoire de l'aspirine antiagrégante doit être planifié 5 à 7 jours avant une chirurgie à risque hémorragique.</span>
           </div>
         </div>
@@ -865,7 +1052,7 @@ html_template = """<!DOCTYPE html>
     </button>
     <button onclick="switchMasterTab('rules')" id="mob-btn-rules" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 text-[11px] font-medium text-slate-500 transition active:scale-95">
       <i data-lucide="alert-triangle" class="w-5 h-5 mb-0.5"></i>
-      <span>Pièges</span>
+      <span>Pièges &amp; Mali</span>
     </button>
     <button onclick="switchMasterTab('cases')" id="mob-btn-cases" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 text-[11px] font-medium text-slate-500 transition active:scale-95">
       <i data-lucide="stethoscope" class="w-5 h-5 mb-0.5"></i>
@@ -887,7 +1074,9 @@ html_template = """<!DOCTYPE html>
           <span id="drawer-palier" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-100 text-blue-800">
             Palier I
           </span>
-          <span id="drawer-legal" class="text-[11px] text-slate-500 font-mono">Médication officinale</span>
+          <span id="drawer-mali-badge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">
+            🇲🇱 Disponible au Mali
+          </span>
         </div>
         <h2 id="drawer-title" class="text-lg font-black text-slate-900">Paracétamol</h2>
         <p id="drawer-brands" class="text-xs text-slate-500">Doliprane®, Dafalgan®, Efferalgan®</p>
@@ -899,6 +1088,15 @@ html_template = """<!DOCTYPE html>
 
     <div class="flex-1 p-5 overflow-y-auto space-y-4 text-xs text-slate-700">
       
+      <!-- Mali Availability & Practical Note Box -->
+      <div class="p-3.5 rounded-xl bg-emerald-50/80 border border-emerald-300 text-xs text-emerald-950 space-y-1">
+        <strong class="block text-emerald-900 font-bold flex items-center space-x-1">
+          <span>🇲🇱</span>
+          <span>Pratique Officinale &amp; Disponibilité au Mali :</span>
+        </strong>
+        <p id="drawer-mali-note" class="leading-relaxed"></p>
+      </div>
+
       <div id="drawer-3d-banner" class="p-3.5 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-between">
         <div>
           <span class="font-bold text-blue-900 block text-xs">Visualisation 3D Disponible</span>
@@ -1010,15 +1208,15 @@ html_template = """<!DOCTYPE html>
             <div class="flex items-center space-x-2 text-xs">
               <span class="text-slate-600 font-bold">Molécule :</span>
               <select id="mol-select" onchange="render3D(this.value)" class="p-2 rounded-xl bg-slate-50 border border-slate-300 font-bold text-slate-800 text-xs focus:outline-none">
-                <option value="paracetamol">Paracétamol (Palier I)</option>
-                <option value="aspirine">Aspirine (Palier I)</option>
-                <option value="ibuprofene">Ibuprofène (Palier I)</option>
+                <option value="paracetamol">Paracétamol (Palier I - Dispo Mali)</option>
+                <option value="aspirine">Aspirine (Palier I - Dispo Mali)</option>
+                <option value="ibuprofene">Ibuprofène (Palier I - Dispo Mali)</option>
                 <option value="celecoxib">Célécoxib (Sélectif COX-2)</option>
-                <option value="codeine">Codéine (Palier II)</option>
-                <option value="tramadol">Tramadol (Palier II)</option>
-                <option value="morphine">Morphine (Palier III)</option>
-                <option value="fentanyl">Fentanyl (Palier III)</option>
-                <option value="naloxone">Naloxone (Antidote)</option>
+                <option value="codeine">Codéine (Palier II - Réglementé Mali)</option>
+                <option value="tramadol">Tramadol (Palier II - Contrôle DPM Mali)</option>
+                <option value="morphine">Morphine (Palier III - PPM Hôpital Mali)</option>
+                <option value="fentanyl">Fentanyl (Palier III - CHU)</option>
+                <option value="naloxone">Naloxone (Antidote - Urgences CHU)</option>
               </select>
             </div>
 
@@ -1069,7 +1267,7 @@ html_template = """<!DOCTYPE html>
     const CLINICAL_CASES = %CLINICAL_CASES_JSON%;
     const SRS_CARDS = %SRS_CARDS_JSON%;
 
-    let currentCategory = 'all';
+    let currentCategory = 'mali';
     let currentDrugFor3d = 'paracetamol';
     let viewer3d = null;
     let pkChartInstance = null;
@@ -1120,16 +1318,22 @@ html_template = """<!DOCTYPE html>
       const query = (document.getElementById('drug-search')?.value || '').toLowerCase().trim();
 
       const filtered = PHARMA_DB.molecules.filter(m => {
-        if (currentCategory === 'palier1' && m.palier !== 1) return false;
-        if (currentCategory === 'palier2' && m.palier !== 2) return false;
-        if (currentCategory === 'palier3' && m.palier !== 3) return false;
-        if (currentCategory === 'adjuvants' && m.palier !== 4 && m.palier !== 'antidote' && m.palier !== 0) return false;
+        // Mali-specific filter
+        if (currentCategory === 'mali') {
+          if (m.mali_status === 'non_dispo') return false;
+        } else if (currentCategory === 'non_mali') {
+          if (m.mali_status !== 'non_dispo') return false;
+        } else if (currentCategory === 'palier1' && m.palier !== 1) return false;
+        else if (currentCategory === 'palier2' && m.palier !== 2) return false;
+        else if (currentCategory === 'palier3' && m.palier !== 3) return false;
+        else if (currentCategory === 'adjuvants' && m.palier !== 4 && m.palier !== 'antidote' && m.palier !== 0) return false;
 
         if (query) {
           const matchName = m.name.toLowerCase().includes(query);
           const matchDci = m.dci.toLowerCase().includes(query);
           const matchBrands = m.brand_names.some(b => b.toLowerCase().includes(query));
-          if (!matchName && !matchDci && !matchBrands) return false;
+          const matchMali = (m.mali_note || '').toLowerCase().includes(query);
+          if (!matchName && !matchDci && !matchBrands && !matchMali) return false;
         }
         return true;
       });
@@ -1138,7 +1342,7 @@ html_template = """<!DOCTYPE html>
         grid.innerHTML = `
           <div class="col-span-full py-12 text-center text-slate-400">
             <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
-            <p class="text-xs">Aucun médicament ne correspond à votre recherche.</p>
+            <p class="text-xs">Aucun médicament ne correspond à votre filtre.</p>
           </div>
         `;
         safeCreateIcons();
@@ -1146,10 +1350,10 @@ html_template = """<!DOCTYPE html>
       }
 
       filtered.forEach(m => {
-        let badgeClass = "bg-blue-50 text-blue-800 border-blue-200";
-        if (m.palier === 2) badgeClass = "bg-amber-50 text-amber-800 border-amber-200";
-        else if (m.palier === 3) badgeClass = "bg-rose-50 text-rose-800 border-rose-200";
-        else if (m.palier === 4 || m.palier === 'antidote' || m.palier === 0) badgeClass = "bg-emerald-50 text-emerald-800 border-emerald-200";
+        let palierBadge = "bg-blue-50 text-blue-800 border-blue-200";
+        if (m.palier === 2) palierBadge = "bg-amber-50 text-amber-800 border-amber-200";
+        else if (m.palier === 3) palierBadge = "bg-rose-50 text-rose-800 border-rose-200";
+        else if (m.palier === 4 || m.palier === 'antidote' || m.palier === 0) palierBadge = "bg-emerald-50 text-emerald-800 border-emerald-200";
 
         const brands = m.brand_names.slice(0, 2).join(', ');
         const card = document.createElement('div');
@@ -1162,9 +1366,14 @@ html_template = """<!DOCTYPE html>
                 <h3 class="font-extrabold text-slate-900 text-sm sm:text-base tracking-tight">${m.name}</h3>
                 <p class="text-[11px] text-slate-500 font-medium">${brands || m.class_name}</p>
               </div>
-              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${badgeClass} shrink-0">
-                ${m.palier_label || 'Palier I'}
-              </span>
+              <div class="flex flex-col items-end gap-1 shrink-0">
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${palierBadge}">
+                  ${m.palier_label || 'Palier I'}
+                </span>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-semibold border ${m.mali_class || 'bg-slate-100 text-slate-600'}">
+                  ${m.mali_badge || 'Mali'}
+                </span>
+              </div>
             </div>
 
             <div class="space-y-1.5 pt-1 text-xs">
@@ -1176,15 +1385,15 @@ html_template = """<!DOCTYPE html>
                 <span class="text-rose-700 font-bold shrink-0">🚫 CI :</span>
                 <span class="text-slate-700 font-medium line-clamp-2">${m.contraindications?.[0] || 'Hypersensibilité'}</span>
               </div>
-              <div class="flex items-start space-x-1.5">
-                <span class="text-emerald-700 font-bold shrink-0">💡 Règle :</span>
-                <span class="text-slate-700 font-medium line-clamp-2">${m.concours_pearl || m.pharmacodynamics?.mechanism?.slice(0, 100) + '...'}</span>
+              <div class="flex items-start space-x-1.5 bg-slate-50 p-1.5 rounded-lg border border-slate-100">
+                <span class="text-emerald-700 font-bold shrink-0">🇲🇱 Mali :</span>
+                <span class="text-slate-600 font-medium text-[11px] line-clamp-2">${m.mali_note || 'Disponible en officine.'}</span>
               </div>
             </div>
           </div>
 
           <button onclick="openDrugDrawer('${m.id}')" class="w-full mt-2 py-2 px-3 rounded-xl bg-slate-50 hover:bg-blue-50 text-blue-900 hover:text-blue-800 text-xs font-bold border border-slate-200 hover:border-blue-300 transition flex items-center justify-center space-x-1.5">
-            <span>Fiche Complète &amp; 3D</span>
+            <span>Fiche Complète &amp; Pratique Mali</span>
             <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
           </button>
         `;
@@ -1198,7 +1407,11 @@ html_template = """<!DOCTYPE html>
       currentCategory = cat;
       document.querySelectorAll('.cat-pill').forEach(btn => {
         if (btn.id === `cat-${cat}`) {
-          btn.className = "cat-pill active px-3 py-1.5 rounded-lg bg-blue-800 text-white font-bold whitespace-nowrap shadow-sm";
+          if (cat === 'mali') {
+            btn.className = "cat-pill active px-3 py-1.5 rounded-lg bg-emerald-700 text-white font-bold whitespace-nowrap shadow-sm flex items-center space-x-1";
+          } else {
+            btn.className = "cat-pill active px-3 py-1.5 rounded-lg bg-blue-800 text-white font-bold whitespace-nowrap shadow-sm";
+          }
         } else {
           btn.className = "cat-pill px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 whitespace-nowrap";
         }
@@ -1219,7 +1432,12 @@ html_template = """<!DOCTYPE html>
       document.getElementById('drawer-title').textContent = drug.name;
       document.getElementById('drawer-brands').textContent = drug.brand_names.join(', ') || drug.dci;
       document.getElementById('drawer-palier').textContent = drug.palier_label;
-      document.getElementById('drawer-legal').textContent = drug.legal_status || 'Non soumis à prescription';
+
+      const maliBadge = document.getElementById('drawer-mali-badge');
+      maliBadge.textContent = drug.mali_badge || 'Mali';
+      maliBadge.className = `px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${drug.mali_class || 'bg-slate-100 text-slate-700'}`;
+
+      document.getElementById('drawer-mali-note').textContent = drug.mali_note || 'Information non précisée.';
 
       document.getElementById('drawer-poso-adult').textContent = drug.posology?.adult || 'Non renseigné';
       document.getElementById('drawer-poso-ped').textContent = drug.posology?.pediatric || 'Contre-indiqué ou non adapté';
@@ -1552,4 +1770,4 @@ final_html = html_template.replace(
 with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
     f.write(final_html)
 
-print(f"Successfully generated clean DFGSP3 index.html ({len(final_html)} bytes)")
+print(f"Successfully generated clean DFGSP3 Mali-contextualized index.html ({len(final_html)} bytes)")
