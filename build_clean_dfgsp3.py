@@ -1,3 +1,4 @@
+import subjects_data
 import json
 import os
 
@@ -517,7 +518,7 @@ html_template = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PharmaLab Pro • Pharmacologie Clinique des Antalgiques | 3e Année DFGSP3 (Mali &amp; UEMOA)</title>
+  <title>Portail Académique DFGSP3 • Faculté de Pharmacie de Bamako (USTTB) | 6 Matières &amp; Cours PDF</title>
   
   <!-- PWA Manifest & App Icons -->
   <link rel="manifest" href="manifest.json">
@@ -637,19 +638,23 @@ html_template = """<!DOCTYPE html>
       </div>
 
       <nav class="hidden md:flex items-center space-x-1 text-xs font-semibold">
-        <button onclick="switchMasterTab('drugs')" id="desk-btn-drugs" class="desk-tab-btn active px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <button onclick="switchSubjectNav()" id="desk-btn-subjects" class="desk-tab-btn active px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>Matières DFGSP3</span>
+        </button>
+        <button onclick="switchSubject('pharmacologie'); switchMasterTab('drugs');" id="desk-btn-drugs" class="desk-tab-btn px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="book-open" class="w-4 h-4"></i>
           <span>Fiches Médicaments</span>
         </button>
-        <button onclick="switchMasterTab('rules')" id="desk-btn-rules" class="desk-tab-btn px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <button onclick="switchSubject('pharmacologie'); switchMasterTab('rules');" id="desk-btn-rules" class="desk-tab-btn px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-          <span>Pièges d'Examen &amp; Mali</span>
+          <span>Pièges Mali</span>
         </button>
-        <button onclick="switchMasterTab('cases')" id="desk-btn-cases" class="desk-tab-btn px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <button onclick="switchSubject('pharmacologie'); switchMasterTab('cases');" id="desk-btn-cases" class="desk-tab-btn px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="stethoscope" class="w-4 h-4"></i>
           <span>Cas Cliniques</span>
         </button>
-        <button onclick="switchMasterTab('flashcards')" id="desk-btn-flashcards" class="desk-tab-btn px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
+        <button onclick="switchSubject('pharmacologie'); switchMasterTab('flashcards');" id="desk-btn-flashcards" class="desk-tab-btn px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100">
           <i data-lucide="zap" class="w-4 h-4"></i>
           <span>Flashcards Anki</span>
         </button>
@@ -672,8 +677,102 @@ html_template = """<!DOCTYPE html>
   <!-- MAIN CONTENT AREA -->
   <main class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-24 md:pb-8">
 
-    <!-- SECTION 1 : FICHES MÉDICAMENTS ESSENTIELLES -->
-    <section id="sec-drugs" class="space-y-4">
+    <!-- ============================================================== -->
+    <!-- HUB DES 6 MATIÈRES (FACULTÉ DE PHARMACIE • DFGSP3)              -->
+    <!-- ============================================================== -->
+    <div class="bg-white border border-slate-200/90 rounded-2xl p-3 sm:p-4 shadow-sm mb-5">
+      <div class="flex items-center justify-between mb-2.5 px-1">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center space-x-1.5">
+            <i data-lucide="layers" class="w-4 h-4 text-blue-700"></i>
+            <span>Matières DFGSP3</span>
+          </span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+            6 Modules Officiels
+          </span>
+        </div>
+        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">
+          Faculté de Pharmacie de Bamako (USTTB)
+        </span>
+      </div>
+
+      <!-- Scrollable Subject Chips -->
+      <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar text-xs font-semibold" id="subjects-pills-bar">
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- VUE D'UNE MATIÈRE (COURS OFFICIELS & POLYS PDF)                 -->
+    <!-- ============================================================== -->
+    <section id="sec-subject-view" class="space-y-4">
+      <!-- Subject Header Card -->
+      <div id="subj-header-card" class="bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white rounded-2xl p-5 sm:p-6 shadow-sm">
+        <div class="space-y-1.5">
+          <div class="flex items-center space-x-2">
+            <span id="subj-badge" class="px-2.5 py-0.5 rounded-md bg-white/20 text-white text-[10px] font-bold uppercase tracking-wider">
+              DFGSP3 • 2025-2026
+            </span>
+            <span id="subj-count-badge" class="px-2.5 py-0.5 rounded-md bg-emerald-500/30 text-emerald-200 text-[10px] font-bold">
+              2 Cours disponibles
+            </span>
+          </div>
+          <h1 id="subj-title" class="text-xl sm:text-2xl font-black tracking-tight">Immunologie</h1>
+          <p id="subj-teachers" class="text-xs sm:text-sm text-blue-100 font-medium">Pr Charles ARAMA (MCA - PMRTC)</p>
+          <p id="subj-dept" class="text-[11px] text-blue-200/80">PMRTC • Faculté de Pharmacie USTTB</p>
+        </div>
+      </div>
+
+      <!-- Courses List Container -->
+      <div id="subj-courses-container" class="space-y-4">
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- VUE PHARMACOLOGIE WRAPPER                                       -->
+    <!-- ============================================================== -->
+    <div id="sec-pharma-wrapper" class="space-y-4 hidden">
+      
+      <!-- Pharma Subject Header Card -->
+      <div class="bg-gradient-to-r from-blue-900 to-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-sm space-y-2">
+        <div class="flex items-center space-x-2">
+          <span class="px-2.5 py-0.5 rounded-md bg-blue-700/60 text-blue-200 text-[10px] font-bold uppercase tracking-wider">
+            DER Sciences du Médicament • FAPH / USTTB
+          </span>
+          <span class="px-2 py-0.5 rounded-md bg-emerald-500/30 text-emerald-200 text-[10px] font-bold">
+            Mali &amp; UEMOA
+          </span>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-black">Pharmacologie &amp; Thérapeutique</h1>
+        <p class="text-xs sm:text-sm text-blue-100 font-medium">
+          Pr Sékou BAH (Maître de Conférences) • Dr Karim TRAORE • Dr Abdoulaye GUINDO
+        </p>
+      </div>
+
+      <!-- Cours 1 Magistral Card for Pharma -->
+      <div id="pharma-magistral-box"></div>
+
+      <!-- Subtabs for Clinical Pharma -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-2 shadow-sm flex items-center space-x-1 sm:space-x-2 overflow-x-auto no-scrollbar text-xs font-bold">
+        <button onclick="switchMasterTab('drugs')" id="pharma-subtab-drugs" class="pharma-tab-btn active px-3.5 py-2 rounded-xl bg-blue-800 text-white shadow-sm flex items-center space-x-1.5 whitespace-nowrap">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span>Fiches Médicaments (24)</span>
+        </button>
+        <button onclick="switchMasterTab('rules')" id="pharma-subtab-rules" class="pharma-tab-btn px-3.5 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center space-x-1.5 whitespace-nowrap">
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+          <span>Pièges d'Examen &amp; Mali</span>
+        </button>
+        <button onclick="switchMasterTab('cases')" id="pharma-subtab-cases" class="pharma-tab-btn px-3.5 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center space-x-1.5 whitespace-nowrap">
+          <i data-lucide="stethoscope" class="w-4 h-4"></i>
+          <span>Cas Cliniques (8)</span>
+        </button>
+        <button onclick="switchMasterTab('flashcards')" id="pharma-subtab-flashcards" class="pharma-tab-btn px-3.5 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center space-x-1.5 whitespace-nowrap">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          <span>Flashcards Anki (15)</span>
+        </button>
+      </div>
+
+      <!-- SECTION 1 : FICHES MÉDICAMENTS ESSENTIELLES -->
+      <section id="sec-drugs" class="space-y-4">
       
       <div class="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm space-y-3">
         <div class="relative">
@@ -1042,23 +1141,25 @@ html_template = """<!DOCTYPE html>
 
     </section>
 
+    </div><!-- end sec-pharma-wrapper -->
+
   </main>
 
   <!-- MOBILE BOTTOM NAVIGATION BAR -->
   <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-1.5 flex items-center justify-around shadow-lg md:hidden">
-    <button onclick="switchMasterTab('drugs')" id="mob-btn-drugs" class="bottom-nav-btn active flex flex-col items-center justify-center py-1 px-2.5 text-[11px] font-medium text-slate-500 transition active:scale-95">
+    <button onclick="switchSubjectNav()" id="mob-btn-subjects" class="bottom-nav-btn active flex flex-col items-center justify-center py-1 px-2 text-[11px] font-medium text-slate-500 transition active:scale-95">
+      <i data-lucide="layers" class="w-5 h-5 mb-0.5"></i>
+      <span>Matières</span>
+    </button>
+    <button onclick="switchSubject('pharmacologie'); switchMasterTab('drugs');" id="mob-btn-drugs" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2 text-[11px] font-medium text-slate-500 transition active:scale-95">
       <i data-lucide="book-open" class="w-5 h-5 mb-0.5"></i>
-      <span>Fiches</span>
+      <span>Pharmaco</span>
     </button>
-    <button onclick="switchMasterTab('rules')" id="mob-btn-rules" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 text-[11px] font-medium text-slate-500 transition active:scale-95">
+    <button onclick="switchSubject('pharmacologie'); switchMasterTab('rules');" id="mob-btn-rules" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2 text-[11px] font-medium text-slate-500 transition active:scale-95">
       <i data-lucide="alert-triangle" class="w-5 h-5 mb-0.5"></i>
-      <span>Pièges &amp; Mali</span>
+      <span>Pièges Mali</span>
     </button>
-    <button onclick="switchMasterTab('cases')" id="mob-btn-cases" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 text-[11px] font-medium text-slate-500 transition active:scale-95">
-      <i data-lucide="stethoscope" class="w-5 h-5 mb-0.5"></i>
-      <span>Cas</span>
-    </button>
-    <button onclick="switchMasterTab('flashcards')" id="mob-btn-flashcards" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2.5 text-[11px] font-medium text-slate-500 transition active:scale-95">
+    <button onclick="switchSubject('pharmacologie'); switchMasterTab('flashcards');" id="mob-btn-flashcards" class="bottom-nav-btn flex flex-col items-center justify-center py-1 px-2 text-[11px] font-medium text-slate-500 transition active:scale-95">
       <i data-lucide="zap" class="w-5 h-5 mb-0.5"></i>
       <span>Quiz</span>
     </button>
@@ -1260,8 +1361,55 @@ html_template = """<!DOCTYPE html>
     </div>
   </div>
 
+  <!-- ============================================================== -->
+  <!-- IN-APP PDF VIEWER MODAL (LECTEUR DE COURS INTÉGRÉ)             -->
+  <!-- ============================================================== -->
+  <div id="pdf-viewer-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex flex-col">
+    <!-- Header -->
+    <div class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
+      <div class="flex items-center space-x-3 min-w-0 pr-2">
+        <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center shrink-0 border border-blue-200">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+        </div>
+        <div class="min-w-0">
+          <h3 id="pdf-modal-title" class="font-extrabold text-xs sm:text-sm text-slate-900 truncate">Titre du cours</h3>
+          <p id="pdf-modal-meta" class="text-[11px] text-slate-500 truncate">Matière • Enseignant</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2 shrink-0">
+        <a id="pdf-modal-download" href="#" download class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Télécharger</span>
+        </a>
+        <a id="pdf-modal-external" href="#" target="_blank" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Ouvrir dans un nouvel onglet">
+          <i data-lucide="external-link" class="w-4 h-4"></i>
+        </a>
+        <button onclick="closePdfModal()" class="p-2 rounded-xl bg-slate-100 hover:bg-rose-100 text-slate-700 hover:text-rose-700 transition" title="Fermer la visionneuse">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- PDF Frame Container -->
+    <div class="flex-1 w-full h-full bg-slate-900 relative overflow-hidden flex flex-col">
+      <iframe id="pdf-modal-iframe" src="" class="w-full h-full border-0 flex-1" title="Lecteur de cours PDF"></iframe>
+      
+      <!-- Mobile Fallback -->
+      <div id="pdf-modal-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-900 text-white space-y-4">
+        <i data-lucide="file-text" class="w-12 h-12 text-slate-400"></i>
+        <h4 class="font-bold text-base">Affichage du Document</h4>
+        <p class="text-xs text-slate-300 max-w-md">La visionneuse intégrée dépend des fonctionnalités PDF de votre navigateur. Vous pouvez ouvrir directement le cours ou le télécharger.</p>
+        <div class="flex items-center space-x-3 pt-2">
+          <a id="pdf-modal-fallback-btn" href="#" target="_blank" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm">Ouvrir dans un onglet</a>
+          <a id="pdf-modal-fallback-dl" href="#" download class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">Télécharger le PDF</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- JAVASCRIPT LOGIC & EMBEDDED DATABASES -->
   <script>
+    const SUBJECTS_DATA = %SUBJECTS_DATA_JSON%;
     const PHARMA_DB = %PHARMA_DB_JSON%;
     const SDF_DATA = %SDF_DATA_JSON%;
     const CLINICAL_CASES = %CLINICAL_CASES_JSON%;
@@ -1273,13 +1421,290 @@ html_template = """<!DOCTYPE html>
     let pkChartInstance = null;
     let srsActiveDeck = [...SRS_CARDS];
     let srsIndex = 0;
+    let currentSubject = 'immunologie';
 
     document.addEventListener('DOMContentLoaded', () => {
+      renderSubjectPills();
+      switchSubject('immunologie');
       renderDrugCards();
       loadCase(1);
       initSrsCard();
       safeCreateIcons();
+
+      // Keyboard handler
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closePdfModal();
+          closeDrugDrawer();
+          closeToolsModal();
+        }
+      });
     });
+
+    // ==========================================
+    // MULTI-SUBJECTS & PDF ENGINE
+    // ==========================================
+    function renderSubjectPills() {
+      const container = document.getElementById('subjects-pills-bar');
+      if (!container) return;
+      container.innerHTML = '';
+
+      SUBJECTS_DATA.forEach(subj => {
+        const btn = document.createElement('button');
+        const isActive = subj.id === currentSubject;
+        btn.id = `pill-subj-${subj.id}`;
+        
+        let colorClasses = '';
+        if (isActive) {
+          colorClasses = 'bg-blue-800 text-white shadow-md border-blue-900';
+        } else {
+          colorClasses = 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200';
+        }
+
+        btn.className = `px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5 whitespace-nowrap border font-bold ${colorClasses}`;
+        
+        let iconName = subj.icon || 'book';
+        btn.innerHTML = `
+          <i data-lucide="${iconName}" class="w-4 h-4"></i>
+          <span>${subj.name}</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'}">
+            ${subj.id === 'pharmacologie' ? '24+1' : subj.courses.length}
+          </span>
+        `;
+        btn.onclick = () => switchSubject(subj.id);
+        container.appendChild(btn);
+      });
+      safeCreateIcons();
+    }
+
+    function switchSubjectNav() {
+      switchSubject(currentSubject === 'pharmacologie' ? 'immunologie' : currentSubject);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchSubject(subjId) {
+      currentSubject = subjId;
+      renderSubjectPills();
+
+      const viewSec = document.getElementById('sec-subject-view');
+      const pharmaSec = document.getElementById('sec-pharma-wrapper');
+      
+      // Update desktop buttons
+      document.querySelectorAll('.desk-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.bottom-nav-btn').forEach(b => b.classList.remove('active'));
+
+      if (subjId === 'pharmacologie') {
+        if (viewSec) viewSec.classList.add('hidden');
+        if (pharmaSec) pharmaSec.classList.remove('hidden');
+        
+        const deskPharma = document.getElementById('desk-btn-drugs');
+        if (deskPharma) deskPharma.classList.add('active');
+        const mobPharma = document.getElementById('mob-btn-drugs');
+        if (mobPharma) mobPharma.classList.add('active');
+
+        renderPharmaMagistralCard();
+      } else {
+        if (pharmaSec) pharmaSec.classList.add('hidden');
+        if (viewSec) viewSec.classList.remove('hidden');
+
+        const deskSubj = document.getElementById('desk-btn-subjects');
+        if (deskSubj) deskSubj.classList.add('active');
+        const mobSubj = document.getElementById('mob-btn-subjects');
+        if (mobSubj) mobSubj.classList.add('active');
+
+        renderSubjectContent(subjId);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      safeCreateIcons();
+    }
+
+    function renderSubjectContent(subjId) {
+      const subj = SUBJECTS_DATA.find(s => s.id === subjId);
+      if (!subj) return;
+
+      document.getElementById('subj-title').textContent = subj.name;
+      document.getElementById('subj-teachers').textContent = subj.teachers;
+      document.getElementById('subj-dept').textContent = subj.dept;
+      document.getElementById('subj-badge').textContent = subj.badge;
+      document.getElementById('subj-count-badge').textContent = `${subj.courses.length} Cours officiel(s)`;
+
+      const container = document.getElementById('subj-courses-container');
+      container.innerHTML = '';
+
+      subj.courses.forEach(c => {
+        container.appendChild(buildCourseCardEl(c, subj.name));
+      });
+      safeCreateIcons();
+    }
+
+    function renderPharmaMagistralCard() {
+      const box = document.getElementById('pharma-magistral-box');
+      if (!box) return;
+      const pharmaSubj = SUBJECTS_DATA.find(s => s.id === 'pharmacologie');
+      if (!pharmaSubj || !pharmaSubj.courses.length) return;
+
+      box.innerHTML = '';
+      const c = pharmaSubj.courses[0];
+      const card = buildCourseCardEl(c, 'Pharmacologie Générale');
+      box.appendChild(card);
+      safeCreateIcons();
+    }
+
+    function buildCourseCardEl(c, subjName) {
+      const card = document.createElement('div');
+      card.className = "bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5 transition hover:border-blue-300";
+
+      const escapedTitle = (c.title || '').replace(/'/g, "\\'");
+      const escapedMeta = `${subjName} • ${c.teacher || ''}`.replace(/'/g, "\\'");
+
+      card.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+          <div class="flex items-start space-x-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center shrink-0 border border-blue-200 mt-0.5">
+              <i data-lucide="book" class="w-5 h-5"></i>
+            </div>
+            <div class="min-w-0 space-y-1">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                  ${c.badge || 'Cours Magistral'}
+                </span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                  📄 ${c.pages} diapos
+                </span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  ✓ PDF Officiel
+                </span>
+              </div>
+              <h3 class="font-extrabold text-sm sm:text-base text-slate-900 leading-snug">
+                ${c.title}
+              </h3>
+              <p class="text-xs text-slate-500 font-medium flex items-center space-x-1">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span>${c.teacher}</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center space-x-2 shrink-0 pt-1 sm:pt-0">
+            <button onclick="openPdfModal('${c.file}', '${escapedTitle}', '${escapedMeta}')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-bold transition shadow-sm flex items-center justify-center space-x-1.5">
+              <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+              <span>Lire le cours</span>
+            </button>
+            <a href="${c.file}" download class="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition flex items-center justify-center space-x-1" title="Télécharger le fichier">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span class="hidden md:inline">Télécharger</span>
+            </a>
+            <a href="${c.file}" target="_blank" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition" title="Ouvrir dans un nouvel onglet">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Accordion 1 : Synthèse & Points Clés d'Examen -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <button onclick="toggleAccordion('syn-${c.id}')" class="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-left text-xs font-bold text-slate-800 flex items-center justify-between transition">
+            <span class="flex items-center space-x-1.5 text-blue-900">
+              <i data-lucide="lightbulb" class="w-4 h-4 text-amber-500"></i>
+              <span>💡 Synthèse &amp; Points Clés d'Examen (${c.summary.length} points)</span>
+            </span>
+            <i id="syn-icon-${c.id}" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform"></i>
+          </button>
+          <div id="syn-${c.id}" class="hidden p-3.5 bg-white text-xs space-y-2 border-t border-slate-100">
+            <ul class="space-y-1.5 text-slate-700 leading-relaxed">
+              ${c.summary.map(s => `<li class="flex items-start space-x-2"><span class="text-blue-600 font-bold shrink-0">•</span><span>${s}</span></li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Accordion 2 : Flashcards & Auto-Évaluation -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden">
+          <button onclick="toggleAccordion('quiz-${c.id}')" class="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-left text-xs font-bold text-slate-800 flex items-center justify-between transition">
+            <span class="flex items-center space-x-1.5 text-indigo-900">
+              <i data-lucide="help-circle" class="w-4 h-4 text-indigo-600"></i>
+              <span>⚡ Auto-Évaluation Rapide (${c.quiz.length} questions)</span>
+            </span>
+            <i id="quiz-icon-${c.id}" data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform"></i>
+          </button>
+          <div id="quiz-${c.id}" class="hidden p-3.5 bg-white text-xs space-y-3 border-t border-slate-100">
+            ${c.quiz.map((q, qIdx) => `
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <p class="font-bold text-slate-900 flex items-start space-x-1.5">
+                  <span class="text-blue-700 shrink-0">Q${qIdx + 1} :</span>
+                  <span>${q.q}</span>
+                </p>
+                <div id="ans-${c.id}-${qIdx}" class="hidden p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-950 font-medium leading-relaxed">
+                  <strong>Réponse du cours :</strong><br>${q.a}
+                </div>
+                <button onclick="toggleQuizAnswer('ans-${c.id}-${qIdx}', this)" class="text-[11px] font-bold text-blue-700 hover:text-blue-900 flex items-center space-x-1">
+                  <span>Afficher la réponse</span>
+                  <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      return card;
+    }
+
+    function toggleAccordion(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const isHidden = el.classList.contains('hidden');
+      if (isHidden) {
+        el.classList.remove('hidden');
+      } else {
+        el.classList.add('hidden');
+      }
+      safeCreateIcons();
+    }
+
+    function toggleQuizAnswer(id, btn) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const isHidden = el.classList.contains('hidden');
+      if (isHidden) {
+        el.classList.remove('hidden');
+        if (btn) btn.innerHTML = '<span>Masquer la réponse</span><i data-lucide="chevron-up" class="w-3 h-3"></i>';
+      } else {
+        el.classList.add('hidden');
+        if (btn) btn.innerHTML = '<span>Afficher la réponse</span><i data-lucide="chevron-right" class="w-3 h-3"></i>';
+      }
+      safeCreateIcons();
+    }
+
+    function openPdfModal(url, title, meta) {
+      const modal = document.getElementById('pdf-viewer-modal');
+      const iframe = document.getElementById('pdf-modal-iframe');
+      const titleEl = document.getElementById('pdf-modal-title');
+      const metaEl = document.getElementById('pdf-modal-meta');
+      const dlBtn = document.getElementById('pdf-modal-download');
+      const extBtn = document.getElementById('pdf-modal-external');
+      const fallbackBtn = document.getElementById('pdf-modal-fallback-btn');
+      const fallbackDl = document.getElementById('pdf-modal-fallback-dl');
+      
+      titleEl.textContent = title;
+      metaEl.textContent = meta;
+      dlBtn.href = url;
+      extBtn.href = url;
+      if (fallbackBtn) fallbackBtn.href = url;
+      if (fallbackDl) fallbackDl.href = url;
+      
+      iframe.src = url + '#toolbar=1&navpanes=0';
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+      safeCreateIcons();
+    }
+
+    function closePdfModal() {
+      const modal = document.getElementById('pdf-viewer-modal');
+      const iframe = document.getElementById('pdf-modal-iframe');
+      modal.classList.add('hidden');
+      iframe.src = '';
+      document.body.classList.remove('overflow-hidden');
+    }
 
     function safeCreateIcons() {
       if (window.lucide && lucide.createIcons) {
@@ -1304,6 +1729,14 @@ html_template = """<!DOCTYPE html>
         if (mobBtn) {
           if (s === tabId) mobBtn.classList.add('active');
           else mobBtn.classList.remove('active');
+        }
+        const subTabBtn = document.getElementById(`pharma-subtab-${s}`);
+        if (subTabBtn) {
+          if (s === tabId) {
+            subTabBtn.className = "pharma-tab-btn active px-3.5 py-2 rounded-xl bg-blue-800 text-white shadow-sm flex items-center space-x-1.5 whitespace-nowrap";
+          } else {
+            subTabBtn.className = "pharma-tab-btn px-3.5 py-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 flex items-center space-x-1.5 whitespace-nowrap";
+          }
         }
       });
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1758,6 +2191,8 @@ html_template = """<!DOCTYPE html>
 
 # Replace placeholders with JSON strings
 final_html = html_template.replace(
+    '%SUBJECTS_DATA_JSON%', json.dumps(subjects_data.SUBJECTS_DATA, ensure_ascii=False)
+).replace(
     '%PHARMA_DB_JSON%', json.dumps(pharma_db, ensure_ascii=False)
 ).replace(
     '%SDF_DATA_JSON%', json.dumps(all_sdfs, ensure_ascii=False)

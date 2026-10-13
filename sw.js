@@ -2,7 +2,7 @@
 /* PharmaLab Pro • Service Worker (Offline Engine & PWA Caching)             */
 /* ========================================================================= */
 
-const CACHE_NAME = 'pharmalab-pro-v3';
+const CACHE_NAME = 'pharmalab-pro-v4';
 
 const PRECACHE_ASSETS = [
   './',
