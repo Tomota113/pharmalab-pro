@@ -1,4 +1,5 @@
 import subjects_data
+import learning_data
 import json
 import os
 
@@ -7,6 +8,7 @@ DB_FILE = os.path.join(BASE_DIR, 'data', 'pharmacology_db.json')
 SDF1_FILE = os.path.join(BASE_DIR, 'sdf_data.json')
 SDF2_FILE = os.path.join(BASE_DIR, 'sdf_opioids.json')
 OUTPUT_FILE = os.path.join(BASE_DIR, 'index.html')
+LEARNING_OUTPUT_FILE = os.path.join(BASE_DIR, 'learning-data.json')
 
 with open(DB_FILE, 'r', encoding='utf-8') as f:
     pharma_db = json.load(f)
@@ -676,6 +678,15 @@ html_template = """<!DOCTYPE html>
 
   <!-- MAIN CONTENT AREA -->
   <main class="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-24 md:pb-8">
+
+    <div class="rounded-2xl bg-slate-950 text-white p-5 sm:p-6 mb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 overflow-hidden relative">
+      <div class="relative z-10">
+        <span class="text-[10px] font-black tracking-[0.16em] text-lime-300 uppercase">✦ Nouveau · L’atelier des cours</span>
+        <h2 class="text-xl sm:text-2xl font-black tracking-tight mt-1">Les polycopiés prennent vie.</h2>
+        <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl leading-relaxed">%LEARNING_COURSE_COUNT% parcours guidés, %LEARNING_STEP_COUNT% étapes expliquées en mots simples, des exemples et des questions. Chaque notion renvoie au PDF original.</p>
+      </div>
+      <a href="apprendre.html" class="relative z-10 shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-lime-300 hover:bg-lime-200 text-slate-950 px-5 py-3 text-xs font-extrabold shadow-lg">Commencer à apprendre <span aria-hidden="true">→</span></a>
+    </div>
 
     <!-- ============================================================== -->
     <!-- HUB DES 6 MATIÈRES (FACULTÉ DE PHARMACIE • DFGSP3)              -->
@@ -1361,52 +1372,6 @@ html_template = """<!DOCTYPE html>
     </div>
   </div>
 
-  <!-- ============================================================== -->
-  <!-- IN-APP PDF VIEWER MODAL (LECTEUR DE COURS INTÉGRÉ)             -->
-  <!-- ============================================================== -->
-  <div id="pdf-viewer-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex flex-col">
-    <!-- Header -->
-    <div class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm shrink-0">
-      <div class="flex items-center space-x-3 min-w-0 pr-2">
-        <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center shrink-0 border border-blue-200">
-          <i data-lucide="file-text" class="w-4 h-4"></i>
-        </div>
-        <div class="min-w-0">
-          <h3 id="pdf-modal-title" class="font-extrabold text-xs sm:text-sm text-slate-900 truncate">Titre du cours</h3>
-          <p id="pdf-modal-meta" class="text-[11px] text-slate-500 truncate">Matière • Enseignant</p>
-        </div>
-      </div>
-      <div class="flex items-center space-x-2 shrink-0">
-        <a id="pdf-modal-download" href="#" download class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">
-          <i data-lucide="download" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Télécharger</span>
-        </a>
-        <a id="pdf-modal-external" href="#" target="_blank" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Ouvrir dans un nouvel onglet">
-          <i data-lucide="external-link" class="w-4 h-4"></i>
-        </a>
-        <button onclick="closePdfModal()" class="p-2 rounded-xl bg-slate-100 hover:bg-rose-100 text-slate-700 hover:text-rose-700 transition" title="Fermer la visionneuse">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-    </div>
-    
-    <!-- PDF Frame Container -->
-    <div class="flex-1 w-full h-full bg-slate-900 relative overflow-hidden flex flex-col">
-      <iframe id="pdf-modal-iframe" src="" class="w-full h-full border-0 flex-1" title="Lecteur de cours PDF"></iframe>
-      
-      <!-- Mobile Fallback -->
-      <div id="pdf-modal-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-900 text-white space-y-4">
-        <i data-lucide="file-text" class="w-12 h-12 text-slate-400"></i>
-        <h4 class="font-bold text-base">Affichage du Document</h4>
-        <p class="text-xs text-slate-300 max-w-md">La visionneuse intégrée dépend des fonctionnalités PDF de votre navigateur. Vous pouvez ouvrir directement le cours ou le télécharger.</p>
-        <div class="flex items-center space-x-3 pt-2">
-          <a id="pdf-modal-fallback-btn" href="#" target="_blank" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm">Ouvrir dans un onglet</a>
-          <a id="pdf-modal-fallback-dl" href="#" download class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm">Télécharger le PDF</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- JAVASCRIPT LOGIC & EMBEDDED DATABASES -->
   <script>
     const SUBJECTS_DATA = %SUBJECTS_DATA_JSON%;
@@ -1434,7 +1399,6 @@ html_template = """<!DOCTYPE html>
       // Keyboard handler
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-          closePdfModal();
           closeDrugDrawer();
           closeToolsModal();
         }
@@ -1533,7 +1497,7 @@ html_template = """<!DOCTYPE html>
       container.innerHTML = '';
 
       subj.courses.forEach(c => {
-        container.appendChild(buildCourseCardEl(c, subj.name));
+        container.appendChild(buildCourseCardEl(c));
       });
       safeCreateIcons();
     }
@@ -1546,20 +1510,20 @@ html_template = """<!DOCTYPE html>
 
       box.innerHTML = '';
       const c = pharmaSubj.courses[0];
-      const card = buildCourseCardEl(c, 'Pharmacologie Générale');
+      const card = buildCourseCardEl(c);
       box.appendChild(card);
       safeCreateIcons();
     }
 
-    function buildCourseCardEl(c, subjName) {
+    function buildCourseCardEl(c) {
       const card = document.createElement('div');
       card.className = "bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5 transition hover:border-blue-300";
 
-      const escapedTitle = (c.title || '').replace(/'/g, "\\'");
-      const escapedMeta = `${subjName} • ${c.teacher || ''}`.replace(/'/g, "\\'");
+      const isCourse = c.id !== 'semio_programme';
+      const readerHref = isCourse ? `lire.html?cours=${encodeURIComponent(c.id)}` : c.file;
 
       card.innerHTML = `
-        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-3">
           <div class="flex items-start space-x-3 min-w-0">
             <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center shrink-0 border border-blue-200 mt-0.5">
               <i data-lucide="book" class="w-5 h-5"></i>
@@ -1570,7 +1534,7 @@ html_template = """<!DOCTYPE html>
                   ${c.badge || 'Cours Magistral'}
                 </span>
                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-                  📄 ${c.pages} diapos
+                  📄 ${c.pages} pages
                 </span>
                 <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                   ✓ PDF Officiel
@@ -1587,11 +1551,12 @@ html_template = """<!DOCTYPE html>
           </div>
 
           <!-- Actions -->
-          <div class="flex items-center space-x-2 shrink-0 pt-1 sm:pt-0">
-            <button onclick="openPdfModal('${c.file}', '${escapedTitle}', '${escapedMeta}')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-bold transition shadow-sm flex items-center justify-center space-x-1.5">
+          <div class="flex flex-wrap items-center gap-2 lg:shrink-0 pt-1 lg:pt-0">
+            ${isCourse ? `<a href="apprendre.html?cours=${encodeURIComponent(c.id)}" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold transition shadow-sm flex items-center justify-center space-x-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i><span>Apprendre pas à pas</span></a>` : ''}
+            <a href="${readerHref}" ${isCourse ? '' : 'target="_blank" rel="noopener noreferrer"'} class="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white text-xs font-bold transition shadow-sm flex items-center justify-center space-x-1.5">
               <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-              <span>Lire le cours</span>
-            </button>
+              <span>${isCourse ? 'Lire le PDF' : 'Voir le programme PDF'}</span>
+            </a>
             <a href="${c.file}" download class="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition flex items-center justify-center space-x-1" title="Télécharger le fichier">
               <i data-lucide="download" class="w-3.5 h-3.5"></i>
               <span class="hidden md:inline">Télécharger</span>
@@ -1673,37 +1638,6 @@ html_template = """<!DOCTYPE html>
         if (btn) btn.innerHTML = '<span>Afficher la réponse</span><i data-lucide="chevron-right" class="w-3 h-3"></i>';
       }
       safeCreateIcons();
-    }
-
-    function openPdfModal(url, title, meta) {
-      const modal = document.getElementById('pdf-viewer-modal');
-      const iframe = document.getElementById('pdf-modal-iframe');
-      const titleEl = document.getElementById('pdf-modal-title');
-      const metaEl = document.getElementById('pdf-modal-meta');
-      const dlBtn = document.getElementById('pdf-modal-download');
-      const extBtn = document.getElementById('pdf-modal-external');
-      const fallbackBtn = document.getElementById('pdf-modal-fallback-btn');
-      const fallbackDl = document.getElementById('pdf-modal-fallback-dl');
-      
-      titleEl.textContent = title;
-      metaEl.textContent = meta;
-      dlBtn.href = url;
-      extBtn.href = url;
-      if (fallbackBtn) fallbackBtn.href = url;
-      if (fallbackDl) fallbackDl.href = url;
-      
-      iframe.src = url + '#toolbar=1&navpanes=0';
-      modal.classList.remove('hidden');
-      document.body.classList.add('overflow-hidden');
-      safeCreateIcons();
-    }
-
-    function closePdfModal() {
-      const modal = document.getElementById('pdf-viewer-modal');
-      const iframe = document.getElementById('pdf-modal-iframe');
-      modal.classList.add('hidden');
-      iframe.src = '';
-      document.body.classList.remove('overflow-hidden');
     }
 
     function safeCreateIcons() {
@@ -2200,9 +2134,29 @@ final_html = html_template.replace(
     '%CLINICAL_CASES_JSON%', json.dumps(CLINICAL_CASES, ensure_ascii=False)
 ).replace(
     '%SRS_CARDS_JSON%', json.dumps(SRS_CARDS, ensure_ascii=False)
+).replace(
+    '%LEARNING_COURSE_COUNT%', str(len(learning_data.LEARNING_DATA))
+).replace(
+    '%LEARNING_STEP_COUNT%', str(sum(len(course['steps']) for course in learning_data.LEARNING_DATA.values()))
 )
 
 with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
     f.write(final_html)
+
+catalog = []
+course_ids = {course['id'] for subject in subjects_data.SUBJECTS_DATA for course in subject['courses'] if course['id'] != 'semio_programme'}
+missing = course_ids - learning_data.LEARNING_DATA.keys()
+if missing:
+    raise ValueError(f"Parcours pédagogiques manquants : {', '.join(sorted(missing))}")
+for subject in subjects_data.SUBJECTS_DATA:
+    for course in subject['courses']:
+        if course['id'] in learning_data.LEARNING_DATA:
+            catalog.append({
+                'id': course['id'], 'title': course['title'], 'subject': subject['name'],
+                'teacher': course['teacher'], 'pages': course['pages'], 'file': course['file'],
+                **learning_data.LEARNING_DATA[course['id']],
+            })
+with open(LEARNING_OUTPUT_FILE, 'w', encoding='utf-8') as f:
+    json.dump(catalog, f, ensure_ascii=False, indent=2)
 
 print(f"Successfully generated clean DFGSP3 Mali-contextualized index.html ({len(final_html)} bytes)")

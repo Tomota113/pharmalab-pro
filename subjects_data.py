@@ -20,7 +20,7 @@ SUBJECTS_DATA = [
                 'id': 'pharmaco_cours1',
                 'title': 'Cours 1 : Notions Générales de Pharmacologie',
                 'teacher': 'Pr Sékou BAH',
-                'pages': 21,
+                'pages': 20,
                 'file': 'cours/pharmacologie/cours1_notions_generales_pharmacologie.pdf',
                 'badge': 'Cours Magistral Clé',
                 'summary': [
@@ -62,7 +62,7 @@ SUBJECTS_DATA = [
                 'id': 'immuno_intro',
                 'title': 'Cours 1 : Introduction à l\'Immunologie (Histoire & Évolution)',
                 'teacher': 'Pr Charles ARAMA',
-                'pages': 42,
+                'pages': 41,
                 'file': 'cours/immunologie/intro_immunologie_histoire_evolution.pdf',
                 'badge': 'Histoire & Fondements',
                 'summary': [
@@ -90,7 +90,7 @@ SUBJECTS_DATA = [
                 'id': 'immuno_concept',
                 'title': 'Cours 2 : Concept d\'Immunité & Système Immunitaire',
                 'teacher': 'Pr Charles ARAMA',
-                'pages': 36,
+                'pages': 35,
                 'file': 'cours/immunologie/concept_immunite_ukm.pdf',
                 'badge': 'Concepts Clés & Cellules',
                 'summary': [
@@ -128,7 +128,7 @@ SUBJECTS_DATA = [
                 'id': 'bioch_glucides',
                 'title': 'Cours : Métabolisme et Troubles Métaboliques Glucidiques',
                 'teacher': 'Pr Bakary CISSÉ & Pr Yaya GOITA',
-                'pages': 42,
+                'pages': 41,
                 'file': 'cours/biochimie/metabolisme_troubles_glucidiques.pdf',
                 'badge': 'Métabolisme & Diabète',
                 'summary': [
@@ -170,7 +170,7 @@ SUBJECTS_DATA = [
                 'id': 'galen_poudres',
                 'title': 'Cours N°1 : Les Formes Sèches — Les Poudres',
                 'teacher': 'Dr Hamma MAIGA',
-                'pages': 48,
+                'pages': 47,
                 'file': 'cours/galenique/cours_poudres_formes_seches.pdf',
                 'badge': 'Technologie & Formulations',
                 'summary': [
@@ -212,7 +212,7 @@ SUBJECTS_DATA = [
                 'id': 'chimie_intro',
                 'title': 'Cours 1 : Introduction à la Chimie Médicinale',
                 'teacher': 'Pr Ousmane DOUMBIA & Pr Dominique P. ARAMA',
-                'pages': 42,
+                'pages': 41,
                 'file': 'cours/chimie_therapeutique/intro_chimie_medicinale.pdf',
                 'badge': 'RSA & Pharmacophore',
                 'summary': [
@@ -254,7 +254,7 @@ SUBJECTS_DATA = [
                 'id': 'semio_cardio',
                 'title': 'Cours : Sémiologie de l\'Appareil Cardio-Vasculaire',
                 'teacher': 'Pr Djenebou TRAORE MENTA',
-                'pages': 18,
+                'pages': 17,
                 'file': 'cours/semiologie/semiologie_cardiovasculaire.pdf',
                 'badge': 'Cardiologie & Examen Clinique',
                 'summary': [
@@ -283,7 +283,7 @@ SUBJECTS_DATA = [
                 'id': 'semio_programme',
                 'title': 'Document Officiel : Programme des Cours de Pharmacie 3',
                 'teacher': 'DER Sciences du Médicament (Pr Sékou BAH)',
-                'pages': 15,
+                'pages': 14,
                 'file': 'cours/semiologie/programme_cours_pharmacie3.pdf',
                 'badge': 'Référentiel FAPH USTTB',
                 'summary': [

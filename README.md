@@ -1,5 +1,17 @@
 # 🏥 PharmaLab Pro • Plateforme d'Excellence en Pharmacologie des Antalgiques
 
+## Atelier des cours DFGSP3 (travail local)
+
+Le portail `index.html` propose maintenant un parcours **Apprendre pas à pas** pour chacun des sept cours PDF du dossier `cours/`. Les parcours couvrent 50 étapes au total, avec une explication courte, une version détaillée, un exemple, une question interactive et un lien vers la page correspondante du PDF. Le bouton **Lire le PDF** ouvre `lire.html`, qui affiche le document original, des repères par thème et un lien vers l'explication correspondante. Un lien direct vers le PDF et un bouton de téléchargement restent disponibles si le navigateur ne prend pas en charge la visionneuse intégrée. Le programme de pharmacie 3 reste consultable comme document de référence. La progression est conservée uniquement dans le navigateur de l'étudiant.
+
+Chaque parcours possède une **carte interactive** des notions (34 repères au total), avec une explication et son renvoi au PDF. Sur téléphone, le sommaire et la carte peuvent être dépliés à la demande. Sans numéro d’étape dans le lien, le parcours reprend à la première étape non parcourue. La progression indique les étapes marquées par l’étudiant, sans constituer une évaluation de ses acquis. Les pages de l’atelier déjà mises en cache restent accessibles hors ligne, y compris avec un nouveau lien de cours ou d’étape ; un PDF doit lui-même avoir été chargé et mis en cache pour être disponible sans connexion.
+
+Pour lancer le site localement : `python3 -m http.server 8080`, puis ouvrir `http://localhost:8080/`. Les pages `apprendre.html` et `lire.html` ne se chargent pas correctement par double clic (`file://`) car elles lisent `learning-data.json` via HTTP.
+
+Après une modification de `subjects_data.py` ou `learning_data.py`, régénérer le portail et le catalogue avec `python3 build_clean_dfgsp3.py`. Les PDF de `cours/` sont des copies identiques des cours pertinents présents dans `~/Téléchargements` au moment de cette préparation. Le contenu expliqué reste un support de révision ; le PDF original fait foi pour le cours et les pratiques cliniques doivent suivre les recommandations en vigueur.
+
+---
+
 [![Live App on Vercel](https://img.shields.io/badge/Live%20App-pharmalab--pro--dfgsp2.vercel.app-0d9488?style=for-the-badge&logo=vercel)](https://pharmalab-pro-dfgsp2.vercel.app)
 [![PWA Ready](https://img.shields.io/badge/PWA-100%25%20Offline-4f46e5?style=for-the-badge&logo=pwa)](https://pharmalab-pro-dfgsp2.vercel.app)
 [![Curriculum](https://img.shields.io/badge/Niveau-DFGSP2%20%26%20Internat-f59e0b?style=for-the-badge&logo=mortarboard)](https://pharmalab-pro-dfgsp2.vercel.app)

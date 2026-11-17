@@ -1,0 +1,6 @@
+.env*
+.git
+.vercel
+__pycache__/
+*.pyc
+CODEX_HANDOFF.md

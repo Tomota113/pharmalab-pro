@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111d37">
+  <meta name="description" content="Des cours de pharmacie expliqués pas à pas, avec exercices et PDF source.">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="learning.css">
+  <title>Apprendre pas à pas · PharmaLab</title>
+  <script src="learning.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="Retour à PharmaLab"><span class="brand-mark">✳</span><span>PharmaLab <small>pour Oumou</small></span></a>
+    <span class="topbar-label">L’atelier des cours</span>
+    <a class="back-link" href="index.html">← Portail des cours</a>
+  </header>
+  <main class="shell">
+    <section class="intro" aria-labelledby="page-title">
+      <div class="eyebrow">APPRENDRE AUTREMENT <span>✦</span> PHARMACIE 3</div>
+      <h1 id="page-title">Un cours à la fois.<br><em>Une idée à la fois.</em></h1>
+      <p>Une version expliquée du polycopié, des exemples pour comprendre, puis une question pour vérifier. Le PDF reste toujours à portée de main.</p>
+      <div class="intro-chips"><span>📖 Explications progressives</span><span>⚡ Questions interactives</span><span>📄 Pages du cours source</span></div>
+    </section>
+    <section class="workspace" aria-label="Espace d’apprentissage">
+      <aside class="sidebar">
+        <label for="course-select" class="field-label">CHOISIR UN COURS</label>
+        <select id="course-select" aria-label="Choisir un cours"></select>
+        <div class="course-meta"><span id="subject-pill"></span><span id="page-count"></span></div>
+        <h2 id="course-title"></h2>
+        <p id="course-hook"></p>
+        <div class="progress-heading"><span>Ma progression</span><strong id="progress-label">0 / 4</strong></div>
+        <div class="progress-track" role="progressbar" aria-label="Progression du cours" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar"><span id="progress-fill"></span></div>
+        <button id="reset-progress" class="reset-progress" type="button">Recommencer ce cours</button>
+        <details id="lesson-outline" class="course-outline" open><summary>Les étapes du cours</summary><nav id="lesson-nav" class="lesson-nav" aria-label="Étapes du cours"></nav></details>
+        <div class="sidebar-source"><strong>Le document original</strong><p>Chaque étape renvoie à une page du PDF fourni.</p><a id="source-open" class="source-button" href="#">Lire le PDF original ↗</a><a id="source-download" href="#" download>Télécharger le PDF ↓</a></div>
+      </aside>
+      <div class="main-panel" id="lesson-panel" tabindex="-1">
+        <div id="loading" class="loading" role="status">Chargement des cours…</div>
+        <div id="lesson-content" hidden>
+          <div class="lesson-top"><span id="lesson-counter" class="eyebrow"></span><span id="lesson-time">Lecture · 3 min</span></div>
+          <h2 id="lesson-title"></h2>
+          <p id="course-teacher" class="teacher"></p>
+          <div class="objectives"><strong>🎯 À la fin de ce cours, tu sauras</strong><ul id="objectives-list"></ul></div>
+          <details class="course-map" id="course-map" open>
+            <summary>La carte pour comprendre</summary>
+            <p id="map-intro" class="map-intro"></p>
+            <div id="map-nodes" class="map-nodes" role="group" aria-label="Notions à explorer"></div>
+            <div class="map-detail" aria-live="polite"><strong id="map-title"></strong><p id="map-text"></p><a id="map-source" href="#">Voir dans le PDF</a></div>
+          </details>
+          <div class="mode-switch" role="tablist" aria-label="Niveau d’explication"><button id="mode-simple" role="tab" aria-selected="true" type="button">L’essentiel</button><button id="mode-detail" role="tab" aria-selected="false" type="button">Pour comprendre en détail</button></div>
+          <section class="explanation" aria-live="polite"><div class="explanation-icon" id="explanation-icon">💡</div><div><div id="explanation-kicker" class="eyebrow">EN MOTS SIMPLES</div><p id="explanation-text"></p></div></section>
+          <section class="example"><div class="eyebrow">DANS LA VRAIE VIE</div><p id="example-text"></p></section>
+          <a id="page-source" class="page-source" href="#">📄 Voir la page du cours original</a>
+          <section class="quiz" aria-labelledby="quiz-heading"><div class="quiz-label">À TOI DE JOUER <span>01 / 01</span></div><h3 id="quiz-heading"></h3><div id="answers" class="answers"></div><p id="quiz-feedback" class="quiz-feedback" role="status" aria-live="polite"></p></section>
+          <div class="lesson-actions"><button id="prev-step" class="secondary-button" type="button">← Étape précédente</button><button id="complete-step" class="primary-button" type="button">J’ai compris · Étape suivante →</button></div>
+          <div id="course-complete" class="course-complete" role="status" hidden><strong>Toutes les étapes ont été parcourues ✦</strong><p>Reviens sur les notions qui te demandent encore un effort, ou découvre un autre cours.</p><a href="index.html">Choisir un autre cours →</a></div>
+          <p class="education-note">Support pédagogique fondé sur les PDF fournis. Pour un usage clinique, vérifier les recommandations et protocoles en vigueur.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

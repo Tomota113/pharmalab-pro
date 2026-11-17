@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142344">
+  <meta name="description" content="Lire le PDF original et retrouver chaque notion dans son parcours expliqué.">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="reader.css">
+  <title>Lire le cours · PharmaLab</title>
+  <script src="reader.js" defer></script>
+</head>
+<body>
+  <header class="reader-header">
+    <a class="reader-brand" href="index.html"><span class="reader-symbol">✳</span><span>PharmaLab<small>pour Oumou</small></span></a>
+    <span class="header-middle">LE DOCUMENT ORIGINAL</span>
+    <a class="portal-link" href="index.html">← Tous les cours</a>
+  </header>
+  <main class="reader-layout">
+    <aside class="reader-sidebar">
+      <span class="eyebrow">COURS PDF · SOURCE</span>
+      <h1 id="reader-title">Chargement du cours…</h1>
+      <p id="reader-meta" class="reader-meta"></p>
+      <p id="reader-hook" class="reader-hook"></p>
+      <div class="companion-card"><span>✦ LE COURS EXPLIQUÉ</span><strong>Besoin d’une version plus claire ?</strong><p>Retrouve les idées de cette page en mots simples, avec un exemple et une question.</p><a id="learn-link" href="apprendre.html">Comprendre cette notion →</a></div>
+      <details id="reader-outline" class="reader-outline" open><summary class="chapter-heading"><span>REPÈRES DANS LE COURS</span><small id="chapter-count"></small></summary>
+      <nav id="chapter-list" aria-label="Repères dans le PDF"></nav></details>
+      <p class="reader-footnote">Ces repères suivent les pages du PDF original. Le document s’affiche ici ; le lien direct reste disponible en haut.</p>
+    </aside>
+    <section class="pdf-area" aria-labelledby="pdf-area-title">
+      <div class="pdf-toolbar">
+        <div class="pdf-heading"><span class="pdf-icon">PDF</span><div><strong id="pdf-area-title">Document source</strong><small id="pdf-status">Chargement…</small></div></div>
+        <div class="pdf-controls"><div class="page-navigation"><button id="prev-page" type="button" aria-label="Page précédente">←</button><label for="page-input">Page</label><input id="page-input" type="number" min="1" value="1" inputmode="numeric" aria-label="Numéro de page"><span id="page-total">/ —</span><button id="next-page" type="button" aria-label="Page suivante">→</button></div><div class="zoom-controls" role="group" aria-label="Zoom du PDF"><button id="zoom-out" type="button" aria-label="Réduire le zoom">−</button><span id="zoom-level" aria-live="polite">100 %</span><button id="zoom-in" type="button" aria-label="Augmenter le zoom">+</button></div></div>
+        <div class="pdf-actions"><a id="open-original" href="#" target="_blank" rel="noopener noreferrer">Ouvrir le PDF ↗</a><a id="download-original" href="#" download>Télécharger ↓</a></div>
+      </div>
+      <div id="canvas-stage" class="pdf-canvas-wrap"><div id="canvas-message" class="canvas-message" role="status">Chargement du PDF…</div><canvas id="pdf-canvas" aria-label="Page du PDF original"></canvas></div>
+      <div class="pdf-help">Si le PDF n’apparaît pas dans cette page, utilise <a id="open-original-bottom" href="#" target="_blank" rel="noopener noreferrer">Ouvrir le PDF dans un nouvel onglet</a> ou télécharge le document.</div>
+    </section>
+  </main>
+</body>
+</html>
